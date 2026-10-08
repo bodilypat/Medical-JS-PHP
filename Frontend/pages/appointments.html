@@ -1,0 +1,4583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Appointment management - Medical Management System">
+    <title>Appointments | Medical Management System</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #eff6ff;
+            --success: #16a34a;
+            --success-light: #f0fdf4;
+            --warning: #d97706;
+            --warning-light: #fffbeb;
+            --danger: #dc2626;
+            --danger-light: #fef2f2;
+            --info: #0891b2;
+            --info-light: #ecfeff;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --border-dark: #cbd5e1;
+            --text: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --sidebar-width: 250px;
+            --topbar-height: 70px;
+            --radius-sm: 6px;
+            --radius: 10px;
+            --radius-lg: 14px;
+            --shadow-sm: 0 1px 2px rgba(15, 23, 42, .05);
+            --shadow: 0 4px 12px rgba(15, 23, 42, .08);
+            --shadow-lg: 0 15px 40px rgba(15, 23, 42, .15);
+            --transition: 160ms ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font-family:
+                Inter,
+                ui-sans-serif,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+        /* Layout */
+
+        .sidebar {
+            position: fixed;
+            inset: 0 auto 0 0;
+            z-index: 1000;
+            width: var(--sidebar-width);
+            display: flex;
+            flex-direction: column;
+            background: #0f172a;
+            color: #cbd5e1;
+            transition: transform var(--transition);
+        }
+
+        .brand {
+            height: var(--topbar-height);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 20px;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+        }
+
+        .brand-logo {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            border-radius: 10px;
+            background: var(--primary);
+            color: white;
+        }
+
+        .brand-logo svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .brand-title {
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .brand-subtitle {
+            margin-top: 1px;
+            color: #94a3b8;
+            font-size: 11px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 18px 12px;
+            overflow-y: auto;
+        }
+
+        .nav-section-title {
+            padding: 0 10px 8px;
+            color: #64748b;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        .nav-list {
+            display: grid;
+            gap: 3px;
+            margin-bottom: 20px;
+            list-style: none;
+        }
+
+        .nav-link {
+            min-height: 42px;
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 0 11px;
+            border-radius: 8px;
+            color: #94a3b8;
+            transition: background var(--transition), color var(--transition);
+        }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,.06);
+            color: white;
+        }
+
+        .nav-link.active {
+            background: rgba(37,99,235,.18);
+            color: white;
+        }
+
+        .nav-icon {
+            width: 19px;
+            height: 19px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-user {
+            padding: 14px;
+            border-top: 1px solid rgba(255,255,255,.08);
+        }
+
+        .sidebar-user-inner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: #1e40af;
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .user-info {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .user-name {
+            color: #f8fafc;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-role {
+            margin-top: 1px;
+            color: #64748b;
+            font-size: 11px;
+        }
+
+        .logout-btn {
+            width: 32px;
+            height: 32px;
+            display: grid;
+            place-items: center;
+            border: 0;
+            border-radius: 7px;
+            background: transparent;
+            color: #94a3b8;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,.08);
+            color: white;
+        }
+
+        .main {
+            min-height: 100vh;
+            margin-left: var(--sidebar-width);
+        }
+
+        .topbar {
+            height: var(--topbar-height);
+            position: sticky;
+            top: 0;
+            z-index: 900;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            background: rgba(255,255,255,.95);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+
+        .mobile-menu {
+            display: none;
+            width: 38px;
+            height: 38px;
+            place-items: center;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            color: var(--text);
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .breadcrumb-current {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .topbar-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+
+        .content {
+            max-width: 1700px;
+            margin: 0 auto;
+            padding: 28px;
+        }
+
+        /* Buttons */
+
+        .btn {
+            min-height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0 15px;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all var(--transition);
+        }
+
+        .btn svg {
+            width: 17px;
+            height: 17px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-secondary);
+            border-color: var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: #f8fafc;
+            border-color: var(--border-dark);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .btn:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+        }
+
+        /* Header */
+
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 26px;
+            line-height: 1.2;
+            font-weight: 750;
+            letter-spacing: -.02em;
+        }
+
+        .page-description {
+            margin-top: 6px;
+            color: var(--text-muted);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Stats */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .stat-card {
+            min-height: 112px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-label {
+            margin-bottom: 6px;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 26px;
+            line-height: 1;
+            font-weight: 750;
+            letter-spacing: -.03em;
+        }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            display: grid;
+            place-items: center;
+            border-radius: 11px;
+        }
+
+        .stat-icon svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .stat-icon.blue {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .stat-icon.green {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        .stat-icon.orange {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+
+        .stat-icon.red {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
+        /* Card / Toolbar */
+
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .filters {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex: 1;
+        }
+
+        .search-box {
+            position: relative;
+            width: min(360px, 100%);
+        }
+
+        .search-box svg {
+            position: absolute;
+            top: 50%;
+            left: 12px;
+            width: 17px;
+            height: 17px;
+            color: var(--text-muted);
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .form-control {
+            width: 100%;
+            min-height: 40px;
+            padding: 0 12px;
+            background: white;
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            outline: none;
+            transition: border-color var(--transition), box-shadow var(--transition);
+        }
+
+        .search-box .form-control {
+            padding-left: 38px;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37,99,235,.10);
+        }
+
+        textarea.form-control {
+            min-height: 90px;
+            padding-top: 10px;
+            resize: vertical;
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        /* Table */
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        .appointments-table {
+            width: 100%;
+            min-width: 1050px;
+            border-collapse: collapse;
+        }
+
+        .appointments-table th {
+            padding: 12px 16px;
+            background: #f8fafc;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 700;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: .045em;
+            white-space: nowrap;
+        }
+
+        .appointments-table td {
+            padding: 14px 16px;
+            border-top: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        .appointments-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .appointment-date {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 170px;
+        }
+
+        .date-box {
+            width: 43px;
+            height: 46px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            overflow: hidden;
+        }
+
+        .date-month {
+            width: 100%;
+            padding: 2px 0;
+            background: var(--primary);
+            color: white;
+            font-size: 9px;
+            font-weight: 800;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .date-day {
+            font-size: 15px;
+            line-height: 1;
+            font-weight: 750;
+        }
+
+        .date-info strong {
+            display: block;
+            font-size: 13px;
+        }
+
+        .date-info span {
+            color: var(--text-muted);
+            font-size: 11px;
+        }
+
+        .person-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 190px;
+        }
+
+        .person-avatar {
+            width: 36px;
+            height: 36px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 11px;
+            font-weight: 750;
+        }
+
+        .person-name {
+            color: var(--text);
+            font-weight: 650;
+        }
+
+        .person-secondary {
+            margin-top: 2px;
+            color: var(--text-muted);
+            font-size: 11px;
+        }
+
+        .appointment-type {
+            color: var(--text-secondary);
+            font-weight: 550;
+        }
+
+        .secondary-text {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .status-badge::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .status-scheduled {
+            color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .status-confirmed {
+            color: #15803d;
+            background: #f0fdf4;
+        }
+
+        .status-completed {
+            color: #475569;
+            background: #f1f5f9;
+        }
+
+        .status-cancelled {
+            color: #b91c1c;
+            background: #fef2f2;
+        }
+
+        .status-no_show {
+            color: #b45309;
+            background: #fffbeb;
+        }
+
+        .action-buttons {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .icon-btn {
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            border: 1px solid transparent;
+            border-radius: 7px;
+            background: transparent;
+            color: var(--text-muted);
+        }
+
+        .icon-btn:hover {
+            background: #f1f5f9;
+            color: var(--text);
+        }
+
+        .icon-btn.danger:hover {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
+        .icon-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Table States */
+
+        .table-state {
+            display: none;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .table-state.visible {
+            display: block;
+        }
+
+        .state-icon {
+            width: 50px;
+            height: 50px;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 12px;
+            border-radius: 12px;
+            background: #f1f5f9;
+            color: var(--text-muted);
+        }
+
+        .state-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .state-title {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .state-text {
+            max-width: 450px;
+            margin: 5px auto 15px;
+            color: var(--text-muted);
+        }
+
+        .spinner {
+            width: 25px;
+            height: 25px;
+            margin: 0 auto 13px;
+            border: 3px solid #dbeafe;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Pagination */
+
+        .pagination-bar {
+            min-height: 62px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 12px 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .pagination-info {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .page-btn {
+            min-width: 34px;
+            height: 34px;
+            padding: 0 8px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            background: white;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: #f8fafc;
+        }
+
+        .page-btn.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+
+        .page-btn:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+        }
+
+        /* Modal */
+
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(15,23,42,.55);
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-backdrop.open {
+            display: flex;
+        }
+
+        .modal {
+            width: min(760px, 100%);
+            max-height: min(850px, calc(100vh - 40px));
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: white;
+            border-radius: 14px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal.small {
+            width: min(470px, 100%);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 20px 22px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 750;
+        }
+
+        .modal-subtitle {
+            margin-top: 3px;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .modal-close {
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            border: 0;
+            border-radius: 7px;
+            background: #f8fafc;
+            color: var(--text-muted);
+        }
+
+        .modal-close:hover {
+            background: #f1f5f9;
+            color: var(--text);
+        }
+
+        .modal-body {
+            padding: 22px;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 9px;
+            padding: 15px 22px;
+            border-top: 1px solid var(--border);
+            background: #fafafa;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .form-group {
+            display: grid;
+            gap: 6px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 650;
+        }
+
+        .required {
+            color: var(--danger);
+        }
+
+        .form-help {
+            color: var(--text-muted);
+            font-size: 11px;
+        }
+
+        .view-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .detail-item {
+            padding: 13px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .detail-item.full {
+            grid-column: 1 / -1;
+        }
+
+        .detail-label {
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 650;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+        }
+
+        .detail-value {
+            margin-top: 3px;
+            color: var(--text);
+            font-weight: 550;
+            word-break: break-word;
+        }
+
+        /* Toast */
+
+        .toast-container {
+            position: fixed;
+            right: 22px;
+            bottom: 22px;
+            z-index: 5000;
+            display: grid;
+            gap: 10px;
+            width: min(380px, calc(100vw - 44px));
+        }
+
+        .toast {
+            display: flex;
+            align-items: flex-start;
+            gap: 11px;
+            padding: 13px 14px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            box-shadow: var(--shadow-lg);
+            animation: toast-in .2s ease;
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        .toast.warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        .toast-icon {
+            flex-shrink: 0;
+            font-weight: 800;
+        }
+
+        .toast.success .toast-icon {
+            color: var(--success);
+        }
+
+        .toast.error .toast-icon {
+            color: var(--danger);
+        }
+
+        .toast.warning .toast-icon {
+            color: var(--warning);
+        }
+
+        .toast-message {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        @keyframes toast-in {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Mobile */
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 950;
+            background: rgba(15,23,42,.45);
+        }
+
+        @media (max-width: 1100px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 800px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.open {
+                display: block;
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .mobile-menu {
+                display: grid;
+            }
+
+            .topbar {
+                padding: 0 16px;
+            }
+
+            .breadcrumb {
+                display: none;
+            }
+
+            .content {
+                padding: 20px 16px;
+            }
+
+            .page-header {
+                flex-direction: column;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .header-actions .btn {
+                flex: 1;
+            }
+
+            .toolbar {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .filters {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .toolbar-actions {
+                justify-content: space-between;
+            }
+
+            .pagination-bar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .pagination {
+                width: 100%;
+                overflow-x: auto;
+                padding-bottom: 2px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid,
+            .view-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full,
+            .detail-item.full {
+                grid-column: auto;
+            }
+
+            .modal-backdrop {
+                padding: 10px;
+            }
+
+            .modal {
+                max-height: calc(100vh - 20px);
+            }
+
+            .topbar-meta {
+                display: none;
+            }
+
+            .page-title {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<aside class="sidebar" id="sidebar">
+
+    <div class="brand">
+        <div class="brand-logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 21s-7-4.35-9.5-9A5.5 5.5 0 0 1 12 5.5 5.5 5.5 0 0 1 21.5 12c-2.5 4.65-9.5 9-9.5 9Z"/>
+                <path d="M12 8v8M8 12h8"/>
+            </svg>
+        </div>
+
+        <div>
+            <div class="brand-title">Medical Management</div>
+            <div class="brand-subtitle">Healthcare System</div>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+
+        <div class="nav-section-title">Main</div>
+
+        <ul class="nav-list">
+            <li>
+                <a class="nav-link" href="../dashboard.html">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <rect x="3" y="3" width="7" height="7" rx="1"/>
+                        <rect x="14" y="3" width="7" height="7" rx="1"/>
+                        <rect x="3" y="14" width="7" height="7" rx="1"/>
+                        <rect x="14" y="14" width="7" height="7" rx="1"/>
+                    </svg>
+                    Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a class="nav-link" href="patients.html">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    Patients
+                </a>
+            </li>
+
+            <li>
+                <a class="nav-link" href="doctors.html">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M20 21a8 8 0 0 0-16 0"/>
+                        <circle cx="12" cy="7" r="4"/>
+                        <path d="M18 8h4M20 6v4"/>
+                    </svg>
+                    Doctors
+                </a>
+            </li>
+
+            <li>
+                <a class="nav-link active" href="appointments.html" aria-current="page">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <rect x="3" y="4" width="18" height="17" rx="2"/>
+                        <path d="M16 2v4M8 2v4M3 10h18"/>
+                        <path d="m8 15 2 2 5-5"/>
+                    </svg>
+                    Appointments
+                </a>
+            </li>
+
+            <li>
+                <a class="nav-link" href="medical-records.html">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M6 2h9l5 5v15H6a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3Z"/>
+                        <path d="M14 2v6h6M8 13h8M8 17h6"/>
+                    </svg>
+                    Medical Records
+                </a>
+            </li>
+        </ul>
+
+        <div class="nav-section-title">Clinical</div>
+
+        <ul class="nav-list">
+            <li>
+                <a class="nav-link" href="prescriptions.html">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <rect x="5" y="3" width="14" height="18" rx="2"/>
+                        <path d="M8 7h8M8 11h8M8 15h5"/>
+                    </svg>
+                    Prescriptions
+                </a>
+            </li>
+
+            <li>
+                <a class="nav-link" href="laboratory.html">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M9 3v6l-5 8a3 3 0 0 0 2.6 4.5h10.8A3 3 0 0 0 20 17l-5-8V3"/>
+                        <path d="M7 14h10"/>
+                    </svg>
+                    Laboratory
+                </a>
+            </li>
+
+            <li>
+                <a class="nav-link" href="pharmacy.html">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M4 7h16v13H4z"/>
+                        <path d="M8 7V5a4 4 0 0 1 8 0v2M8 13h8"/>
+                    </svg>
+                    Pharmacy
+                </a>
+            </li>
+
+            <li>
+                <a class="nav-link" href="inventory.html">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="m12 3 9 5-9 5-9-5 9-5Z"/>
+                        <path d="m3 12 9 5 9-5M3 16l9 5 9-5"/>
+                    </svg>
+                    Inventory
+                </a>
+            </li>
+
+            <li>
+                <a class="nav-link" href="billing.html">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M4 3h16v18l-3-2-3 2-3-2-3 2-4-2V3Z"/>
+                        <path d="M8 8h8M8 12h8M8 16h4"/>
+                    </svg>
+                    Billing
+                </a>
+            </li>
+        </ul>
+
+        <div class="nav-section-title">Administration</div>
+
+        <ul class="nav-list">
+            <li>
+                <a class="nav-link" href="reports.html">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M4 19V5M4 19h17"/>
+                        <path d="m7 15 4-5 3 3 5-7"/>
+                    </svg>
+                    Reports
+                </a>
+            </li>
+        </ul>
+
+    </nav>
+
+    <div class="sidebar-user">
+        <div class="sidebar-user-inner">
+            <div class="avatar" id="userAvatar">U</div>
+
+            <div class="user-info">
+                <div class="user-name" id="userName">Loading...</div>
+                <div class="user-role" id="userRole">Loading...</div>
+            </div>
+
+            <button class="logout-btn" id="logoutBtn" type="button" aria-label="Logout">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10 17l5-5-5-5"/>
+                    <path d="M15 12H3"/>
+                    <path d="M21 19V5a2 2 0 0 0-2-2h-6"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+</aside>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<main class="main">
+
+    <header class="topbar">
+
+        <div style="display:flex;align-items:center;gap:12px;">
+            <button class="mobile-menu" id="mobileMenuBtn" type="button" aria-label="Open navigation">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+
+            <div class="breadcrumb">
+                <span>Management</span>
+                <span>/</span>
+                <span class="breadcrumb-current">Appointments</span>
+            </div>
+        </div>
+
+        <div class="topbar-meta">
+            <span class="status-dot"></span>
+            <span>System connected</span>
+            <span id="lastUpdated"></span>
+        </div>
+
+    </header>
+
+    <section class="content">
+
+        <div class="page-header">
+
+            <div>
+                <h1 class="page-title">Appointments</h1>
+                <p class="page-description">
+                    Schedule, manage, and track patient appointments.
+                </p>
+            </div>
+
+            <div class="header-actions">
+                <button class="btn btn-secondary" id="refreshBtn" type="button">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 11a8.1 8.1 0 0 0-14.8-4M4 5v5h5"/>
+                        <path d="M4 13a8.1 8.1 0 0 0 14.8 4M20 19v-5h-5"/>
+                    </svg>
+                    Refresh
+                </button>
+
+                <button class="btn btn-primary" id="addAppointmentBtn" type="button">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    New Appointment
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Statistics -->
+
+        <div class="stats-grid">
+
+            <div class="stat-card">
+                <div>
+                    <div class="stat-label">Total Appointments</div>
+                    <div class="stat-value" id="totalAppointments">—</div>
+                </div>
+
+                <div class="stat-icon blue">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <rect x="3" y="4" width="18" height="17" rx="2"/>
+                        <path d="M16 2v4M8 2v4M3 10h18"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div>
+                    <div class="stat-label">Scheduled</div>
+                    <div class="stat-value" id="scheduledAppointments">—</div>
+                </div>
+
+                <div class="stat-icon green">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="m5 12 4 4L19 6"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div>
+                    <div class="stat-label">Today's Appointments</div>
+                    <div class="stat-value" id="todayAppointments">—</div>
+                </div>
+
+                <div class="stat-icon orange">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <circle cx="12" cy="12" r="9"/>
+                        <path d="M12 7v5l3 2"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div>
+                    <div class="stat-label">Cancelled</div>
+                    <div class="stat-value" id="cancelledAppointments">—</div>
+                </div>
+
+                <div class="stat-icon red">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <circle cx="12" cy="12" r="9"/>
+                        <path d="m9 9 6 6M15 9l-6 6"/>
+                    </svg>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Appointment Table -->
+
+        <div class="card">
+
+            <div class="toolbar">
+
+                <div class="filters">
+
+                    <div class="search-box">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="7"/>
+                            <path d="m20 20-4-4"/>
+                        </svg>
+
+                        <input
+                            class="form-control"
+                            id="searchInput"
+                            type="search"
+                            placeholder="Search patient, doctor, or appointment..."
+                            autocomplete="off"
+                        >
+                    </div>
+
+                    <input
+                        class="form-control"
+                        id="dateFilter"
+                        type="date"
+                        style="width:auto;"
+                        title="Appointment date"
+                    >
+
+                    <select class="form-control" id="statusFilter" style="width:auto;min-width:145px;">
+                        <option value="">All statuses</option>
+                        <option value="scheduled">Scheduled</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                        <option value="no_show">No Show</option>
+                    </select>
+
+                    <select class="form-control" id="typeFilter" style="width:auto;min-width:155px;">
+                        <option value="">All types</option>
+                    </select>
+
+                </div>
+
+                <div>
+                    <select class="form-control" id="pageSize" style="width:auto;min-width:90px;">
+                        <option value="10">10 / page</option>
+                        <option value="25">25 / page</option>
+                        <option value="50">50 / page</option>
+                        <option value="100">100 / page</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="table-wrap">
+
+                <table class="appointments-table">
+
+                    <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Patient</th>
+                        <th>Doctor</th>
+                        <th>Appointment Type</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+
+                    <tbody id="appointmentTableBody"></tbody>
+
+                </table>
+
+                <div class="table-state" id="loadingState">
+                    <div class="spinner"></div>
+                    <div class="state-title">Loading appointments...</div>
+                    <div class="state-text">
+                        Please wait while appointment records are retrieved.
+                    </div>
+                </div>
+
+                <div class="table-state" id="emptyState">
+                    <div class="state-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <rect x="3" y="4" width="18" height="17" rx="2"/>
+                            <path d="M16 2v4M8 2v4M3 10h18"/>
+                        </svg>
+                    </div>
+
+                    <div class="state-title">No appointments found</div>
+
+                    <div class="state-text">
+                        No appointment records match the current search or filters.
+                    </div>
+
+                    <button class="btn btn-secondary" id="clearFiltersBtn" type="button">
+                        Clear Filters
+                    </button>
+                </div>
+
+                <div class="table-state" id="errorState">
+                    <div class="state-icon" style="background:#fef2f2;color:#dc2626;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path d="M12 9v4M12 17h.01"/>
+                            <path d="M10.3 3.7 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.7a2 2 0 0 0-3.4 0Z"/>
+                        </svg>
+                    </div>
+
+                    <div class="state-title">Unable to load appointments</div>
+
+                    <div class="state-text" id="errorMessage">
+                        An unexpected error occurred.
+                    </div>
+
+                    <button class="btn btn-secondary" id="retryBtn" type="button">
+                        Try Again
+                    </button>
+                </div>
+
+            </div>
+
+            <div class="pagination-bar">
+
+                <div class="pagination-info" id="paginationInfo">
+                    No records loaded
+                </div>
+
+                <div class="pagination" id="pagination"></div>
+
+            </div>
+
+        </div>
+
+    </section>
+</main>
+
+<!-- =========================================================
+     Add / Edit Appointment Modal
+========================================================= -->
+
+<div
+    class="modal-backdrop"
+    id="appointmentModal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="appointmentModalTitle"
+>
+    <div class="modal">
+
+        <div class="modal-header">
+
+            <div>
+                <div class="modal-title" id="appointmentModalTitle">
+                    New Appointment
+                </div>
+
+                <div class="modal-subtitle">
+                    Schedule an appointment for a patient.
+                </div>
+            </div>
+
+            <button
+                class="modal-close"
+                type="button"
+                data-close-modal="appointmentModal"
+                aria-label="Close"
+            >
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m6 6 12 12M18 6 6 18"/>
+                </svg>
+            </button>
+
+        </div>
+
+        <form id="appointmentForm" novalidate>
+
+            <div class="modal-body">
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label class="form-label" for="patientId">
+                            Patient <span class="required">*</span>
+                        </label>
+
+                        <select
+                            class="form-control"
+                            id="patientId"
+                            name="patient_id"
+                            required
+                        >
+                            <option value="">Loading patients...</option>
+                        </select>
+
+                        <div class="form-help">
+                            Patients are loaded from the patient API.
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="doctorId">
+                            Doctor <span class="required">*</span>
+                        </label>
+
+                        <select
+                            class="form-control"
+                            id="doctorId"
+                            name="doctor_id"
+                            required
+                        >
+                            <option value="">Loading doctors...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="appointmentDate">
+                            Date <span class="required">*</span>
+                        </label>
+
+                        <input
+                            class="form-control"
+                            id="appointmentDate"
+                            name="appointment_date"
+                            type="date"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="appointmentTime">
+                            Time <span class="required">*</span>
+                        </label>
+
+                        <input
+                            class="form-control"
+                            id="appointmentTime"
+                            name="appointment_time"
+                            type="time"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="duration">
+                            Duration
+                        </label>
+
+                        <select
+                            class="form-control"
+                            id="duration"
+                            name="duration_minutes"
+                        >
+                            <option value="15">15 minutes</option>
+                            <option value="30" selected>30 minutes</option>
+                            <option value="45">45 minutes</option>
+                            <option value="60">60 minutes</option>
+                            <option value="90">90 minutes</option>
+                            <option value="120">120 minutes</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="appointmentType">
+                            Appointment Type <span class="required">*</span>
+                        </label>
+
+                        <select
+                            class="form-control"
+                            id="appointmentType"
+                            name="appointment_type"
+                            required
+                        >
+                            <option value="">Select type</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="appointmentStatus">
+                            Status <span class="required">*</span>
+                        </label>
+
+                        <select
+                            class="form-control"
+                            id="appointmentStatus"
+                            name="status"
+                            required
+                        >
+                            <option value="scheduled">Scheduled</option>
+                            <option value="confirmed">Confirmed</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                            <option value="no_show">No Show</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="location">
+                            Location
+                        </label>
+
+                        <input
+                            class="form-control"
+                            id="location"
+                            name="location"
+                            type="text"
+                            maxlength="200"
+                            placeholder="Room, clinic, or department"
+                        >
+                    </div>
+
+                    <div class="form-group full">
+                        <label class="form-label" for="reason">
+                            Reason / Chief Complaint
+                        </label>
+
+                        <textarea
+                            class="form-control"
+                            id="reason"
+                            name="reason"
+                            maxlength="1000"
+                            placeholder="Reason for the appointment..."
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group full">
+                        <label class="form-label" for="notes">
+                            Notes
+                        </label>
+
+                        <textarea
+                            class="form-control"
+                            id="notes"
+                            name="notes"
+                            maxlength="2000"
+                            placeholder="Additional appointment notes..."
+                        ></textarea>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    class="btn btn-secondary"
+                    type="button"
+                    data-close-modal="appointmentModal"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    class="btn btn-primary"
+                    id="saveAppointmentBtn"
+                    type="submit"
+                >
+                    <span id="saveAppointmentText">Create Appointment</span>
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<!-- =========================================================
+     View Appointment Modal
+========================================================= -->
+
+<div
+    class="modal-backdrop"
+    id="viewAppointmentModal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="viewAppointmentTitle"
+>
+    <div class="modal">
+
+        <div class="modal-header">
+
+            <div>
+                <div class="modal-title" id="viewAppointmentTitle">
+                    Appointment Details
+                </div>
+
+                <div class="modal-subtitle">
+                    Complete appointment information.
+                </div>
+            </div>
+
+            <button
+                class="modal-close"
+                type="button"
+                data-close-modal="viewAppointmentModal"
+                aria-label="Close"
+            >
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m6 6 12 12M18 6 6 18"/>
+                </svg>
+            </button>
+
+        </div>
+
+        <div class="modal-body">
+            <div class="view-grid" id="appointmentDetails"></div>
+        </div>
+
+        <div class="modal-footer">
+            <button
+                class="btn btn-secondary"
+                type="button"
+                data-close-modal="viewAppointmentModal"
+            >
+                Close
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- Cancel Appointment Modal -->
+
+<div
+    class="modal-backdrop"
+    id="cancelModal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="cancelModalTitle"
+>
+    <div class="modal small">
+
+        <div class="modal-header">
+
+            <div>
+                <div class="modal-title" id="cancelModalTitle">
+                    Cancel Appointment
+                </div>
+
+                <div class="modal-subtitle">
+                    Confirm appointment cancellation.
+                </div>
+            </div>
+
+            <button
+                class="modal-close"
+                type="button"
+                data-close-modal="cancelModal"
+                aria-label="Close"
+            >
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m6 6 12 12M18 6 6 18"/>
+                </svg>
+            </button>
+
+        </div>
+
+        <div class="modal-body">
+
+            <p style="color:var(--text-secondary);">
+                Are you sure you want to cancel this appointment?
+            </p>
+
+            <div
+                id="cancelAppointmentSummary"
+                style="
+                    margin-top:14px;
+                    padding:13px;
+                    border:1px solid var(--border);
+                    border-radius:8px;
+                    background:#f8fafc;
+                    color:var(--text-secondary);
+                    font-size:13px;
+                "
+            ></div>
+
+            <div class="form-group" style="margin-top:16px;">
+                <label class="form-label" for="cancellationReason">
+                    Cancellation Reason
+                </label>
+
+                <textarea
+                    class="form-control"
+                    id="cancellationReason"
+                    maxlength="1000"
+                    placeholder="Optional reason for cancellation..."
+                ></textarea>
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button
+                class="btn btn-secondary"
+                type="button"
+                data-close-modal="cancelModal"
+            >
+                Keep Appointment
+            </button>
+
+            <button
+                class="btn btn-danger"
+                id="confirmCancelBtn"
+                type="button"
+            >
+                Cancel Appointment
+            </button>
+
+        </div>
+
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+<script>
+"use strict";
+
+/*
+ * ============================================================
+ * Appointment Management
+ * ============================================================
+ *
+ * Expected backend endpoints:
+ *
+ * GET    ../../backend/api/appointments/list.php
+ * GET    ../../backend/api/appointments/get.php?id={id}
+ * POST   ../../backend/api/appointments/create.php
+ * PUT    ../../backend/api/appointments/update.php
+ * PATCH  ../../backend/api/appointments/cancel.php
+ *
+ * Supporting lookup endpoints:
+ *
+ * GET ../../backend/api/patients/list.php
+ * GET ../../backend/api/doctors/list.php
+ *
+ * Authentication is sent through the PHP session cookie.
+ *
+ * No mock appointment, patient, or doctor data is used.
+ * ============================================================
+ */
+
+const API_BASE = "../../backend/api";
+
+const API = {
+    appointments: {
+        list: `${API_BASE}/appointments/list.php`,
+        get: `${API_BASE}/appointments/get.php`,
+        create: `${API_BASE}/appointments/create.php`,
+        update: `${API_BASE}/appointments/update.php`,
+        cancel: `${API_BASE}/appointments/cancel.php`
+    },
+
+    patients: {
+        list: `${API_BASE}/patients/list.php`
+    },
+
+    doctors: {
+        list: `${API_BASE}/doctors/list.php`
+    },
+
+    auth: {
+        me: `${API_BASE}/auth/me.php`,
+        logout: `${API_BASE}/auth/logout.php`
+    }
+};
+
+const state = {
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0,
+
+    appointments: [],
+
+    editingId: null,
+    cancellingId: null,
+
+    searchTimer: null,
+    requestController: null
+};
+
+const $ = selector => document.querySelector(selector);
+
+const elements = {
+    tableBody: $("#appointmentTableBody"),
+
+    loadingState: $("#loadingState"),
+    emptyState: $("#emptyState"),
+    errorState: $("#errorState"),
+    errorMessage: $("#errorMessage"),
+
+    pagination: $("#pagination"),
+    paginationInfo: $("#paginationInfo"),
+
+    searchInput: $("#searchInput"),
+    dateFilter: $("#dateFilter"),
+    statusFilter: $("#statusFilter"),
+    typeFilter: $("#typeFilter"),
+    pageSize: $("#pageSize"),
+
+    totalAppointments: $("#totalAppointments"),
+    scheduledAppointments: $("#scheduledAppointments"),
+    todayAppointments: $("#todayAppointments"),
+    cancelledAppointments: $("#cancelledAppointments"),
+
+    appointmentModal: $("#appointmentModal"),
+    appointmentForm: $("#appointmentForm"),
+    appointmentModalTitle: $("#appointmentModalTitle"),
+
+    patientId: $("#patientId"),
+    doctorId: $("#doctorId"),
+    appointmentDate: $("#appointmentDate"),
+    appointmentTime: $("#appointmentTime"),
+    duration: $("#duration"),
+    appointmentType: $("#appointmentType"),
+    appointmentStatus: $("#appointmentStatus"),
+    location: $("#location"),
+    reason: $("#reason"),
+    notes: $("#notes"),
+
+    saveAppointmentBtn: $("#saveAppointmentBtn"),
+    saveAppointmentText: $("#saveAppointmentText"),
+
+    viewAppointmentModal: $("#viewAppointmentModal"),
+    appointmentDetails: $("#appointmentDetails"),
+
+    cancelModal: $("#cancelModal"),
+    cancelAppointmentSummary: $("#cancelAppointmentSummary"),
+    cancellationReason: $("#cancellationReason"),
+    confirmCancelBtn: $("#confirmCancelBtn"),
+
+    toastContainer: $("#toastContainer"),
+
+    userName: $("#userName"),
+    userRole: $("#userRole"),
+    userAvatar: $("#userAvatar"),
+    lastUpdated: $("#lastUpdated")
+};
+
+/* --------------------
+   API
+---------------------- */
+
+async function fetchJson(url, options = {}) {
+    const response = await fetch(url, {
+        credentials: "include",
+
+        headers: {
+            "Accept": "application/json",
+
+            ...(options.body
+                ? { "Content-Type": "application/json" }
+                : {}),
+
+            ...(options.headers || {})
+        },
+
+        ...options
+    });
+
+    let payload = null;
+
+    try {
+        payload = await response.json();
+    } catch {
+        payload = null;
+    }
+
+    if (response.status === 401) {
+        window.location.href = "../login.html";
+        throw new Error("Your session has expired.");
+    }
+
+    if (!response.ok) {
+        throw new Error(
+            payload?.message ||
+            payload?.error ||
+            `Request failed with HTTP ${response.status}.`
+        );
+    }
+
+    if (payload && payload.success === false) {
+        throw new Error(
+            payload.message ||
+            payload.error ||
+            "The server rejected the request."
+        );
+    }
+
+    return payload;
+}
+
+/* --------------------
+   Normalization
+----------------------- */
+
+function normalizeListResponse(payload) {
+    const root = payload?.data ?? payload ?? {};
+
+    let appointments = [];
+
+    if (Array.isArray(root)) {
+        appointments = root;
+    } else if (Array.isArray(root.appointments)) {
+        appointments = root.appointments;
+    } else if (Array.isArray(root.items)) {
+        appointments = root.items;
+    } else if (Array.isArray(payload?.appointments)) {
+        appointments = payload.appointments;
+    }
+
+    const pagination =
+        root.pagination ||
+        payload?.pagination ||
+        {};
+
+    const stats =
+        root.stats ||
+        payload?.stats ||
+        {};
+
+    const total =
+        Number(
+            pagination.total ??
+            root.total ??
+            payload?.total ??
+            appointments.length
+        ) || 0;
+
+    const page =
+        Number(pagination.page ?? state.page) || 1;
+
+    const limit =
+        Number(pagination.limit ?? state.limit) || state.limit;
+
+    const totalPages =
+        Number(
+            pagination.total_pages ??
+            pagination.totalPages ??
+            Math.ceil(total / Math.max(limit, 1))
+        ) || 0;
+
+    return {
+        appointments,
+
+        pagination: {
+            total,
+            page,
+            limit,
+            totalPages
+        },
+
+        stats
+    };
+}
+
+function normalizeSingleResponse(payload) {
+    const root = payload?.data ?? payload ?? {};
+
+    return root.appointment ||
+        root;
+}
+
+/* --------------------
+   Load Appointments
+----------------------- */
+
+async function loadAppointments() {
+    if (state.requestController) {
+        state.requestController.abort();
+    }
+
+    state.requestController =
+        new AbortController();
+
+    setTableState("loading");
+
+    const params = new URLSearchParams({
+        page: String(state.page),
+        limit: String(state.limit)
+    });
+
+    const search =
+        elements.searchInput.value.trim();
+
+    const date =
+        elements.dateFilter.value;
+
+    const status =
+        elements.statusFilter.value;
+
+    const type =
+        elements.typeFilter.value;
+
+    if (search) {
+        params.set("search", search);
+    }
+
+    if (date) {
+        params.set("date", date);
+    }
+
+    if (status) {
+        params.set("status", status);
+    }
+
+    if (type) {
+        params.set("appointment_type", type);
+    }
+
+    try {
+        const payload = await fetchJson(
+            `${API.appointments.list}?${params}`,
+            {
+                signal:
+                    state.requestController.signal
+            }
+        );
+
+        const result =
+            normalizeListResponse(payload);
+
+        state.appointments =
+            result.appointments;
+
+        state.total =
+            result.pagination.total;
+
+        state.page =
+            result.pagination.page;
+
+        state.limit =
+            result.pagination.limit;
+
+        state.totalPages =
+            result.pagination.totalPages;
+
+        updateStatistics(result.stats);
+
+        updateAppointmentTypes(
+            result.appointments
+        );
+
+        renderAppointments();
+        renderPagination();
+
+        elements.lastUpdated.textContent =
+            `Updated ${new Date().toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit"
+            })}`;
+
+        if (!state.appointments.length) {
+            setTableState("empty");
+        } else {
+            setTableState("table");
+        }
+
+    } catch (error) {
+
+        if (error.name === "AbortError") {
+            return;
+        }
+
+        console.error(
+            "Appointment loading error:",
+            error
+        );
+
+        elements.errorMessage.textContent =
+            error.message ||
+            "Unable to retrieve appointments.";
+
+        setTableState("error");
+    }
+}
+
+/* ---------------
+    Statistics
+------------------ */
+
+function updateStatistics(stats) {
+    const total =
+        stats.total ??
+        state.total;
+
+    const scheduled =
+        stats.scheduled ??
+        state.appointments.filter(
+            item =>
+                normalizeStatus(item.status) ===
+                "scheduled"
+        ).length;
+
+    const cancelled =
+        stats.cancelled ??
+        state.appointments.filter(
+            item =>
+                normalizeStatus(item.status) ===
+                "cancelled"
+        ).length;
+
+    const today =
+        stats.today ??
+        stats.today_appointments ??
+        stats.todayAppointments ??
+        state.appointments.filter(
+            item => isToday(getAppointmentDate(item))
+        ).length;
+
+    elements.totalAppointments.textContent =
+        formatNumber(total);
+
+    elements.scheduledAppointments.textContent =
+        formatNumber(scheduled);
+
+    elements.todayAppointments.textContent =
+        formatNumber(today);
+
+    elements.cancelledAppointments.textContent =
+        formatNumber(cancelled);
+}
+
+/* -----------------
+   Render Table
+-------------------- */
+
+function renderAppointments() {
+    elements.tableBody.innerHTML = "";
+
+    if (!state.appointments.length) {
+        return;
+    }
+
+    const fragment =
+        document.createDocumentFragment();
+
+    state.appointments.forEach(appointment => {
+
+        const id =
+            getAppointmentId(appointment);
+
+        const date =
+            getAppointmentDate(appointment);
+
+        const time =
+            getAppointmentTime(appointment);
+
+        const patientName =
+            getPatientName(appointment);
+
+        const doctorName =
+            getDoctorName(appointment);
+
+        const type =
+            appointment.appointment_type ||
+            appointment.type ||
+            "—";
+
+        const reason =
+            appointment.reason ||
+            appointment.chief_complaint ||
+            "—";
+
+        const row =
+            document.createElement("tr");
+
+        row.innerHTML = `
+            <td>
+                ${renderAppointmentDate(date, time)}
+            </td>
+
+            <td>
+                ${renderPerson(
+                    patientName,
+                    appointment.patient_id ??
+                    appointment.patientId,
+                    "P"
+                )}
+            </td>
+
+            <td>
+                ${renderPerson(
+                    doctorName,
+                    appointment.doctor_id ??
+                    appointment.doctorId,
+                    "D"
+                )}
+            </td>
+
+            <td>
+                <div class="appointment-type">
+                    ${escapeHtml(type)}
+                </div>
+            </td>
+
+            <td>
+                <span class="secondary-text">
+                    ${escapeHtml(
+                        truncate(reason, 55)
+                    )}
+                </span>
+            </td>
+
+            <td>
+                ${renderStatusBadge(
+                    appointment.status
+                )}
+            </td>
+
+            <td>
+                <div class="action-buttons">
+
+                    <button
+                        class="icon-btn"
+                        type="button"
+                        title="View appointment"
+                        aria-label="View appointment"
+                        data-action="view"
+                        data-id="${escapeHtml(String(id))}"
+                    >
+                        ${icons.eye}
+                    </button>
+
+                    <button
+                        class="icon-btn"
+                        type="button"
+                        title="Edit appointment"
+                        aria-label="Edit appointment"
+                        data-action="edit"
+                        data-id="${escapeHtml(String(id))}"
+                    >
+                        ${icons.edit}
+                    </button>
+
+                    ${
+                        normalizeStatus(
+                            appointment.status
+                        ) !== "cancelled" &&
+                        normalizeStatus(
+                            appointment.status
+                        ) !== "completed"
+                            ? `
+                                <button
+                                    class="icon-btn danger"
+                                    type="button"
+                                    title="Cancel appointment"
+                                    aria-label="Cancel appointment"
+                                    data-action="cancel"
+                                    data-id="${escapeHtml(String(id))}"
+                                >
+                                    ${icons.cancel}
+                                </button>
+                            `
+                            : ""
+                    }
+
+                </div>
+            </td>
+        `;
+
+        fragment.appendChild(row);
+    });
+
+    elements.tableBody.appendChild(fragment);
+}
+
+function renderAppointmentDate(
+    date,
+    time
+) {
+    const parsed =
+        parseDate(date);
+
+    if (!parsed) {
+        return `
+            <div class="secondary-text">
+                ${escapeHtml(
+                    date || "—"
+                )}
+            </div>
+        `;
+    }
+
+    const month =
+        parsed.toLocaleDateString(
+            undefined,
+            { month: "short" }
+        );
+
+    const day =
+        parsed.getDate();
+
+    const weekday =
+        parsed.toLocaleDateString(
+            undefined,
+            { weekday: "short" }
+        );
+
+    const formattedDate =
+        parsed.toLocaleDateString(
+            undefined,
+            {
+                month: "short",
+                day: "numeric",
+                year: "numeric"
+            }
+        );
+
+    return `
+        <div class="appointment-date">
+
+            <div class="date-box">
+                <div>
+                    <div class="date-month">
+                        ${escapeHtml(month)}
+                    </div>
+
+                    <div class="date-day">
+                        ${day}
+                    </div>
+                </div>
+            </div>
+
+            <div class="date-info">
+                <strong>
+                    ${escapeHtml(
+                        formattedDate
+                    )}
+                </strong>
+
+                <span>
+                    ${escapeHtml(
+                        time
+                            ? formatTime(time)
+                            : weekday
+                    )}
+                </span>
+            </div>
+
+        </div>
+    `;
+}
+
+function renderPerson(
+    name,
+    secondary,
+    fallback
+) {
+    const initials =
+        getInitials(name) ||
+        fallback;
+
+    return `
+        <div class="person-cell">
+
+            <div class="person-avatar">
+                ${escapeHtml(initials)}
+            </div>
+
+            <div>
+                <div class="person-name">
+                    ${escapeHtml(name)}
+                </div>
+
+                ${
+                    secondary
+                        ? `
+                            <div class="person-secondary">
+                                ID: ${escapeHtml(
+                                    String(
+                                        secondary
+                                    )
+                                )}
+                            </div>
+                        `
+                        : ""
+                }
+
+            </div>
+
+        </div>
+    `;
+}
+
+function renderStatusBadge(status) {
+    const normalized =
+        normalizeStatus(status);
+
+    const labels = {
+        scheduled: "Scheduled",
+        confirmed: "Confirmed",
+        completed: "Completed",
+        cancelled: "Cancelled",
+        no_show: "No Show"
+    };
+
+    return `
+        <span class="status-badge status-${escapeHtml(
+            normalized
+        )}">
+            ${escapeHtml(
+                labels[normalized] ||
+                status ||
+                "Unknown"
+            )}
+        </span>
+    `;
+}
+
+/* ----------------
+   Pagination
+------------------- */
+
+function renderPagination() {
+    elements.pagination.innerHTML = "";
+
+    const total =
+        state.total;
+
+    const page =
+        state.page;
+
+    const totalPages =
+        state.totalPages;
+
+    if (!total || totalPages <= 1) {
+        elements.paginationInfo.textContent =
+            total
+                ? `Showing ${Math.min(
+                    (page - 1) *
+                    state.limit +
+                    1,
+                    total
+                )}–${Math.min(
+                    page *
+                    state.limit,
+                    total
+                )} of ${total.toLocaleString()}`
+                : "No records";
+
+        return;
+    }
+
+    const start =
+        (page - 1) *
+        state.limit +
+        1;
+
+    const end =
+        Math.min(
+            page *
+            state.limit,
+            total
+        );
+
+    elements.paginationInfo.textContent =
+        `Showing ${start.toLocaleString()}–${end.toLocaleString()} of ${total.toLocaleString()}`;
+
+    addPageButton(
+        "First",
+        1,
+        page === 1
+    );
+
+    addPageButton(
+        "‹",
+        page - 1,
+        page === 1
+    );
+
+    getVisiblePages(
+        page,
+        totalPages
+    ).forEach(number => {
+
+        if (number === "...") {
+            const span =
+                document.createElement("span");
+
+            span.textContent = "…";
+            span.style.padding = "0 5px";
+            span.style.color =
+                "var(--text-muted)";
+
+            elements.pagination
+                .appendChild(span);
+
+            return;
+        }
+
+        addPageButton(
+            String(number),
+            number,
+            false,
+            number === page
+        );
+    });
+
+    addPageButton(
+        "›",
+        page + 1,
+        page === totalPages
+    );
+
+    addPageButton(
+        "Last",
+        totalPages,
+        page === totalPages
+    );
+}
+
+function getVisiblePages(
+    current,
+    total
+) {
+    if (total <= 7) {
+        return Array.from(
+            { length: total },
+            (_, index) => index + 1
+        );
+    }
+
+    const pages = [1];
+
+    if (current > 4) {
+        pages.push("...");
+    }
+
+    const start =
+        Math.max(2, current - 1);
+
+    const end =
+        Math.min(
+            total - 1,
+            current + 1
+        );
+
+    for (
+        let i = start;
+        i <= end;
+        i++
+    ) {
+        pages.push(i);
+    }
+
+    if (current < total - 3) {
+        pages.push("...");
+    }
+
+    pages.push(total);
+
+    return pages;
+}
+
+function addPageButton(
+    label,
+    page,
+    disabled,
+    active = false
+) {
+    const button =
+        document.createElement("button");
+
+    button.type = "button";
+    button.className =
+        `page-btn${active ? " active" : ""}`;
+
+    button.textContent = label;
+    button.disabled = disabled;
+
+    button.addEventListener(
+        "click",
+        () => {
+            if (
+                page < 1 ||
+                page > state.totalPages ||
+                page === state.page
+            ) {
+                return;
+            }
+
+            state.page = page;
+            loadAppointments();
+        }
+    );
+
+    elements.pagination
+        .appendChild(button);
+}
+
+/* --------------------
+   Appointment Types
+----------------------- */
+
+function updateAppointmentTypes(
+    appointments
+) {
+    const current =
+        elements.typeFilter.value;
+
+    const values =
+        new Set();
+
+    Array.from(
+        elements.typeFilter.options
+    ).forEach(option => {
+        if (option.value) {
+            values.add(option.value);
+        }
+    });
+
+    appointments.forEach(
+        appointment => {
+            const type =
+                String(
+                    appointment.appointment_type ||
+                    appointment.type ||
+                    ""
+                ).trim();
+
+            if (type) {
+                values.add(type);
+            }
+        }
+    );
+
+    const sorted =
+        Array.from(values)
+            .sort((a, b) =>
+                a.localeCompare(b)
+            );
+
+    elements.typeFilter.innerHTML =
+        `<option value="">All types</option>`;
+
+    sorted.forEach(type => {
+        const option =
+            document.createElement(
+                "option"
+            );
+
+        option.value = type;
+        option.textContent = type;
+
+        elements.typeFilter
+            .appendChild(option);
+    });
+
+    if (sorted.includes(current)) {
+        elements.typeFilter.value =
+            current;
+    }
+}
+
+/* ---------------
+   Lookup Data
+------------------ */
+
+async function loadPatients() {
+    try {
+        const payload =
+            await fetchJson(
+                `${API.patients.list}?limit=1000`
+            );
+
+        const root =
+            payload?.data ??
+            payload ??
+            {};
+
+        const patients =
+            Array.isArray(root)
+                ? root
+                : root.patients ||
+                  root.items ||
+                  payload?.patients ||
+                  [];
+
+        elements.patientId.innerHTML =
+            `<option value="">Select patient</option>`;
+
+        patients.forEach(patient => {
+            const option =
+                document.createElement("option");
+
+            const id =
+                patient.id ??
+                patient.patient_id ??
+                patient.patientId;
+
+            const name =
+                patient.name ||
+                patient.full_name ||
+                patient.fullName ||
+                [
+                    patient.first_name,
+                    patient.last_name
+                ]
+                    .filter(Boolean)
+                    .join(" ");
+
+            if (!id) {
+                return;
+            }
+
+            option.value = id;
+            option.textContent =
+                name ||
+                `Patient #${id}`;
+
+            elements.patientId
+                .appendChild(option);
+        });
+
+    } catch (error) {
+        console.error(
+            "Patient lookup error:",
+            error
+        );
+
+        elements.patientId.innerHTML =
+            `<option value="">Unable to load patients</option>`;
+    }
+}
+
+async function loadDoctors() {
+    try {
+        const payload =
+            await fetchJson(
+                `${API.doctors.list}?limit=1000&status=active`
+            );
+
+        const root =
+            payload?.data ??
+            payload ??
+            {};
+
+        const doctors =
+            Array.isArray(root)
+                ? root
+                : root.doctors ||
+                  root.items ||
+                  payload?.doctors ||
+                  [];
+
+        elements.doctorId.innerHTML =
+            `<option value="">Select doctor</option>`;
+
+        doctors.forEach(doctor => {
+            const option =
+                document.createElement("option");
+
+            const id =
+                doctor.id ??
+                doctor.doctor_id ??
+                doctor.doctorId;
+
+            const firstName =
+                doctor.first_name ??
+                doctor.firstName ??
+                "";
+
+            const lastName =
+                doctor.last_name ??
+                doctor.lastName ??
+                "";
+
+            const name =
+                doctor.name ||
+                doctor.full_name ||
+                doctor.fullName ||
+                [
+                    firstName,
+                    lastName
+                ]
+                    .filter(Boolean)
+                    .join(" ");
+
+            if (!id) {
+                return;
+            }
+
+            option.value = id;
+
+            option.textContent =
+                doctor.specialty
+                    ? `${name} — ${doctor.specialty}`
+                    : name;
+
+            elements.doctorId
+                .appendChild(option);
+        });
+
+    } catch (error) {
+        console.error(
+            "Doctor lookup error:",
+            error
+        );
+
+        elements.doctorId.innerHTML =
+            `<option value="">Unable to load doctors</option>`;
+    }
+}
+
+/* -------------------
+   Add Appointment
+---------------------- */
+
+async function openAddAppointmentModal() {
+    state.editingId = null;
+
+    elements.appointmentForm.reset();
+
+    elements.appointmentModalTitle.textContent =
+        "New Appointment";
+
+    elements.saveAppointmentText.textContent =
+        "Create Appointment";
+
+    elements.appointmentStatus.value =
+        "scheduled";
+
+    elements.duration.value =
+        "30";
+
+    elements.appointmentType.innerHTML = `
+        <option value="">Select type</option>
+        <option value="consultation">Consultation</option>
+        <option value="follow_up">Follow-up</option>
+        <option value="checkup">Check-up</option>
+        <option value="emergency">Emergency</option>
+        <option value="procedure">Procedure</option>
+        <option value="other">Other</option>
+    `;
+
+    openModal(
+        "appointmentModal"
+    );
+
+    await Promise.all([
+        loadPatients(),
+        loadDoctors()
+    ]);
+
+    setTimeout(
+        () =>
+            elements.patientId?.focus(),
+        50
+    );
+}
+
+/* ---------------------
+   Edit Appointment
+------------------------ */
+
+async function openEditAppointmentModal(
+    id
+) {
+    if (!id) {
+        showToast(
+            "The appointment ID is missing.",
+            "error"
+        );
+
+        return;
+    }
+
+    elements.saveAppointmentBtn.disabled =
+        true;
+
+    elements.saveAppointmentText.textContent =
+        "Loading...";
+
+    try {
+        const [
+            payload
+        ] = await Promise.all([
+            fetchJson(
+                `${API.appointments.get}?id=${encodeURIComponent(id)}`
+            ),
+            loadPatients(),
+            loadDoctors()
+        ]);
+
+        const appointment =
+            normalizeSingleResponse(
+                payload
+            );
+
+        state.editingId = id;
+
+        populateAppointmentForm(
+            appointment
+        );
+
+        elements.appointmentModalTitle.textContent =
+            "Edit Appointment";
+
+        elements.saveAppointmentText.textContent =
+            "Update Appointment";
+
+        openModal(
+            "appointmentModal"
+        );
+
+    } catch (error) {
+        console.error(
+            "Appointment retrieval error:",
+            error
+        );
+
+        showToast(
+            error.message ||
+            "Unable to load appointment.",
+            "error"
+        );
+    } finally {
+        elements.saveAppointmentBtn.disabled =
+            false;
+    }
+}
+
+function populateAppointmentForm(
+    appointment
+) {
+    const date =
+        getAppointmentDate(
+            appointment
+        );
+
+    const time =
+        getAppointmentTime(
+            appointment
+        );
+
+    const set = (
+        element,
+        value
+    ) => {
+        if (element) {
+            element.value =
+                value ?? "";
+        }
+    };
+
+    set(
+        elements.patientId,
+        appointment.patient_id ??
+        appointment.patientId
+    );
+
+    set(
+        elements.doctorId,
+        appointment.doctor_id ??
+        appointment.doctorId
+    );
+
+    set(
+        elements.appointmentDate,
+        date
+    );
+
+    set(
+        elements.appointmentTime,
+        time
+    );
+
+    set(
+        elements.duration,
+        appointment.duration_minutes ??
+        appointment.duration ??
+        30
+    );
+
+    set(
+        elements.appointmentType,
+        appointment.appointment_type ??
+        appointment.type
+    );
+
+    set(
+        elements.appointmentStatus,
+        appointment.status ||
+        "scheduled"
+    );
+
+    set(
+        elements.location,
+        appointment.location
+    );
+
+    set(
+        elements.reason,
+        appointment.reason ??
+        appointment.chief_complaint
+    );
+
+    set(
+        elements.notes,
+        appointment.notes
+    );
+}
+
+/* -------------------
+   Save Appointment
+---------------------- */
+
+async function saveAppointment(
+    event
+) {
+    event.preventDefault();
+
+    if (
+        !elements.appointmentForm
+            .checkValidity()
+    ) {
+        elements.appointmentForm
+            .reportValidity();
+
+        return;
+    }
+
+    const formData =
+        new FormData(
+            elements.appointmentForm
+        );
+
+    const payload =
+        Object.fromEntries(
+            formData.entries()
+        );
+
+    payload.duration_minutes =
+        Number(
+            payload.duration_minutes
+        ) || 30;
+
+    if (state.editingId) {
+        payload.id =
+            state.editingId;
+    }
+
+    const editing =
+        Boolean(state.editingId);
+
+    const endpoint =
+        editing
+            ? API.appointments.update
+            : API.appointments.create;
+
+    const method =
+        editing
+            ? "PUT"
+            : "POST";
+
+    setAppointmentSaveLoading(
+        true
+    );
+
+    try {
+        await fetchJson(
+            endpoint,
+            {
+                method,
+                body: JSON.stringify(
+                    payload
+                )
+            }
+        );
+
+        closeModal(
+            "appointmentModal"
+        );
+
+        showToast(
+            editing
+                ? "Appointment updated successfully."
+                : "Appointment created successfully.",
+            "success"
+        );
+
+        await loadAppointments();
+
+    } catch (error) {
+        console.error(
+            "Appointment save error:",
+            error
+        );
+
+        showToast(
+            error.message ||
+            "Unable to save appointment.",
+            "error"
+        );
+
+    } finally {
+        setAppointmentSaveLoading(
+            false
+        );
+    }
+}
+
+function setAppointmentSaveLoading(
+    loading
+) {
+    elements.saveAppointmentBtn.disabled =
+        loading;
+
+    if (loading) {
+        elements.saveAppointmentText.textContent =
+            "Saving...";
+    } else {
+        elements.saveAppointmentText.textContent =
+            state.editingId
+                ? "Update Appointment"
+                : "Create Appointment";
+    }
+}
+
+/* ---------------------
+     View Appointment
+------------------------ */
+
+async function openViewAppointmentModal(
+    id
+) {
+    elements.appointmentDetails.innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;padding:30px;">
+            <div class="spinner"></div>
+            <div class="secondary-text">
+                Loading appointment details...
+            </div>
+        </div>
+    `;
+
+    openModal(
+        "viewAppointmentModal"
+    );
+
+    try {
+        const payload =
+            await fetchJson(
+                `${API.appointments.get}?id=${encodeURIComponent(id)}`
+            );
+
+        const appointment =
+            normalizeSingleResponse(
+                payload
+            );
+
+        renderAppointmentDetails(
+            appointment
+        );
+
+    } catch (error) {
+        console.error(
+            "Appointment details error:",
+            error
+        );
+
+        elements.appointmentDetails.innerHTML = `
+            <div style="grid-column:1/-1;padding:25px;text-align:center;">
+                <div class="state-title">
+                    Unable to load details
+                </div>
+
+                <div class="state-text">
+                    ${escapeHtml(
+                        error.message ||
+                        "An unexpected error occurred."
+                    )}
+                </div>
+            </div>
+        `;
+    }
+}
+
+function renderAppointmentDetails(
+    appointment
+) {
+    const details = [
+        [
+            "Patient",
+            getPatientName(
+                appointment
+            )
+        ],
+        [
+            "Doctor",
+            getDoctorName(
+                appointment
+            )
+        ],
+        [
+            "Date",
+            formatDate(
+                getAppointmentDate(
+                    appointment
+                )
+            )
+        ],
+        [
+            "Time",
+            formatTime(
+                getAppointmentTime(
+                    appointment
+                )
+            )
+        ],
+        [
+            "Duration",
+            appointment.duration_minutes ||
+            appointment.duration
+                ? `${appointment.duration_minutes || appointment.duration} minutes`
+                : "—"
+        ],
+        [
+            "Appointment Type",
+            appointment.appointment_type ||
+            appointment.type ||
+            "—"
+        ],
+        [
+            "Status",
+            appointment.status ||
+            "—"
+        ],
+        [
+            "Location",
+            appointment.location ||
+            "—"
+        ],
+        [
+            "Reason",
+            appointment.reason ||
+            appointment.chief_complaint ||
+            "—"
+        ],
+        [
+            "Notes",
+            appointment.notes ||
+            "—"
+        ],
+        [
+            "Created",
+            formatDateTime(
+                appointment.created_at ??
+                appointment.createdAt
+            )
+        ],
+        [
+            "Last Updated",
+            formatDateTime(
+                appointment.updated_at ??
+                appointment.updatedAt
+            )
+        ]
+    ];
+
+    elements.appointmentDetails.innerHTML =
+        details
+            .map(
+                ([label, value]) => `
+                    <div class="detail-item ${
+                        ["Reason", "Notes"]
+                            .includes(label)
+                            ? "full"
+                            : ""
+                    }">
+
+                        <div class="detail-label">
+                            ${escapeHtml(label)}
+                        </div>
+
+                        <div class="detail-value">
+                            ${escapeHtml(
+                                String(value)
+                            )}
+                        </div>
+
+                    </div>
+                `
+            )
+            .join("");
+}
+
+/* ----------------------
+    Cancel Appointment
+------------------------- */
+
+function openCancelAppointmentModal(
+    id
+) {
+    const appointment =
+        state.appointments.find(
+            item =>
+                String(
+                    getAppointmentId(item)
+                ) === String(id)
+        );
+
+    if (!appointment) {
+        showToast(
+            "Appointment record was not found.",
+            "error"
+        );
+
+        return;
+    }
+
+    state.cancellingId =
+        id;
+
+    const patient =
+        getPatientName(
+            appointment
+        );
+
+    const doctor =
+        getDoctorName(
+            appointment
+        );
+
+    const date =
+        formatDate(
+            getAppointmentDate(
+                appointment
+            )
+        );
+
+    const time =
+        formatTime(
+            getAppointmentTime(
+                appointment
+            )
+        );
+
+    elements.cancelAppointmentSummary.innerHTML = `
+        <strong>${escapeHtml(
+            patient
+        )}</strong>
+        <br>
+        ${escapeHtml(
+            doctor
+        )}
+        <br>
+        ${escapeHtml(
+            date
+        )} at ${escapeHtml(
+            time
+        )}
+    `;
+
+    elements.cancellationReason.value =
+        "";
+
+    openModal(
+        "cancelModal"
+    );
+}
+
+async function cancelAppointment() {
+    if (!state.cancellingId) {
+        return;
+    }
+
+    const id =
+        state.cancellingId;
+
+    const reason =
+        elements.cancellationReason
+            .value
+            .trim();
+
+    elements.confirmCancelBtn.disabled =
+        true;
+
+    elements.confirmCancelBtn.textContent =
+        "Cancelling...";
+
+    try {
+        await fetchJson(
+            API.appointments.cancel,
+            {
+                method: "PATCH",
+
+                body: JSON.stringify({
+                    id,
+                    reason
+                })
+            }
+        );
+
+        closeModal(
+            "cancelModal"
+        );
+
+        showToast(
+            "Appointment cancelled successfully.",
+            "success"
+        );
+
+        await loadAppointments();
+
+    } catch (error) {
+        console.error(
+            "Appointment cancellation error:",
+            error
+        );
+
+        showToast(
+            error.message ||
+            "Unable to cancel appointment.",
+            "error"
+        );
+
+    } finally {
+        state.cancellingId =
+            null;
+
+        elements.confirmCancelBtn.disabled =
+            false;
+
+        elements.confirmCancelBtn.textContent =
+            "Cancel Appointment";
+    }
+}
+
+/* -----------------
+     Table Actions
+-------------------- */
+
+async function handleTableAction(
+    event
+) {
+    const button =
+        event.target.closest(
+            "[data-action]"
+        );
+
+    if (!button) {
+        return;
+    }
+
+    const action =
+        button.dataset.action;
+
+    const id =
+        button.dataset.id;
+
+    if (!id) {
+        return;
+    }
+
+    switch (action) {
+
+        case "view":
+            await openViewAppointmentModal(
+                id
+            );
+            break;
+
+        case "edit":
+            await openEditAppointmentModal(
+                id
+            );
+            break;
+
+        case "cancel":
+            openCancelAppointmentModal(
+                id
+            );
+            break;
+    }
+}
+
+/* -------------
+   Filters
+---------------- */
+
+function handleSearch() {
+    clearTimeout(
+        state.searchTimer
+    );
+
+    state.searchTimer =
+        setTimeout(
+            () => {
+                state.page = 1;
+                loadAppointments();
+            },
+            350
+        );
+}
+
+function handleFilterChange() {
+    state.page = 1;
+    loadAppointments();
+}
+
+function clearFilters() {
+    elements.searchInput.value =
+        "";
+
+    elements.dateFilter.value =
+        "";
+
+    elements.statusFilter.value =
+        "";
+
+    elements.typeFilter.value =
+        "";
+
+    state.page = 1;
+
+    loadAppointments();
+}
+
+/* ------------------
+     Authentication
+--------------------- */
+
+async function loadCurrentUser() {
+    try {
+        const payload =
+            await fetchJson(
+                API.auth.me
+            );
+
+        const root =
+            payload?.data ??
+            payload ??
+            {};
+
+        const user =
+            root.user ||
+            root;
+
+        const name =
+            user.name ||
+            user.full_name ||
+            user.fullName ||
+            [
+                user.first_name,
+                user.last_name
+            ]
+                .filter(Boolean)
+                .join(" ");
+
+        const role =
+            user.role_name ||
+            user.role ||
+            user.user_type ||
+            "";
+
+        if (name) {
+            elements.userName.textContent =
+                name;
+
+            elements.userAvatar.textContent =
+                getInitials(name);
+        } else {
+            elements.userName.textContent =
+                "User";
+
+            elements.userAvatar.textContent =
+                "U";
+        }
+
+        elements.userRole.textContent =
+            role || "";
+
+    } catch (error) {
+
+        if (
+            !error.message
+                ?.toLowerCase()
+                .includes("session")
+        ) {
+            elements.userName.textContent =
+                "User";
+
+            elements.userRole.textContent =
+                "";
+
+            elements.userAvatar.textContent =
+                "U";
+        }
+    }
+}
+
+async function logout() {
+    const button =
+        $("#logoutBtn");
+
+    button.disabled =
+        true;
+
+    try {
+        await fetchJson(
+            API.auth.logout,
+            {
+                method: "POST"
+            }
+        );
+    } catch (error) {
+        console.warn(
+            "Logout request failed:",
+            error
+        );
+    } finally {
+        window.location.href =
+            "../login.html";
+    }
+}
+
+/* ----------------
+   Modal Helpers
+------------------- */
+
+function openModal(id) {
+    const modal =
+        document.getElementById(id);
+
+    if (!modal) {
+        return;
+    }
+
+    modal.classList.add("open");
+
+    document.body.style.overflow =
+        "hidden";
+}
+
+function closeModal(id) {
+    const modal =
+        document.getElementById(id);
+
+    if (!modal) {
+        return;
+    }
+
+    modal.classList.remove("open");
+
+    if (
+        !document.querySelector(
+            ".modal-backdrop.open"
+        )
+    ) {
+        document.body.style.overflow =
+            "";
+    }
+}
+
+function closeAllModals() {
+    document
+        .querySelectorAll(
+            ".modal-backdrop.open"
+        )
+        .forEach(
+            modal =>
+                modal.classList.remove(
+                    "open"
+                )
+        );
+
+    document.body.style.overflow =
+        "";
+}
+
+/* ---------------
+     Table State
+------------------ */
+
+function setTableState(
+    stateName
+) {
+    [
+        elements.loadingState,
+        elements.emptyState,
+        elements.errorState
+    ].forEach(
+        element =>
+            element.classList.remove(
+                "visible"
+            )
+    );
+
+    if (stateName === "loading") {
+        elements.loadingState
+            .classList.add(
+                "visible"
+            );
+
+        elements.tableBody.innerHTML =
+            "";
+    }
+
+    if (stateName === "empty") {
+        elements.emptyState
+            .classList.add(
+                "visible"
+            );
+
+        elements.tableBody.innerHTML =
+            "";
+    }
+
+    if (stateName === "error") {
+        elements.errorState
+            .classList.add(
+                "visible"
+            );
+
+        elements.tableBody.innerHTML =
+            "";
+    }
+}
+
+/* -------------
+       Toast
+---------------- */
+
+function showToast(
+    message,
+    type = "success"
+) {
+    const toast =
+        document.createElement(
+            "div"
+        );
+
+    toast.className =
+        `toast ${type}`;
+
+    const icon =
+        type === "success"
+            ? "✓"
+            : type === "warning"
+                ? "!"
+                : "×";
+
+    toast.innerHTML = `
+        <div class="toast-icon">
+            ${icon}
+        </div>
+
+        <div class="toast-message">
+            ${escapeHtml(message)}
+        </div>
+    `;
+
+    elements.toastContainer
+        .appendChild(toast);
+
+    setTimeout(
+        () => toast.remove(),
+        4500
+    );
+}
+
+/* ----------------------
+     Appointment Helpers
+------------------------- */
+
+function getAppointmentId(
+    appointment
+) {
+    return (
+        appointment.id ??
+        appointment.appointment_id ??
+        appointment.appointmentId ??
+        appointment.uuid ??
+        ""
+    );
+}
+
+function getPatientName(
+    appointment
+) {
+    const patient =
+        appointment.patient;
+
+    if (
+        patient &&
+        typeof patient === "object"
+    ) {
+        return (
+            patient.name ||
+            patient.full_name ||
+            patient.fullName ||
+            [
+                patient.first_name,
+                patient.last_name
+            ]
+                .filter(Boolean)
+                .join(" ") ||
+            "Unknown Patient"
+        );
+    }
+
+    return (
+        appointment.patient_name ||
+        appointment.patientName ||
+        "Unknown Patient"
+    );
+}
+
+function getDoctorName(
+    appointment
+) {
+    const doctor =
+        appointment.doctor;
+
+    if (
+        doctor &&
+        typeof doctor === "object"
+    ) {
+        return (
+            doctor.name ||
+            doctor.full_name ||
+            doctor.fullName ||
+            [
+                doctor.first_name,
+                doctor.last_name
+            ]
+                .filter(Boolean)
+                .join(" ") ||
+            "Unknown Doctor"
+        );
+    }
+
+    return (
+        appointment.doctor_name ||
+        appointment.doctorName ||
+        "Unknown Doctor"
+    );
+}
+
+function getAppointmentDate(
+    appointment
+) {
+    return (
+        appointment.appointment_date ||
+        appointment.appointmentDate ||
+        appointment.date ||
+        (
+            appointment.start_at
+                ? String(
+                    appointment.start_at
+                ).slice(0, 10)
+                : ""
+        )
+    );
+}
+
+function getAppointmentTime(
+    appointment
+) {
+    return (
+        appointment.appointment_time ||
+        appointment.appointmentTime ||
+        appointment.time ||
+        (
+            appointment.start_at
+                ? String(
+                    appointment.start_at
+                ).slice(11, 16)
+                : ""
+        )
+    );
+}
+
+function normalizeStatus(
+    status
+) {
+    return String(
+        status || ""
+    )
+        .trim()
+        .toLowerCase()
+        .replace(
+            /[\s-]+/g,
+            "_"
+        );
+}
+
+function parseDate(value) {
+    if (!value) {
+        return null;
+    }
+
+    const date =
+        new Date(
+            `${value}T00:00:00`
+        );
+
+    return Number.isNaN(
+        date.getTime()
+    )
+        ? null
+        : date;
+}
+
+function formatDate(value) {
+    const date =
+        parseDate(value);
+
+    if (!date) {
+        return value || "—";
+    }
+
+    return date.toLocaleDateString(
+        undefined,
+        {
+            month: "long",
+            day: "numeric",
+            year: "numeric"
+        }
+    );
+}
+
+function formatTime(value) {
+    if (!value) {
+        return "—";
+    }
+
+    const parts =
+        String(value).split(":");
+
+    if (parts.length < 2) {
+        return value;
+    }
+
+    const date =
+        new Date();
+
+    date.setHours(
+        Number(parts[0]),
+        Number(parts[1]),
+        0,
+        0
+    );
+
+    return date.toLocaleTimeString(
+        undefined,
+        {
+            hour: "numeric",
+            minute: "2-digit"
+        }
+    );
+}
+
+function formatDateTime(value) {
+    if (!value) {
+        return "—";
+    }
+
+    const date =
+        new Date(value);
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+        return String(value);
+    }
+
+    return date.toLocaleString();
+}
+
+function isToday(value) {
+    const date =
+        parseDate(value);
+
+    if (!date) {
+        return false;
+    }
+
+    const today =
+        new Date();
+
+    return (
+        date.getFullYear() ===
+            today.getFullYear() &&
+        date.getMonth() ===
+            today.getMonth() &&
+        date.getDate() ===
+            today.getDate()
+    );
+}
+
+function getInitials(name) {
+    const parts =
+        String(name || "")
+            .trim()
+            .split(/\s+/)
+            .filter(Boolean);
+
+    if (!parts.length) {
+        return "";
+    }
+
+    if (parts.length === 1) {
+        return parts[0]
+            .slice(0, 2)
+            .toUpperCase();
+    }
+
+    return (
+        parts[0][0] +
+        parts[
+            parts.length - 1
+        ][0]
+    ).toUpperCase();
+}
+
+function formatNumber(value) {
+    const number =
+        Number(value);
+
+    if (
+        !Number.isFinite(number)
+    ) {
+        return "—";
+    }
+
+    return number.toLocaleString();
+}
+
+function truncate(
+    value,
+    maxLength
+) {
+    const text =
+        String(value || "");
+
+    return text.length > maxLength
+        ? text.slice(
+            0,
+            maxLength
+        ) + "…"
+        : text;
+}
+
+function escapeHtml(value) {
+    return String(
+        value ?? ""
+    )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+}
+
+/* ----------
+     Icons
+------------- */
+
+const icons = {
+
+    eye: `
+        <svg viewBox="0 0 24 24"
+             fill="none"
+             stroke="currentColor"
+             stroke-width="1.8">
+            <path d="M2 12s3.5-7 10-7
+                     10 7 10 7-3.5 7-10 7
+                     S2 12 2 12Z"/>
+            <circle cx="12" cy="12" r="3"/>
+        </svg>
+    `,
+
+    edit: `
+        <svg viewBox="0 0 24 24"
+             fill="none"
+             stroke="currentColor"
+             stroke-width="1.8">
+            <path d="M12 20h9"/>
+            <path d="M16.5 3.5a2.12 2.12 0 0 1
+                     3 3L8 18l-4 1 1-4Z"/>
+        </svg>
+    `,
+
+    cancel: `
+        <svg viewBox="0 0 24 24"
+             fill="none"
+             stroke="currentColor"
+             stroke-width="1.8">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="m9 9 6 6M15 9l-6 6"/>
+        </svg>
+    `
+};
+
+/* ------------
+     Events
+--------------- */
+
+elements.searchInput.addEventListener(
+    "input",
+    handleSearch
+);
+
+elements.dateFilter.addEventListener(
+    "change",
+    handleFilterChange
+);
+
+elements.statusFilter.addEventListener(
+    "change",
+    handleFilterChange
+);
+
+elements.typeFilter.addEventListener(
+    "change",
+    handleFilterChange
+);
+
+elements.pageSize.addEventListener(
+    "change",
+    () => {
+        state.limit =
+            Number(
+                elements.pageSize.value
+            ) || 10;
+
+        state.page = 1;
+
+        loadAppointments();
+    }
+);
+
+elements.tableBody.addEventListener(
+    "click",
+    handleTableAction
+);
+
+$("#addAppointmentBtn")
+    .addEventListener(
+        "click",
+        openAddAppointmentModal
+    );
+
+$("#refreshBtn")
+    .addEventListener(
+        "click",
+        loadAppointments
+    );
+
+$("#retryBtn")
+    .addEventListener(
+        "click",
+        loadAppointments
+    );
+
+$("#clearFiltersBtn")
+    .addEventListener(
+        "click",
+        clearFilters
+    );
+
+elements.appointmentForm
+    .addEventListener(
+        "submit",
+        saveAppointment
+    );
+
+elements.confirmCancelBtn
+    .addEventListener(
+        "click",
+        cancelAppointment
+    );
+
+$("#logoutBtn")
+    .addEventListener(
+        "click",
+        logout
+    );
+
+document
+    .querySelectorAll(
+        "[data-close-modal]"
+    )
+    .forEach(button => {
+        button.addEventListener(
+            "click",
+            () => {
+                closeModal(
+                    button.dataset
+                        .closeModal
+                );
+            }
+        );
+    });
+
+document
+    .querySelectorAll(
+        ".modal-backdrop"
+    )
+    .forEach(backdrop => {
+
+        backdrop.addEventListener(
+            "mousedown",
+            event => {
+
+                if (
+                    event.target ===
+                    backdrop
+                ) {
+                    closeModal(
+                        backdrop.id
+                    );
+                }
+
+            }
+        );
+
+    });
+
+document.addEventListener(
+    "keydown",
+    event => {
+        if (
+            event.key ===
+            "Escape"
+        ) {
+            closeAllModals();
+        }
+    }
+);
+
+/* ---------------------
+     Mobile Navigation
+------------------------ */
+
+$("#mobileMenuBtn")
+    .addEventListener(
+        "click",
+        () => {
+            $("#sidebar")
+                .classList.add(
+                    "open"
+                );
+
+            $("#sidebarOverlay")
+                .classList.add(
+                    "open"
+                );
+        }
+    );
+
+$("#sidebarOverlay")
+    .addEventListener(
+        "click",
+        () => {
+            $("#sidebar")
+                .classList.remove(
+                    "open"
+                );
+
+            $("#sidebarOverlay")
+                .classList.remove(
+                    "open"
+                );
+        }
+    );
+
+document
+    .querySelectorAll(
+        ".nav-link"
+    )
+    .forEach(link => {
+
+        link.addEventListener(
+            "click",
+            () => {
+                $("#sidebar")
+                    .classList.remove(
+                        "open"
+                    );
+
+                $("#sidebarOverlay")
+                    .classList.remove(
+                        "open"
+                    );
+            }
+        );
+
+    });
+
+/* -------------
+   Initialize
+---------------- */
+
+async function initializePage() {
+
+    await Promise.all([
+        loadCurrentUser(),
+        loadAppointments(),
+        loadPatients(),
+        loadDoctors()
+    ]);
+}
+
+initializePage();
+</script>
+
+</body>
+</html>

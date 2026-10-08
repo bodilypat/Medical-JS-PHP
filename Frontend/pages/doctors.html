@@ -1615,3 +1615,1679 @@
 
                     <div class="form-group">
                         <label class="form-label" for="licenseNumber">
+                            License Number
+                        </label>
+                        <input
+                            class="form-control"
+                            id="licenseNumber"
+                            name="license_number"
+                            type="text"
+                            maxlength="100"
+                            autocomplete="off"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="phone">
+                            Phone <span class="required">*</span>
+                        </label>
+                        <input
+                            class="form-control"
+                            id="phone"
+                            name="phone"
+                            type="tel"
+                            maxlength="30"
+                            autocomplete="tel"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="email">
+                            Email
+                        </label>
+                        <input
+                            class="form-control"
+                            id="email"
+                            name="email"
+                            type="email"
+                            maxlength="190"
+                            autocomplete="email"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="gender">
+                            Gender
+                        </label>
+                        <select class="form-control" id="gender" name="gender">
+                            <option value="">Select gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                            <option value="prefer_not_to_say">Prefer not to say</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="status">
+                            Status <span class="required">*</span>
+                        </label>
+                        <select class="form-control" id="status" name="status" required>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="on_leave">On Leave</option>
+                            <option value="suspended">Suspended</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="department">
+                            Department
+                        </label>
+                        <input
+                            class="form-control"
+                            id="department"
+                            name="department"
+                            type="text"
+                            maxlength="150"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="consultationFee">
+                            Consultation Fee
+                        </label>
+                        <input
+                            class="form-control"
+                            id="consultationFee"
+                            name="consultation_fee"
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            inputmode="decimal"
+                        >
+                    </div>
+
+                    <div class="form-group full">
+                        <label class="form-label" for="address">
+                            Address
+                        </label>
+                        <textarea
+                            class="form-control"
+                            id="address"
+                            name="address"
+                            maxlength="500"
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group full">
+                        <label class="form-label" for="bio">
+                            Professional Bio
+                        </label>
+                        <textarea
+                            class="form-control"
+                            id="bio"
+                            name="bio"
+                            maxlength="2000"
+                            placeholder="Professional background, qualifications, or other relevant information."
+                        ></textarea>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-close-modal="doctorModal">
+                    Cancel
+                </button>
+
+                <button class="btn btn-primary" id="saveDoctorBtn" type="submit">
+                    <span id="saveDoctorText">Save Doctor</span>
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<!-- ---------------------
+     View Doctor Modal
+-------------------------- -->
+<div class="modal-backdrop" id="viewDoctorModal" role="dialog" aria-modal="true" aria-labelledby="viewDoctorTitle">
+    <div class="modal">
+
+        <div class="modal-header">
+            <div>
+                <div class="modal-title" id="viewDoctorTitle">Doctor Details</div>
+                <div class="modal-subtitle">Complete doctor information.</div>
+            </div>
+
+            <button class="modal-close" type="button" data-close-modal="viewDoctorModal" aria-label="Close">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m6 6 12 12M18 6 6 18"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <div class="view-grid" id="doctorDetails"></div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secondary" type="button" data-close-modal="viewDoctorModal">
+                Close
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- ----------------------
+     Delete Confirmation
+--------------------------- -->
+<div class="modal-backdrop" id="deleteModal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+    <div class="modal small">
+
+        <div class="modal-header">
+            <div>
+                <div class="modal-title" id="deleteModalTitle">Delete Doctor</div>
+                <div class="modal-subtitle">This action cannot be undone.</div>
+            </div>
+
+            <button class="modal-close" type="button" data-close-modal="deleteModal" aria-label="Close">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m6 6 12 12M18 6 6 18"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <p style="color:var(--text-secondary);">
+                Are you sure you want to delete
+                <strong id="deleteDoctorName"></strong>?
+            </p>
+            <p style="margin-top:8px;color:var(--text-muted);font-size:12px;">
+                The backend should enforce authorization and any medical-record retention rules
+                before permanently deleting a doctor.
+            </p>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secondary" type="button" data-close-modal="deleteModal">
+                Cancel
+            </button>
+
+            <button class="btn btn-danger" id="confirmDeleteBtn" type="button">
+                Delete Doctor
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+<script>
+"use strict";
+
+/*
+ * ==========================
+ *   Doctor Management Page
+ * ==========================
+ *
+ * Expected backend endpoints:
+ *
+ * GET    ../../backend/api/doctors/list.php
+ * GET    ../../backend/api/doctors/get.php?id={id}
+ * POST   ../../backend/api/doctors/create.php
+ * PUT    ../../backend/api/doctors/update.php
+ * DELETE ../../backend/api/doctors/delete.php
+ *
+ * Authentication:
+ * Requests use credentials: "include" so PHP session cookies
+ * can be sent to the API.
+ *
+ * Supported list response examples:
+ *
+ * {
+ *   "success": true,
+ *   "data": {
+ *      "doctors": [],
+ *      "pagination": {
+ *          "page": 1,
+ *          "limit": 10,
+ *          "total": 0,
+ *          "total_pages": 0
+ *      },
+ *      "stats": {
+ *          "total": 0,
+ *          "active": 0,
+ *          "on_leave": 0,
+ *          "specialties": 0
+ *      }
+ *   }
+ * }
+ *
+ * The normalizer below also accepts simpler API response
+ * structures so the page remains flexible during development.
+ * ============================================================
+ */
+
+const API_BASE = "../../backend/api";
+
+const API = {
+    doctors: {
+        list: `${API_BASE}/doctors/list.php`,
+        get: `${API_BASE}/doctors/get.php`,
+        create: `${API_BASE}/doctors/create.php`,
+        update: `${API_BASE}/doctors/update.php`,
+        delete: `${API_BASE}/doctors/delete.php`
+    },
+    auth: {
+        me: `${API_BASE}/auth/me.php`,
+        logout: `${API_BASE}/auth/logout.php`
+    }
+};
+
+const state = {
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0,
+    doctors: [],
+    editingId: null,
+    deletingId: null,
+    requestController: null,
+    searchTimer: null
+};
+
+/* ----------------
+   DOM Helpers
+------------------- */
+
+const $ = (selector) => document.querySelector(selector);
+
+const elements = {
+    tableBody: $("#doctorTableBody"),
+    loadingState: $("#loadingState"),
+    emptyState: $("#emptyState"),
+    errorState: $("#errorState"),
+    errorMessage: $("#errorMessage"),
+    paginationInfo: $("#paginationInfo"),
+    pagination: $("#pagination"),
+
+    searchInput: $("#searchInput"),
+    specialtyFilter: $("#specialtyFilter"),
+    statusFilter: $("#statusFilter"),
+    pageSize: $("#pageSize"),
+
+    totalDoctors: $("#totalDoctors"),
+    activeDoctors: $("#activeDoctors"),
+    leaveDoctors: $("#leaveDoctors"),
+    specialtyCount: $("#specialtyCount"),
+
+    doctorModal: $("#doctorModal"),
+    doctorForm: $("#doctorForm"),
+    doctorModalTitle: $("#doctorModalTitle"),
+    doctorModalSubtitle: $("#doctorModalSubtitle"),
+    saveDoctorBtn: $("#saveDoctorBtn"),
+    saveDoctorText: $("#saveDoctorText"),
+
+    viewDoctorModal: $("#viewDoctorModal"),
+    doctorDetails: $("#doctorDetails"),
+
+    deleteModal: $("#deleteModal"),
+    deleteDoctorName: $("#deleteDoctorName"),
+    confirmDeleteBtn: $("#confirmDeleteBtn"),
+
+    toastContainer: $("#toastContainer"),
+
+    userName: $("#userName"),
+    userRole: $("#userRole"),
+    userAvatar: $("#userAvatar"),
+    lastUpdated: $("#lastUpdated")
+};
+
+/* ------------------------
+   API Helpers
+--------------------------- */
+
+async function fetchJson(url, options = {}) {
+    const response = await fetch(url, {
+        credentials: "include",
+        headers: {
+            "Accept": "application/json",
+            ...(options.body ? { "Content-Type": "application/json" } : {}),
+            ...(options.headers || {})
+        },
+        ...options
+    });
+
+    let payload = null;
+
+    try {
+        payload = await response.json();
+    } catch {
+        payload = null;
+    }
+
+    if (response.status === 401) {
+        window.location.href = "../login.html";
+        throw new Error("Your session has expired. Please log in again.");
+    }
+
+    if (!response.ok) {
+        const message =
+            payload?.message ||
+            payload?.error ||
+            `Request failed with HTTP ${response.status}.`;
+
+        throw new Error(message);
+    }
+
+    if (payload && payload.success === false) {
+        throw new Error(
+            payload.message ||
+            payload.error ||
+            "The server rejected the request."
+        );
+    }
+
+    return payload;
+}
+
+/* -------------------------
+   Response Normalization
+---------------------------- */
+
+function normalizeDoctorListResponse(payload) {
+    const root = payload?.data ?? payload ?? {};
+
+    let doctors = [];
+
+    if (Array.isArray(root)) {
+        doctors = root;
+    } else if (Array.isArray(root.doctors)) {
+        doctors = root.doctors;
+    } else if (Array.isArray(root.items)) {
+        doctors = root.items;
+    } else if (Array.isArray(payload?.doctors)) {
+        doctors = payload.doctors;
+    }
+
+    const pagination =
+        root.pagination ||
+        payload?.pagination ||
+        {};
+
+    const stats =
+        root.stats ||
+        payload?.stats ||
+        {};
+
+    const total =
+        Number(
+            pagination.total ??
+            root.total ??
+            payload?.total ??
+            doctors.length
+        ) || 0;
+
+    const page =
+        Number(
+            pagination.page ??
+            state.page
+        ) || 1;
+
+    const limit =
+        Number(
+            pagination.limit ??
+            state.limit
+        ) || state.limit;
+
+    const totalPages =
+        Number(
+            pagination.total_pages ??
+            pagination.totalPages ??
+            Math.ceil(total / Math.max(limit, 1))
+        ) || 0;
+
+    return {
+        doctors,
+        pagination: {
+            total,
+            page,
+            limit,
+            totalPages
+        },
+        stats
+    };
+}
+
+function normalizeSingleDoctorResponse(payload) {
+    const root = payload?.data ?? payload ?? {};
+
+    if (root.doctor && typeof root.doctor === "object") {
+        return root.doctor;
+    }
+
+    return root;
+}
+
+/* ----------------------
+      Doctor Loading
+------------------------- */
+
+async function loadDoctors() {
+    if (state.requestController) {
+        state.requestController.abort();
+    }
+
+    state.requestController = new AbortController();
+
+    setTableState("loading");
+
+    const params = new URLSearchParams({
+        page: String(state.page),
+        limit: String(state.limit)
+    });
+
+    const search = elements.searchInput.value.trim();
+    const specialty = elements.specialtyFilter.value;
+    const status = elements.statusFilter.value;
+
+    if (search) {
+        params.set("search", search);
+    }
+
+    if (specialty) {
+        params.set("specialty", specialty);
+    }
+
+    if (status) {
+        params.set("status", status);
+    }
+
+    try {
+        const payload = await fetchJson(
+            `${API.doctors.list}?${params.toString()}`,
+            {
+                signal: state.requestController.signal
+            }
+        );
+
+        const result = normalizeDoctorListResponse(payload);
+
+        state.doctors = result.doctors;
+        state.total = result.pagination.total;
+        state.page = result.pagination.page;
+        state.limit = result.pagination.limit;
+        state.totalPages = result.pagination.totalPages;
+
+        updateStatistics(result.stats);
+        updateSpecialtyFilter(result.doctors);
+
+        renderDoctors();
+        renderPagination();
+
+        elements.lastUpdated.textContent =
+            `Updated ${new Date().toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit"
+            })}`;
+
+        if (state.doctors.length === 0) {
+            setTableState("empty");
+        } else {
+            setTableState("table");
+        }
+
+    } catch (error) {
+        if (error.name === "AbortError") {
+            return;
+        }
+
+        console.error("Doctor loading error:", error);
+
+        elements.errorMessage.textContent =
+            error.message || "Unable to retrieve doctor records.";
+
+        setTableState("error");
+    }
+}
+
+/* --------------------
+        Statistics
+----------------------- */
+
+function updateStatistics(stats) {
+    const total =
+        stats.total ??
+        state.total;
+
+    const active =
+        stats.active ??
+        state.doctors.filter(
+            doctor => normalizeStatus(doctor.status) === "active"
+        ).length;
+
+    const onLeave =
+        stats.on_leave ??
+        stats.onLeave ??
+        state.doctors.filter(
+            doctor => normalizeStatus(doctor.status) === "on_leave"
+        ).length;
+
+    const specialtyCount =
+        stats.specialties ??
+        stats.specialty_count ??
+        stats.specialtyCount ??
+        new Set(
+            state.doctors
+                .map(doctor => doctor.specialty)
+                .filter(Boolean)
+                .map(value => String(value).trim().toLowerCase())
+        ).size;
+
+    elements.totalDoctors.textContent = formatNumber(total);
+    elements.activeDoctors.textContent = formatNumber(active);
+    elements.leaveDoctors.textContent = formatNumber(onLeave);
+    elements.specialtyCount.textContent = formatNumber(specialtyCount);
+}
+
+function formatNumber(value) {
+    const number = Number(value);
+
+    if (!Number.isFinite(number)) {
+        return "—";
+    }
+
+    return number.toLocaleString();
+}
+
+/* -----------------
+      Rendering
+-------------------- */
+
+function renderDoctors() {
+    elements.tableBody.innerHTML = "";
+
+    if (!state.doctors.length) {
+        return;
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    state.doctors.forEach(doctor => {
+        const row = document.createElement("tr");
+
+        const id = getDoctorId(doctor);
+        const firstName = doctor.first_name ?? doctor.firstName ?? "";
+        const lastName = doctor.last_name ?? doctor.lastName ?? "";
+
+        const fullName =
+            doctor.name ||
+            doctor.full_name ||
+            doctor.fullName ||
+            [firstName, lastName].filter(Boolean).join(" ") ||
+            "Unnamed Doctor";
+
+        const initials = getInitials(fullName);
+
+        row.innerHTML = `
+            <td>
+                <div class="doctor-cell">
+                    <div class="doctor-avatar">${escapeHtml(initials)}</div>
+                    <div>
+                        <div class="doctor-name">${escapeHtml(formatDoctorName(fullName))}</div>
+                        <div class="doctor-id">
+                            ${doctor.doctor_code
+                                ? `ID: ${escapeHtml(doctor.doctor_code)}`
+                                : id
+                                    ? `ID: ${escapeHtml(String(id))}`
+                                    : ""}
+                        </div>
+                    </div>
+                </div>
+            </td>
+
+            <td>
+                <div class="specialty">
+                    ${escapeHtml(doctor.specialty || "—")}
+                </div>
+                ${
+                    doctor.department
+                        ? `<div class="secondary-text">${escapeHtml(doctor.department)}</div>`
+                        : ""
+                }
+            </td>
+
+            <td>
+                <span class="secondary-text">
+                    ${escapeHtml(doctor.license_number || doctor.licenseNumber || "—")}
+                </span>
+            </td>
+
+            <td>
+                <span class="secondary-text">
+                    ${escapeHtml(doctor.phone || "—")}
+                </span>
+            </td>
+
+            <td>
+                <span class="secondary-text">
+                    ${escapeHtml(doctor.email || "—")}
+                </span>
+            </td>
+
+            <td>
+                ${renderStatusBadge(doctor.status)}
+            </td>
+
+            <td>
+                <div class="action-buttons">
+                    <button
+                        class="icon-btn"
+                        type="button"
+                        title="View doctor"
+                        aria-label="View doctor"
+                        data-action="view"
+                        data-id="${escapeHtml(String(id ?? ""))}"
+                    >
+                        ${icons.eye}
+                    </button>
+
+                    <button
+                        class="icon-btn"
+                        type="button"
+                        title="Edit doctor"
+                        aria-label="Edit doctor"
+                        data-action="edit"
+                        data-id="${escapeHtml(String(id ?? ""))}"
+                    >
+                        ${icons.edit}
+                    </button>
+
+                    <button
+                        class="icon-btn danger"
+                        type="button"
+                        title="Delete doctor"
+                        aria-label="Delete doctor"
+                        data-action="delete"
+                        data-id="${escapeHtml(String(id ?? ""))}"
+                    >
+                        ${icons.trash}
+                    </button>
+                </div>
+            </td>
+        `;
+
+        fragment.appendChild(row);
+    });
+
+    elements.tableBody.appendChild(fragment);
+}
+
+function renderStatusBadge(status) {
+    const normalized = normalizeStatus(status);
+
+    const labels = {
+        active: "Active",
+        inactive: "Inactive",
+        on_leave: "On Leave",
+        suspended: "Suspended"
+    };
+
+    return `
+        <span class="status-badge status-${escapeHtml(normalized)}">
+            ${escapeHtml(labels[normalized] || status || "Unknown")}
+        </span>
+    `;
+}
+
+function renderPagination() {
+    elements.pagination.innerHTML = "";
+
+    const total = state.total;
+    const page = state.page;
+    const totalPages = state.totalPages;
+
+    if (!total || totalPages <= 1) {
+        elements.paginationInfo.textContent =
+            total
+                ? `Showing ${Math.min((page - 1) * state.limit + 1, total)}–${Math.min(page * state.limit, total)} of ${total.toLocaleString()}`
+                : "No records";
+        return;
+    }
+
+    const start = (page - 1) * state.limit + 1;
+    const end = Math.min(page * state.limit, total);
+
+    elements.paginationInfo.textContent =
+        `Showing ${start.toLocaleString()}–${end.toLocaleString()} of ${total.toLocaleString()}`;
+
+    addPageButton("First", 1, page === 1);
+    addPageButton("‹", page - 1, page === 1);
+
+    const pages = getVisiblePages(page, totalPages);
+
+    pages.forEach(pageNumber => {
+        if (pageNumber === "...") {
+            const span = document.createElement("span");
+            span.textContent = "…";
+            span.style.padding = "0 5px";
+            span.style.color = "var(--text-muted)";
+            elements.pagination.appendChild(span);
+            return;
+        }
+
+        addPageButton(
+            String(pageNumber),
+            pageNumber,
+            false,
+            pageNumber === page
+        );
+    });
+
+    addPageButton("›", page + 1, page === totalPages);
+    addPageButton("Last", totalPages, page === totalPages);
+}
+
+function getVisiblePages(current, total) {
+    if (total <= 7) {
+        return Array.from({ length: total }, (_, i) => i + 1);
+    }
+
+    const pages = [1];
+
+    if (current > 4) {
+        pages.push("...");
+    }
+
+    const start = Math.max(2, current - 1);
+    const end = Math.min(total - 1, current + 1);
+
+    for (let i = start; i <= end; i++) {
+        pages.push(i);
+    }
+
+    if (current < total - 3) {
+        pages.push("...");
+    }
+
+    pages.push(total);
+
+    return pages;
+}
+
+function addPageButton(label, page, disabled, active = false) {
+    const button = document.createElement("button");
+
+    button.type = "button";
+    button.className = `page-btn${active ? " active" : ""}`;
+    button.textContent = label;
+    button.disabled = disabled;
+
+    button.addEventListener("click", () => {
+        if (page < 1 || page > state.totalPages || page === state.page) {
+            return;
+        }
+
+        state.page = page;
+        loadDoctors();
+    });
+
+    elements.pagination.appendChild(button);
+}
+
+/* ----------------------
+     Specialty Filter
+------------------------- */
+
+function updateSpecialtyFilter(doctors) {
+    const currentValue = elements.specialtyFilter.value;
+
+    const existing = new Set();
+
+    Array.from(elements.specialtyFilter.options).forEach(option => {
+        if (option.value) {
+            existing.add(option.value);
+        }
+    });
+
+    doctors.forEach(doctor => {
+        const specialty = String(doctor.specialty || "").trim();
+
+        if (specialty) {
+            existing.add(specialty);
+        }
+    });
+
+    const sorted = Array.from(existing).sort((a, b) =>
+        a.localeCompare(b)
+    );
+
+    elements.specialtyFilter.innerHTML =
+        `<option value="">All specialties</option>`;
+
+    sorted.forEach(specialty => {
+        const option = document.createElement("option");
+        option.value = specialty;
+        option.textContent = specialty;
+        elements.specialtyFilter.appendChild(option);
+    });
+
+    if (sorted.includes(currentValue)) {
+        elements.specialtyFilter.value = currentValue;
+    }
+}
+
+/* -----------------
+      Add / Edit
+-------------------- */
+
+function openAddDoctorModal() {
+    state.editingId = null;
+
+    elements.doctorForm.reset();
+
+    elements.status.value = "active";
+
+    elements.doctorModalTitle.textContent = "Add Doctor";
+    elements.doctorModalSubtitle.textContent =
+        "Enter the doctor's information.";
+
+    elements.saveDoctorText.textContent = "Save Doctor";
+
+    openModal("doctorModal");
+
+    setTimeout(() => elements.firstName?.focus(), 50);
+}
+
+async function openEditDoctorModal(id) {
+    if (!id) {
+        showToast("The doctor ID is missing.", "error");
+        return;
+    }
+
+    try {
+        elements.saveDoctorBtn.disabled = true;
+        elements.saveDoctorText.textContent = "Loading...";
+
+        const payload = await fetchJson(
+            `${API.doctors.get}?id=${encodeURIComponent(id)}`
+        );
+
+        const doctor = normalizeSingleDoctorResponse(payload);
+
+        state.editingId = id;
+
+        populateDoctorForm(doctor);
+
+        elements.doctorModalTitle.textContent = "Edit Doctor";
+        elements.doctorModalSubtitle.textContent =
+            "Update the doctor's information.";
+
+        elements.saveDoctorText.textContent = "Update Doctor";
+
+        openModal("doctorModal");
+
+    } catch (error) {
+        console.error("Doctor retrieval error:", error);
+        showToast(
+            error.message || "Unable to load doctor information.",
+            "error"
+        );
+    } finally {
+        elements.saveDoctorBtn.disabled = false;
+    }
+}
+
+function populateDoctorForm(doctor) {
+    const set = (id, value) => {
+        const element = document.getElementById(id);
+
+        if (element) {
+            element.value = value ?? "";
+        }
+    };
+
+    set("firstName", doctor.first_name ?? doctor.firstName);
+    set("lastName", doctor.last_name ?? doctor.lastName);
+    set("specialty", doctor.specialty);
+    set("licenseNumber", doctor.license_number ?? doctor.licenseNumber);
+    set("phone", doctor.phone);
+    set("email", doctor.email);
+    set("gender", doctor.gender);
+    set("status", doctor.status || "active");
+    set("department", doctor.department);
+    set("consultationFee", doctor.consultation_fee ?? doctor.consultationFee);
+    set("address", doctor.address);
+    set("bio", doctor.bio);
+}
+
+async function saveDoctor(event) {
+    event.preventDefault();
+
+    if (!elements.doctorForm.checkValidity()) {
+        elements.doctorForm.reportValidity();
+        return;
+    }
+
+    const formData = new FormData(elements.doctorForm);
+    const payload = Object.fromEntries(formData.entries());
+
+    if (payload.consultation_fee === "") {
+        payload.consultation_fee = null;
+    } else if (payload.consultation_fee !== null) {
+        payload.consultation_fee = Number(payload.consultation_fee);
+    }
+
+    const isEditing = Boolean(state.editingId);
+
+    if (isEditing) {
+        payload.id = state.editingId;
+    }
+
+    const endpoint = isEditing
+        ? API.doctors.update
+        : API.doctors.create;
+
+    const method = isEditing
+        ? "PUT"
+        : "POST";
+
+    setSaveLoading(true);
+
+    try {
+        await fetchJson(endpoint, {
+            method,
+            body: JSON.stringify(payload)
+        });
+
+        closeModal("doctorModal");
+
+        showToast(
+            isEditing
+                ? "Doctor updated successfully."
+                : "Doctor created successfully.",
+            "success"
+        );
+
+        await loadDoctors();
+
+    } catch (error) {
+        console.error("Doctor save error:", error);
+
+        showToast(
+            error.message || "Unable to save doctor.",
+            "error"
+        );
+    } finally {
+        setSaveLoading(false);
+    }
+}
+
+function setSaveLoading(loading) {
+    elements.saveDoctorBtn.disabled = loading;
+
+    if (loading) {
+        elements.saveDoctorText.textContent = "Saving...";
+    } else {
+        elements.saveDoctorText.textContent =
+            state.editingId
+                ? "Update Doctor"
+                : "Save Doctor";
+    }
+}
+
+/* ------------------
+       View Doctor
+--------------------- */
+
+async function openViewDoctorModal(id) {
+    if (!id) {
+        showToast("The doctor ID is missing.", "error");
+        return;
+    }
+    elements.doctorDetails.innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;padding:30px;">
+            <div class="spinner"></div>
+            <div class="secondary-text">Loading doctor details...</div>
+        </div>
+    `;
+
+    openModal("viewDoctorModal");
+
+    try {
+        const payload = await fetchJson(
+            `${API.doctors.get}?id=${encodeURIComponent(id)}`
+        );
+
+        const doctor = normalizeSingleDoctorResponse(payload);
+
+        renderDoctorDetails(doctor);
+
+    } catch (error) {
+        console.error("Doctor details error:", error);
+
+        elements.doctorDetails.innerHTML = `
+            <div style="grid-column:1/-1;padding:25px;text-align:center;">
+                <div class="state-title">Unable to load details</div>
+                <div class="state-text">${escapeHtml(
+                    error.message || "An unexpected error occurred."
+                )}</div>
+            </div>
+        `;
+    }
+}
+
+function renderDoctorDetails(doctor) {
+    const firstName = doctor.first_name ?? doctor.firstName ?? "";
+    const lastName = doctor.last_name ?? doctor.lastName ?? "";
+
+    const name =
+        doctor.name ||
+        doctor.full_name ||
+        doctor.fullName ||
+        [firstName, lastName].filter(Boolean).join(" ") ||
+        "—";
+
+    const details = [
+        ["Full Name", name],
+        ["Doctor ID", doctor.doctor_code ?? doctor.id ?? "—"],
+        ["Specialty", doctor.specialty ?? "—"],
+        ["Department", doctor.department ?? "—"],
+        ["License Number", doctor.license_number ?? doctor.licenseNumber ?? "—"],
+        ["Gender", formatGender(doctor.gender)],
+        ["Phone", doctor.phone ?? "—"],
+        ["Email", doctor.email ?? "—"],
+        ["Status", doctor.status ?? "—"],
+        ["Consultation Fee", formatCurrency(doctor.consultation_fee ?? doctor.consultationFee)],
+        ["Address", doctor.address ?? "—"],
+        ["Professional Bio", doctor.bio ?? "—"],
+        ["Created", formatDateTime(doctor.created_at ?? doctor.createdAt)],
+        ["Last Updated", formatDateTime(doctor.updated_at ?? doctor.updatedAt)]
+    ];
+
+    elements.doctorDetails.innerHTML = details
+        .map(([label, value]) => `
+            <div class="detail-item ${label === "Address" || label === "Professional Bio" ? "full" : ""}">
+                <div class="detail-label">${escapeHtml(label)}</div>
+                <div class="detail-value">${escapeHtml(String(value))}</div>
+            </div>
+        `)
+        .join("");
+}
+
+/* ------------------
+        Delete
+--------------------- */
+
+function openDeleteDoctorModal(id) {
+    const doctor = state.doctors.find(
+        item => String(getDoctorId(item)) === String(id)
+    );
+
+    if (!doctor) {
+        showToast("Doctor record was not found.", "error");
+        return;
+    }
+
+    state.deletingId = id;
+
+    const firstName = doctor.first_name ?? doctor.firstName ?? "";
+    const lastName = doctor.last_name ?? doctor.lastName ?? "";
+
+    const name =
+        doctor.name ||
+        doctor.full_name ||
+        doctor.fullName ||
+        [firstName, lastName].filter(Boolean).join(" ") ||
+        "this doctor";
+
+    elements.deleteDoctorName.textContent = name;
+
+    openModal("deleteModal");
+}
+
+async function deleteDoctor() {
+    if (!state.deletingId) {
+        return;
+    }
+
+    const id = state.deletingId;
+
+    elements.confirmDeleteBtn.disabled = true;
+    elements.confirmDeleteBtn.textContent = "Deleting...";
+
+    try {
+        await fetchJson(API.doctors.delete, {
+            method: "DELETE",
+            body: JSON.stringify({ id })
+        });
+
+        closeModal("deleteModal");
+
+        showToast("Doctor deleted successfully.", "success");
+
+        if (
+            state.page > 1 &&
+            state.doctors.length === 1
+        ) {
+            state.page -= 1;
+        }
+
+        await loadDoctors();
+
+    } catch (error) {
+        console.error("Doctor delete error:", error);
+
+        showToast(
+            error.message || "Unable to delete doctor.",
+            "error"
+        );
+    } finally {
+        state.deletingId = null;
+        elements.confirmDeleteBtn.disabled = false;
+        elements.confirmDeleteBtn.textContent = "Delete Doctor";
+    }
+}
+
+/* -------------------
+     Table Actions
+---------------------- */
+
+async function handleTableAction(event) {
+    const button = event.target.closest("[data-action]");
+
+    if (!button) {
+        return;
+    }
+
+    const action = button.dataset.action;
+    const id = button.dataset.id;
+
+    if (!id) {
+        return;
+    }
+
+    switch (action) {
+        case "view":
+            await openViewDoctorModal(id);
+            break;
+
+        case "edit":
+            await openEditDoctorModal(id);
+            break;
+
+        case "delete":
+            openDeleteDoctorModal(id);
+            break;
+    }
+}
+
+/* ---------------
+      Filters
+------------------ */
+
+function handleSearch() {
+    clearTimeout(state.searchTimer);
+
+    state.searchTimer = setTimeout(() => {
+        state.page = 1;
+        loadDoctors();
+    }, 350);
+}
+
+function handleFilterChange() {
+    state.page = 1;
+    loadDoctors();
+}
+
+function clearFilters() {
+    elements.searchInput.value = "";
+    elements.specialtyFilter.value = "";
+    elements.statusFilter.value = "";
+
+    state.page = 1;
+
+    loadDoctors();
+}
+
+/* --------------------
+     Authentication
+----------------------- */
+
+async function loadCurrentUser() {
+    try {
+        const payload = await fetchJson(API.auth.me);
+
+        const root = payload?.data ?? payload ?? {};
+
+        const user =
+            root.user ||
+            root;
+
+        const name =
+            user.name ||
+            user.full_name ||
+            user.fullName ||
+            [user.first_name, user.last_name]
+                .filter(Boolean)
+                .join(" ");
+
+        const role =
+            user.role_name ||
+            user.role ||
+            user.user_type ||
+            "";
+
+        if (name) {
+            elements.userName.textContent = name;
+            elements.userAvatar.textContent = getInitials(name);
+        } else {
+            elements.userName.textContent = "User";
+            elements.userAvatar.textContent = "U";
+        }
+
+        elements.userRole.textContent = role || "";
+
+    } catch (error) {
+        /*
+         * Do not invent a user identity.
+         * If /me.php is unavailable but doctor APIs are working,
+         * the page remains usable.
+         */
+        if (!error.message?.includes("session")) {
+            elements.userName.textContent = "User";
+            elements.userRole.textContent = "";
+            elements.userAvatar.textContent = "U";
+        }
+    }
+}
+
+async function logout() {
+    const button = $("#logoutBtn");
+
+    button.disabled = true;
+
+    try {
+        await fetchJson(API.auth.logout, {
+            method: "POST"
+        });
+    } catch (error) {
+        console.warn("Logout request failed:", error);
+    } finally {
+        window.location.href = "../login.html";
+    }
+}
+
+/* ------------------
+     Modal Helpers
+--------------------- */
+
+function openModal(id) {
+    const modal = document.getElementById(id);
+
+    if (!modal) {
+        return;
+    }
+
+    modal.classList.add("open");
+    document.body.style.overflow = "hidden";
+}
+
+function closeModal(id) {
+    const modal = document.getElementById(id);
+
+    if (!modal) {
+        return;
+    }
+
+    modal.classList.remove("open");
+
+    if (!document.querySelector(".modal-backdrop.open")) {
+        document.body.style.overflow = "";
+    }
+}
+
+function closeAllModals() {
+    document.querySelectorAll(".modal-backdrop.open")
+        .forEach(modal => modal.classList.remove("open"));
+
+    document.body.style.overflow = "";
+}
+
+/* -----------------
+      Table State
+-------------------- */
+
+function setTableState(stateName) {
+    const states = [
+        elements.loadingState,
+        elements.emptyState,
+        elements.errorState
+    ];
+
+    states.forEach(element => {
+        element.classList.remove("visible");
+    });
+
+    if (stateName === "loading") {
+        elements.loadingState.classList.add("visible");
+        elements.tableBody.innerHTML = "";
+    }
+
+    if (stateName === "empty") {
+        elements.emptyState.classList.add("visible");
+        elements.tableBody.innerHTML = "";
+    }
+
+    if (stateName === "error") {
+        elements.errorState.classList.add("visible");
+        elements.tableBody.innerHTML = "";
+    }
+}
+
+/* ---------------
+       Toasts
+------------------ */
+
+function showToast(message, type = "success") {
+    const toast = document.createElement("div");
+
+    toast.className = `toast ${type}`;
+
+    const icon =
+        type === "success"
+            ? "✓"
+            : type === "warning"
+                ? "!"
+                : "×";
+
+    toast.innerHTML = `
+        <div class="toast-icon">${icon}</div>
+        <div class="toast-message">${escapeHtml(message)}</div>
+    `;
+
+    elements.toastContainer.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 4500);
+}
+
+/* ----------------
+      Utilities
+------------------- */
+
+function getDoctorId(doctor) {
+    return (
+        doctor.id ??
+        doctor.doctor_id ??
+        doctor.doctorId ??
+        doctor.uuid ??
+        ""
+    );
+}
+
+function formatDoctorName(name) {
+    return name
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function getInitials(name) {
+    const parts = String(name)
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+
+    if (!parts.length) {
+        return "D";
+    }
+
+    if (parts.length === 1) {
+        return parts[0].slice(0, 2).toUpperCase();
+    }
+
+    return (
+        parts[0][0] +
+        parts[parts.length - 1][0]
+    ).toUpperCase();
+}
+
+function normalizeStatus(status) {
+    return String(status || "inactive")
+        .trim()
+        .toLowerCase()
+        .replace(/[\s-]+/g, "_");
+}
+
+function formatGender(value) {
+    if (!value) {
+        return "—";
+    }
+
+    const labels = {
+        male: "Male",
+        female: "Female",
+        other: "Other",
+        prefer_not_to_say: "Prefer not to say"
+    };
+
+    const normalized = String(value).toLowerCase();
+
+    return labels[normalized] ||
+        String(value)
+            .replace(/_/g, " ")
+            .replace(/\b\w/g, char => char.toUpperCase());
+}
+
+function formatCurrency(value) {
+    if (
+        value === null ||
+        value === undefined ||
+        value === ""
+    ) {
+        return "—";
+    }
+
+    const number = Number(value);
+
+    if (!Number.isFinite(number)) {
+        return String(value);
+    }
+
+    return new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency: "USD"
+    }).format(number);
+}
+
+function formatDateTime(value) {
+    if (!value) {
+        return "—";
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return String(value);
+    }
+
+    return date.toLocaleString();
+}
+
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+/* -------------
+       Icons
+---------------- */
+
+const icons = {
+    eye: `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/>
+            <circle cx="12" cy="12" r="3"/>
+        </svg>
+    `,
+
+    edit: `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M12 20h9"/>
+            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/>
+        </svg>
+    `,
+
+    trash: `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M3 6h18M8 6V4h8v2M19 6l-1 15H6L5 6"/>
+            <path d="M10 11v6M14 11v6"/>
+        </svg>
+    `
+};
+
+/* ------------------------
+       Event Listeners
+--------------------------- */
+
+elements.searchInput.addEventListener(
+    "input",
+    handleSearch
+);
+
+elements.specialtyFilter.addEventListener(
+    "change",
+    handleFilterChange
+);
+
+elements.statusFilter.addEventListener(
+    "change",
+    handleFilterChange
+);
+
+elements.pageSize.addEventListener(
+    "change",
+    () => {
+        state.limit = Number(elements.pageSize.value) || 10;
+        state.page = 1;
+        loadDoctors();
+    }
+);
+
+elements.tableBody.addEventListener(
+    "click",
+    handleTableAction
+);
+
+$("#addDoctorBtn").addEventListener(
+    "click",
+    openAddDoctorModal
+);
+
+$("#refreshBtn").addEventListener(
+    "click",
+    loadDoctors
+);
+
+$("#retryBtn").addEventListener(
+    "click",
+    loadDoctors
+);
+
+$("#clearFiltersBtn").addEventListener(
+    "click",
+    clearFilters
+);
+
+elements.doctorForm.addEventListener(
+    "submit",
+    saveDoctor
+);
+
+elements.confirmDeleteBtn.addEventListener(
+    "click",
+    deleteDoctor
+);
+
+$("#logoutBtn").addEventListener(
+    "click",
+    logout
+);
+
+document.querySelectorAll("[data-close-modal]")
+    .forEach(button => {
+        button.addEventListener("click", () => {
+            closeModal(button.dataset.closeModal);
+        });
+    });
+
+document.querySelectorAll(".modal-backdrop")
+    .forEach(backdrop => {
+        backdrop.addEventListener("mousedown", event => {
+            if (event.target === backdrop) {
+                closeModal(backdrop.id);
+            }
+        });
+    });
+
+document.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+        closeAllModals();
+    }
+});
+
+/* -----------------------
+      Mobile Navigation
+-------------------------- */
+
+$("#mobileMenuBtn").addEventListener(
+    "click",
+    () => {
+        $("#sidebar").classList.add("open");
+        $("#sidebarOverlay").classList.add("open");
+    }
+);
+
+$("#sidebarOverlay").addEventListener(
+    "click",
+    () => {
+        $("#sidebar").classList.remove("open");
+        $("#sidebarOverlay").classList.remove("open");
+    }
+);
+
+document.querySelectorAll(".nav-link")
+    .forEach(link => {
+        link.addEventListener("click", () => {
+            $("#sidebar").classList.remove("open");
+            $("#sidebarOverlay").classList.remove("open");
+        });
+    });
+
+/* -------------------
+       Initialize
+---------------------- */
+
+async function initializePage() {
+    await Promise.all([
+        loadCurrentUser(),
+        loadDoctors()
+    ]);
+}
+
+initializePage();
+</script>
+
+</body>
+</html>
