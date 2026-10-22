@@ -1,31 +1,19 @@
-/**
- * Medical Management System
- * Frontend/js/doctors.js
- *
- * Doctor operations:
- * - Load doctors
- * - Search doctors
- * - Filter doctors
- * - Pagination
- * - Get doctor
- * - Create doctor
- * - Update doctor
- * - Delete doctor
- * - Doctor form handling
- * - Doctor details
- */
+/* 
+* Medical Management System
+* frontend/js/doctors.js 
+*
+*/
 
 'use strict';
 
 const Doctors = (() => {
-
     const state = {
         doctors: [],
         currentDoctor: null,
         currentPage: 1,
         perPage: 10,
         total: 0,
-        search: '',
+        search: 0,
         status: '',
         specialization: '',
         department: '',
@@ -34,118 +22,94 @@ const Doctors = (() => {
 
     const endpoints = {
         list: '/doctors/list.php',
-        get: '/doctors/get.php',
+        get: '/doctor/get.php',
         create: '/doctors/create.php',
-        update: '/doctors/update.php',
-        delete: '/doctors/delete.php'
+        update: '/doctors/updata.php',
+        delete: '/doctors/delete.php',
     };
 
-
-    /* ============================================================
-       LIST DOCTORS
-       ============================================================ */
-
+    /* Test Doctors */
     async function list(options = {}) {
-
         const params = {
             page: options.page || state.currentPage,
             limit: options.limit || state.perPage,
-            search: options.search ?? state.search,
+            search: options.search || state.search,
             status: options.status ?? state.status,
             specialization:
                 options.specialization ??
                 state.specialization,
             department:
                 options.department ??
-                state.department
+                state.department 
         };
 
         state.loading = true;
 
         try {
-
             const query = new URLSearchParams();
 
-            Object.entries(params).forEach(([key, value]) => {
+            Object.entries(params).forEach(([KeyboardEvent, value]) => {
 
-                if (
-                    value !== undefined &&
-                    value !== null &&
-                    value !== ''
-                ) {
-                    query.append(key, value);
+                if (value !== undefined && value !== null && value != '') {
+                    query.append(KeyboardEvent, value);
                 }
             });
 
-            const url =
-                `${endpoints.list}?${query.toString()}`;
+            const url = `${endpoints.lust}?${query.toString()}`;
 
             const response = await API.get(url);
 
-            if (!response || response.success === false) {
+            if (!response | response.success === false)  {
                 throw new Error(
-                    response?.message ||
-                    'Unable to load doctors.'
+                    response?.message || 'Unable to load doctors.'
                 );
             }
 
-            const data =
-                response.data || response;
+            const data = response.data || response;
 
-            state.doctors =
-                Array.isArray(data.doctors)
-                    ? data.doctors
-                    : Array.isArray(data)
-                        ? data
-                        : [];
+            state.doctors = Array.isArray(data.doctors)
+                ? data.doctors
+                : Array.isArray(data)
+                    ? data 
+                    : [];
 
-            state.total =
-                Number(
-                    data.total ??
-                    response.total ??
-                    state.doctors.length
-                );
+            state.total = Number(
+                data.total ?? 
+                response.total ?? 
+                state.doctors.length 
+            ); 
 
-            state.currentPage =
-                Number(
-                    data.page ??
-                    params.page
-                );
+            state.currentPage = Number(
+                data.page ?? 
+                params.page 
+            );
 
-            state.perPage =
-                Number(
-                    data.limit ??
-                    params.limit
-                );
+            state.perPage = Number(
+                data.limit ??
+                params.limit 
+            );
 
             return {
                 success: true,
                 doctors: state.doctors,
                 total: state.total,
                 page: state.currentPage,
-                limit: state.perPage
+                limit: state.perPage 
             };
-
         } catch (error) {
 
             console.error(
                 'Doctor list error:',
-                error
+                error 
             );
 
             throw error;
-
         } finally {
-
             state.loading = false;
         }
     }
 
-
-    /* ============================================================
-       GET DOCTOR
-       ============================================================ */
-
+    /* Get doctor */
     async function get(id) {
 
         if (!id) {
@@ -155,75 +119,63 @@ const Doctors = (() => {
         }
 
         try {
-
             const response = await API.get(
                 `${endpoints.get}?id=${encodeURIComponent(id)}`
             );
 
             if (!response || response.success === false) {
                 throw new Error(
-                    response?.message ||
-                    'Unable to retrieve doctor.'
+                    response?.message || 'Unable to retrieve doctor.'
                 );
             }
 
-            const doctor =
-                response.data?.doctor ||
-                response.doctor ||
-                response.data;
+            const doctor = response.data?.doctor || response.doctor || response.data;
 
-            state.currentDoctor =
-                doctor || null;
+            state.currentDoctor = doctor || null;
 
             return doctor;
-
         } catch (error) {
-
+            
             console.error(
-                'Get doctor error:',
-                error
+                'Get doctor error.',
+                error 
             );
 
             throw error;
         }
     }
 
-
-    /* ============================================================
-       CREATE DOCTOR
-       ============================================================ */
-
+    /* Create Doctor */
     async function create(doctorData) {
-
-        validateDoctor(doctorData);
+        validateDoctor(doctorData); 
 
         try {
-
+            
             const response = await API.post(
-                endpoints.create,
+                endpoints.create, 
                 normalizeDoctorData(doctorData)
             );
 
             if (!response || response.success === false) {
                 throw new Error(
-                    response?.message ||
+                    response?.message || 
                     'Unable to create doctor.'
                 );
             }
 
-            const doctor =
-                response.data?.doctor ||
-                response.doctor ||
+            const doctor = 
+                response.data?.doctor || 
+                response.doctor || 
                 response.data;
 
             return {
                 success: true,
                 doctor,
                 message:
-                    response.message ||
+                    response.message || 
                     'Doctor created successfully.'
             };
-
+            
         } catch (error) {
 
             console.error(
@@ -235,13 +187,8 @@ const Doctors = (() => {
         }
     }
 
-
-    /* ============================================================
-       UPDATE DOCTOR
-       ============================================================ */
-
-    async function update(id, doctorData) {
-
+    /*  Update doctor */
+    async function update (id, doctorData) {
         if (!id) {
             throw new Error(
                 'Doctor ID is required.'
@@ -251,7 +198,6 @@ const Doctors = (() => {
         validateDoctor(doctorData);
 
         try {
-
             const payload = {
                 id,
                 ...normalizeDoctorData(doctorData)
@@ -259,19 +205,24 @@ const Doctors = (() => {
 
             const response = await API.post(
                 endpoints.update,
-                payload
-            );
+                payload 
+            ); 
+
+            if (!response || response.success === false) {
+                endpoints.update,
+                payload 
+            };
 
             if (!response || response.success === false) {
                 throw new Error(
-                    response?.message ||
+                    response?.message || 
                     'Unable to update doctor.'
                 );
             }
 
-            const doctor =
+            const doctor = 
                 response.data?.doctor ||
-                response.doctor ||
+                response.doctor || 
                 response.data;
 
             return {
@@ -281,9 +232,7 @@ const Doctors = (() => {
                     response.message ||
                     'Doctor updated successfully.'
             };
-
         } catch (error) {
-
             console.error(
                 'Update doctor error:',
                 error
@@ -293,21 +242,16 @@ const Doctors = (() => {
         }
     }
 
-
-    /* ============================================================
-       DELETE DOCTOR
-       ============================================================ */
-
-    async function remove(id) {
+    /* Delete Doctor */
+    async function remove (id) {
 
         if (!id) {
             throw new Error(
-                'Doctor ID is required.'
+                'Doctor ID is required.' 
             );
         }
 
         try {
-
             const response = await API.post(
                 endpoints.delete,
                 { id }
@@ -315,104 +259,75 @@ const Doctors = (() => {
 
             if (!response || response.success === false) {
                 throw new Error(
-                    response?.message ||
+                    response?.message || 
                     'Unable to delete doctor.'
                 );
             }
 
             return {
                 success: true,
-                message:
-                    response.message ||
+                message: 
+                    response.message || 
                     'Doctor deleted successfully.'
             };
-
         } catch (error) {
-
             console.error(
                 'Delete doctor error:',
-                error
+                error 
             );
 
             throw error;
         }
     }
 
-
-    /* ============================================================
-       SEARCH
-       ============================================================ */
-
+    /* Search */
     async function search(term) {
-
-        state.search =
+        state.search = 
             typeof term === 'string'
                 ? term.trim()
                 : '';
-
+        
         state.currentPage = 1;
 
         return await list();
     }
 
-
-    /* ============================================================
-       FILTER
-       ============================================================ */
-
+    /* Filter */
+    
     async function filter(filters = {}) {
 
-        state.search =
-            filters.search ?? '';
+        state.search = filters.search ?? '';
 
-        state.status =
-            filters.status ?? '';
+        state.status = filters.status ?? '';
 
-        state.specialization =
-            filters.specialization ?? '';
+        state.specialization = filters.specialization ?? '';
 
-        state.department =
-            filters.department ?? '';
+        state.department = filters.department ?? '';
 
         state.currentPage = 1;
 
         return await list();
     }
 
-
-    /* ============================================================
-       PAGINATION
-       ============================================================ */
+    /* Pagination */
 
     async function goToPage(page) {
+    /* Asynchronous operation allow work network requests to complete without blocking thread while awaiting*/
 
         page = Number(page);
-
-        if (
-            !Number.isInteger(page) ||
-            page < 1
-        ) {
+        if (!Number.isInteger(page) || page < 1) {
             return;
         }
 
         state.currentPage = page;
-
         return await list();
     }
 
+    async function  nextPage() {
 
-    async function nextPage() {
+        const totalPages = Math.ceil(state.total / state.perPage);
 
-        const totalPages =
-            Math.ceil(
-                state.total /
-                state.perPage
-            );
-
-        if (
-            state.currentPage >=
-            totalPages
-        ) {
+        if (state.currentPage >= totalPages) {
             return;
         }
 
@@ -421,76 +336,55 @@ const Doctors = (() => {
         );
     }
 
-
     async function previousPage() {
 
         if (state.currentPage <= 1) {
             return;
         }
 
-        return await goToPage(
-            state.currentPage - 1
-        );
+        return await goToPage(state.currentPage -1);
     }
+    
 
-
-    /* ============================================================
-       VALIDATION
-       ============================================================ */
-
+    /* Validation */
     function validateDoctor(doctor) {
 
-        if (
-            !doctor ||
-            typeof doctor !== 'object'
-        ) {
+        if (!doctor || typeof doctor !== 'object') {
             throw new Error(
                 'Doctor information is required.'
             );
         }
 
-        const firstName =
+        const firstName = 
             doctor.first_name ??
             doctor.firstName;
 
         const lastName =
-            doctor.last_name ??
-            doctor.lastName;
+            doctor.first_name ??
+            doctor.firstName;
 
-        if (
-            !firstName ||
-            !String(firstName).trim()
-        ) {
+        if (!firstName || !String(firstName).trim()) {
             throw new Error(
                 'First name is required.'
-            );
+            )
         }
 
-        if (
-            !lastName ||
-            !String(lastName).trim()
-        ) {
+        if (!lastName || !String(lastName).trim()) {
             throw new Error(
                 'Last name is required.'
             );
         }
 
-        const email =
-            doctor.email;
+        const email = doctor.email;
 
-        if (
-            email &&
-            !isValidEmail(email)
-        ) {
+        if (email && !isValidEmail(email)) {
             throw new Error(
                 'Please enter a valid email address.'
             );
         }
 
-        if (
-            !doctor.specialization &&
-            !doctor.specialty
-        ) {
+        if (!doctor.specialization && !doctor.specialty) {
+
             throw new Error(
                 'Specialization is required.'
             );
@@ -499,93 +393,80 @@ const Doctors = (() => {
         return true;
     }
 
-
-    /* ============================================================
-       NORMALIZE DOCTOR DATA
-       ============================================================ */
-
+    /* Normalize doctor data */
     function normalizeDoctorData(doctor) {
-
         return {
-
             first_name:
                 clean(
-                    doctor.first_name ??
-                    doctor.firstName
+                    doctor.first_name ?? 
+                    doctor.firstName 
                 ),
-
-            middle_name:
-                clean(
-                    doctor.middle_name ??
-                    doctor.middleName
+            middle_name: 
+                clean( 
+                    doctor.middle_name ?? 
+                    doctor.middleName 
                 ),
-
+            
             last_name:
                 clean(
-                    doctor.last_name ??
-                    doctor.lastName
+                    doctor.last_name ?? 
+                    doctor.lastName 
                 ),
-
+            
             gender:
                 clean(doctor.gender),
 
             date_of_birth:
                 clean(
-                    doctor.date_of_birth ??
-                    doctor.dateOfBirth
+                    doctor.date_of_birth ?? 
+                    doctor.dateOfBirth 
                 ),
 
             specialization:
-                clean(
-                    doctor.specialization ??
-                    doctor.specialty
+                clean( 
+                    doctor.specialization ?? 
+                    doctor.specialty 
                 ),
 
-            department:
+            department: 
                 clean(
-                    doctor.department
+                    doctor.department 
                 ),
 
-            license_number:
+            license_number: 
                 clean(
-                    doctor.license_number ??
-                    doctor.licenseNumber
-                ),
-
-            qualification:
-                clean(
-                    doctor.qualification ??
-                    doctor.qualifications
+                    doctor.license_number ?? 
+                    doctor.licenseNumber 
                 ),
 
             experience_years:
                 clean(
-                    doctor.experience_years ??
-                    doctor.experienceYears
-                ),
-
-            phone:
-                clean(doctor.phone),
-
-            email:
+                    doctor.experience_years ?? 
+                    doctor.experienceYears 
+                ), 
+            
+            phone: 
+                clean(doctor.phone), 
+            
+            email: 
                 clean(doctor.email),
 
-            address:
+            address: 
                 clean(doctor.address),
 
-            city:
+            city: 
                 clean(doctor.city),
 
             state:
                 clean(doctor.state),
 
-            postal_code:
+            post_code:
                 clean(
                     doctor.postal_code ??
-                    doctor.postalCode
+                    doctor.postalCode  
                 ),
 
-            consultation_fee:
+            consultations_fee:
                 clean(
                     doctor.consultation_fee ??
                     doctor.consultationFee
@@ -595,16 +476,12 @@ const Doctors = (() => {
                 clean(doctor.availability),
 
             status:
-                clean(doctor.status) ||
-                'active'
+                clean(doctor.status) || 
+                'active'                
         };
     }
 
-
-    /* ============================================================
-       FORM → OBJECT
-       ============================================================ */
-
+    /* Form -> Object */
     function formToObject(form) {
 
         if (!form) {
@@ -613,38 +490,28 @@ const Doctors = (() => {
             );
         }
 
-        const formData =
-            new FormData(form);
+        const formData = new FormData(form);
 
         const data = {};
 
         formData.forEach((value, key) => {
 
-            data[key] =
-                typeof value === 'string'
-                    ? value.trim()
-                    : value;
+            data[key] = typeof value === 'string'
+                ? value.trim()
+                : value;
         });
 
         return data;
     }
 
-
-    /* ============================================================
-       CREATE FORM
-       ============================================================ */
-
+    /* Create Form */
     async function submitCreateForm(form) {
+    /* asynchronous operation allow work as network request to complete without blocking the main while waiting */
+        const doctor = formToObject(form);
 
-        const doctor =
-            formToObject(form);
-
-        const result =
-            await create(doctor);
-
+        const result = await create(doctor);
         showMessage(
-            result.message,
-            'success'
+            result.message, 'success'
         );
 
         form.reset();
@@ -654,24 +521,11 @@ const Doctors = (() => {
         return result;
     }
 
+    /* Update Form */
+    async function submitUpdateForm(form, doctorId) {
 
-    /* ============================================================
-       UPDATE FORM
-       ============================================================ */
-
-    async function submitUpdateForm(
-        form,
-        doctorId
-    ) {
-
-        const doctor =
-            formToObject(form);
-
-        const result =
-            await update(
-                doctorId,
-                doctor
-            );
+        const doctor = formToObject(form);
+        const result = await update(doctorId, doctor);
 
         showMessage(
             result.message,
@@ -679,35 +533,28 @@ const Doctors = (() => {
         );
 
         await refreshList();
-
         return result;
     }
 
-
-    /* ============================================================
-       DELETE WITH CONFIRMATION
-       ============================================================ */
-
+    /* Delete with confirmation */
     async function deleteWithConfirmation(id) {
 
         if (!id) {
             return;
         }
 
-        const confirmed =
-            window.confirm(
-                'Are you sure you want to delete this doctor? This action cannot be undone.'
-            );
+        const confirmed = window.confirm(
+            'Are you sure you want to deelte this doctor? this action cannot be undone.'
+        );
 
         if (!confirmed) {
             return {
                 success: false,
-                cancelled: true
+                cancelled: true 
             };
         }
 
-        const result =
-            await remove(id);
+        const result = await remove(id);
 
         showMessage(
             result.message,
@@ -715,183 +562,159 @@ const Doctors = (() => {
         );
 
         await refreshList();
-
         return result;
     }
 
-
-    /* ============================================================
-       REFRESH LIST
-       ============================================================ */
-
+    /* Refresh List */
     async function refreshList() {
 
-        const result =
-            await list();
+        const result = await list();
 
-        renderDoctorTable(
-            result.doctors
-        );
+        renderDoctorTable(result.doctors);
 
         renderPagination(
             result.total,
             result.page,
             result.limit
         );
-
+        
         return result;
     }
 
+    /* Render Doctor Table */
+    function renderDoctorTable(doctors, selector = '#doctorsTableBody') {
 
-    /* ============================================================
-       RENDER DOCTOR TABLE
-       ============================================================ */
+        const tbody = document.querySelector(selector);
 
-    function renderDoctorTable(
-        doctors,
-        selector = '#doctorsTableBody'
-    ) {
-
-        const tbody =
-            document.querySelector(selector);
-
-        if (!tbody) {
+        if (!body) {
             return;
         }
 
         tbody.innerHTML = '';
 
-        if (
-            !Array.isArray(doctors) ||
-            doctors.length === 0
-        ) {
-
+        if (!Array.isArray(doctors) || doctors.length === 0) {
             tbody.innerHTML = `
                 <tr>
                     <td colspan="100%" class="empty-state">
-                        No doctors found.
+                        No doctors found. 
                     </td>
                 </tr>
             `;
-
+            
             return;
         }
 
         doctors.forEach(doctor => {
 
-            const id =
-                doctor.id ??
-                doctor.doctor_id;
+            const id = doctor.id ?? doctor.doctor_id;
 
-            const fullName =
+            const fullName = 
                 [
                     doctor.first_name,
                     doctor.middle_name,
                     doctor.last_name
                 ]
-                    .filter(Boolean)
-                    .join(' ');
 
-            const row =
-                document.createElement('tr');
+                .filter(Boolean)
+                .join(' ');
+
+            const row = document.createElement('tr');
 
             row.innerHTML = `
-
                 <td>
                     ${escapeHtml(
-                        doctor.doctor_number ||
-                        doctor.doctor_code ||
-                        id ||
+                        doctor.doctor_number || 
+                        doctor.doctor_code || 
+                        id || 
                         ''
                     )}
                 </td>
-
+                
                 <td>
                     ${escapeHtml(
                         fullName
                     )}
                 </td>
-
+                
                 <td>
                     ${escapeHtml(
-                        doctor.specialization ||
-                        doctor.specialty ||
+                        doctor.specialization || 
+                        doctor.specialty || 
                         ''
                     )}
                 </td>
-
+                
                 <td>
                     ${escapeHtml(
-                        doctor.department ||
+                        doctor.department || 
+                        '' 
+                    )}
+                </td>
+                
+                <td>
+                    ${escapeHtml(
+                        doctor.license_number || 
                         ''
                     )}
                 </td>
-
-                <td>
-                    ${escapeHtml(
-                        doctor.license_number ||
-                        ''
-                    )}
-                </td>
-
+                
                 <td>
                     ${escapeHtml(
                         doctor.phone ||
                         ''
                     )}
                 </td>
-
+                
                 <td>
                     ${escapeHtml(
                         doctor.email ||
                         ''
                     )}
                 </td>
-
+                
                 <td>
                     <span class="status-badge status-${escapeHtml(
                         String(
-                            doctor.status ||
-                            'active'
-                        ).toLowerCase()
-                    )}">
-                        ${escapeHtml(
-                            formatStatus(
-                                doctor.status
-                            )
+                                doctor.status || 
+                                'active'
+                            ).toLowerCase()
+                        )}">
+                            ${escapeHtml(
+                                formatStatus(
+                                    doctor.status
+                                )
                         )}
                     </span>
                 </td>
-
+                
                 <td class="actions">
-
                     <button
                         type="button"
                         class="btn btn-sm btn-view"
                         data-action="view-doctor"
                         data-id="${escapeHtml(id)}"
                     >
-                        View
+                        View 
                     </button>
-
-                    <button
+                    
+                    <button 
                         type="button"
                         class="btn btn-sm btn-edit"
                         data-action="edit-doctor"
                         data-id="${escapeHtml(id)}"
                     >
-                        Edit
+                        Edit 
                     </button>
-
-                    <button
+                    
+                    <button 
                         type="button"
                         class="btn btn-sm btn-danger"
                         data-action="delete-doctor"
                         data-id="${escapeHtml(id)}"
                     >
-                        Delete
+                        Delete 
                     </button>
-
+                    
                 </td>
             `;
 
@@ -899,29 +722,20 @@ const Doctors = (() => {
         });
     }
 
-
-    /* ============================================================
-       RENDER PAGINATION
-       ============================================================ */
-
+    /* Render Pagination */
     function renderPagination(
-        total,
+        total, 
         page,
-        limit,
-        selector = '#doctorsPagination'
+        selector = '#doctorPagination'
     ) {
-
-        const container =
-            document.querySelector(selector);
+        
+        const container =  document.querySelector(selector);
 
         if (!container) {
             return;
         }
 
-        const totalPages =
-            Math.ceil(
-                total / limit
-            );
+        const totalPages = Math.ceil(total / limit);
 
         container.innerHTML = '';
 
@@ -929,84 +743,61 @@ const Doctors = (() => {
             return;
         }
 
-        const previous =
-            document.createElement('button');
+        const previous = document.createElement('button');
 
         previous.type = 'button';
-        previous.className =
-            'pagination-btn';
-
-        previous.textContent =
-            'Previous';
-
-        previous.disabled =
-            page <= 1;
-
+        previous.className = 'pagination-btn';
+        previous.textContent = 'Previous';
+        previous.disabled = page <= 1;
         previous.addEventListener(
             'click',
-            () => previousPage()
+            () => previousPage() 
         );
 
         container.appendChild(previous);
 
+        /* 
+        ** Limit the number of visible page
+        ** buttons for large datasets.
+        */
 
-        /*
-         * Limit the number of visible page
-         * buttons for large datasets.
-         */
         const maxButtons = 7;
 
-        let startPage =
-            Math.max(
+        let startPage = Math.ceil(
                 1,
-                page - Math.floor(
-                    maxButtons / 2
-                )
+                page - Math.floor(maxButtons / 2)
             );
 
-        let endPage =
-            Math.min(
+        let endPage = Math.min(
                 totalPages,
                 startPage + maxButtons - 1
             );
 
-        if (
-            endPage - startPage + 1 <
-            maxButtons
-        ) {
-
-            startPage =
-                Math.max(
+        if (endPage - startPage + 1 < maxButtons) {
+            startPage = Math.max(
                     1,
-                    endPage - maxButtons + 1
+                    endPage - maxButtons + 1 
                 );
         }
 
-
-        for (
+        for(
             let pageNumber = startPage;
             pageNumber <= endPage;
             pageNumber++
         ) {
 
-            const button =
-                document.createElement('button');
+            const button = document.createElement('button');
 
             button.type = 'button';
 
-            button.className =
-                'pagination-btn';
+            button.className = 'pagination-btn';
 
-            if (
-                pageNumber === page
-            ) {
-                button.classList.add(
-                    'active'
-                );
+            if (pageNumber === page) {
+                
+                button.classList.add('active');
             }
 
-            button.textContent =
-                pageNumber;
+            button.textContent = pageNumber;
 
             button.addEventListener(
                 'click',
@@ -1016,20 +807,13 @@ const Doctors = (() => {
             container.appendChild(button);
         }
 
+        const next = document.createElement('button');
+        
+        next.className = 'pagination-btn';
 
-        const next =
-            document.createElement('button');
+        next.textContent = 'Next';
 
-        next.type = 'button';
-
-        next.className =
-            'pagination-btn';
-
-        next.textContent =
-            'Next';
-
-        next.disabled =
-            page >= totalPages;
+        next.disabled = page >= totalPages;
 
         next.addEventListener(
             'click',
@@ -1039,29 +823,18 @@ const Doctors = (() => {
         container.appendChild(next);
     }
 
+    /* Show Doctor Details */
+    async function showDetails(id, containerSelector = '#doctorDetails') {
+        
+        const container = document.querySelector(containerSelector);
 
-    /* ============================================================
-       SHOW DOCTOR DETAILS
-       ============================================================ */
-
-    async function showDetails(
-        id,
-        containerSelector = '#doctorDetails'
-    ) {
-
-        const container =
-            document.querySelector(
-                containerSelector
-            );
-
-        const doctor =
-            await get(id);
+        const doctor = await get(id);
 
         if (!container) {
             return doctor;
         }
 
-        const fullName =
+        const fullName = 
             [
                 doctor.first_name,
                 doctor.middle_name,
@@ -1069,72 +842,59 @@ const Doctors = (() => {
             ]
                 .filter(Boolean)
                 .join(' ');
-
+        
         container.innerHTML = `
-
             <div class="doctor-details">
-
                 <h2>
                     ${escapeHtml(
                         fullName
                     )}
                 </h2>
-
+                
                 <div class="details-grid">
-
                     <div>
                         <strong>Doctor ID</strong>
                         <span>
                             ${escapeHtml(
-                                doctor.doctor_number ||
-                                doctor.doctor_code ||
+                                doctor.doctor_number || 
+                                doctor.doctor_code || 
                                 doctor.id ||
                                 ''
                             )}
                         </span>
                     </div>
-
+                    
                     <div>
                         <strong>Specialization</strong>
                         <span>
                             ${escapeHtml(
-                                doctor.specialization ||
-                                doctor.specialty ||
+                                doctor.specialization || 
+                                doctor.specialty || 
                                 ''
                             )}
                         </span>
                     </div>
-
-                    <div>
-                        <strong>Department</strong>
-                        <span>
-                            ${escapeHtml(
-                                doctor.department ||
-                                ''
-                            )}
-                        </span>
-                    </div>
-
+                    
                     <div>
                         <strong>License Number</strong>
                         <span>
                             ${escapeHtml(
-                                doctor.license_number ||
+                                doctor.license_number || 
                                 ''
                             )}
                         </span>
                     </div>
-
+                    
                     <div>
                         <strong>Qualification</strong>
                         <span>
                             ${escapeHtml(
-                                doctor.qualification ||
+                                doctor.qualification || 
                                 ''
                             )}
                         </span>
                     </div>
-
+                    
                     <div>
                         <strong>Experience</strong>
                         <span>
@@ -1149,37 +909,27 @@ const Doctors = (() => {
                             }
                         </span>
                     </div>
-
-                    <div>
-                        <strong>Phone</strong>
-                        <span>
-                            ${escapeHtml(
-                                doctor.phone ||
-                                ''
-                            )}
-                        </span>
-                    </div>
-
+                    
                     <div>
                         <strong>Email</strong>
                         <span>
                             ${escapeHtml(
-                                doctor.email ||
+                                doctor.email || 
                                 ''
                             )}
-                        </span>
+                        <span>
                     </div>
-
+                    
                     <div>
                         <strong>Consultation Fee</strong>
                         <span>
                             ${escapeHtml(
-                                doctor.consultation_fee ??
+                                doctor.consultation_fee ?? 
                                 ''
                             )}
                         </span>
                     </div>
-
+                    
                     <div>
                         <strong>Status</strong>
                         <span>
@@ -1190,128 +940,92 @@ const Doctors = (() => {
                             )}
                         </span>
                     </div>
-
                 </div>
-
             </div>
         `;
 
         return doctor;
     }
 
-
-    /* ============================================================
-       LOAD DOCTOR INTO EDIT FORM
-       ============================================================ */
-
+    /* Load Doctor into Edit Form */
     async function loadDoctorIntoForm(id) {
 
-        const doctor =
-            await get(id);
+        const doctor = await get(id);
 
-        const form =
-            document.querySelector(
-                '#doctorForm'
-            );
+        const form = document.querySelector('#doctorForm');
 
         if (!form) {
             return doctor;
         }
 
-        Object.entries(doctor)
-            .forEach(([key, value]) => {
-
-                const input =
-                    form.elements.namedItem(
-                        key
-                    );
+        Object.entries(doctor).forEach(([key, value]) => {
+            
+                const input = form.elements.namedItem(key);
 
                 if (!input) {
                     return;
                 }
 
-                input.value =
-                    value ?? '';
+                input.value = value ?? '';
             });
-
-        const idInput =
-            form.elements.namedItem(
-                'id'
-            );
+        
+        const idInput = form.elements.namedItem('id');
 
         if (idInput) {
-
-            idInput.value =
-                doctor.id ??
-                doctor.doctor_id ??
+            idInput.value = 
+                doctor.id ?? 
+                doctor.doctor_id ?? 
                 '';
         }
 
-        form.dataset.mode =
-            'edit';
+        form.dataset.mode = 'edit';
 
         form.dataset.doctorId =
-            doctor.id ??
-            doctor.doctor_id ??
+            doctor.id ?? 
+            doctor.doctor_id ?? 
             '';
-
+        
         return doctor;
     }
 
-
-    /* ============================================================
-       INITIALIZE DOCTOR PAGE
-       ============================================================ */
-
+    /* Initialize doctor page */
     async function init() {
 
         if (typeof API === 'undefined') {
-
-            console.error(
-                'API client is not loaded.'
-            );
-
+            
+            console.error('API client is not loaded.');
             return;
         }
 
         try {
-
             await refreshList();
 
             setupSearch();
 
-            setupFilters();
+            setupFilter();
 
             setupDoctorActions();
 
-            setupDoctorForms();
-
+            setupDoctorForm();
         } catch (error) {
 
             console.error(
-                'Doctor page initialization failed:',
-                error
+                'Doctor page initialization failed: ',
+                error 
             );
 
             showMessage(
-                error.message ||
+                error.message || 
                 'Unable to load doctors.',
                 'error'
             );
         }
     }
 
-
-    /* ============================================================
-       SEARCH EVENTS
-       ============================================================ */
-
+    /* Search events */
     function setupSearch() {
 
-        const input =
-            document.querySelector(
-                '#doctorSearch'
-            );
+        const input = document.querySelector('#doctorSearch');
 
         if (!input) {
             return;
@@ -1322,79 +1036,53 @@ const Doctors = (() => {
         input.addEventListener(
             'input',
             () => {
-
                 clearTimeout(timer);
 
                 timer = setTimeout(
-                    () => search(
-                        input.value
-                    ),
-                    400
+                    () => search(input.value), 400 
                 );
             }
         );
     }
 
-
-    /* ============================================================
-       FILTER EVENTS
-       ============================================================ */
-
+    /* Filter events */
     function setupFilters() {
 
-        const status =
-            document.querySelector(
-                '#doctorStatusFilter'
-            );
+        const status = document.querySelector('#doctorStatusFilter');
 
-        const specialization =
-            document.querySelector(
-                '#doctorSpecializationFilter'
-            );
+        const specialization = document.querySelector('#doctorSpecializationFilter');
 
-        const department =
-            document.querySelector(
-                '#doctorDepartmentFilter'
-            );
+        const department = document.querySelector('#doctorDepartmentFilters');
 
-        const apply =
-            document.querySelector(
-                '#applyDoctorFilters'
-            );
-
+        const apply = document.querySelector('#applyDoctorFilters');
 
         const getFilters = () => ({
-            status:
-                status?.value || '',
+            
+            status: status?.value || '',
 
-            specialization:
-                specialization?.value || '',
+            specialization: specialization?.value || '',
 
-            department:
-                department?.value || '',
+            department: department?.value || '',
 
-            search:
-                document.querySelector(
+            search: document.querySelector(
                     '#doctorSearch'
-                )?.value || ''
+                )?.value || '',
         });
 
-
         if (apply) {
-
+            
             apply.addEventListener(
                 'click',
                 () => filter(
-                    getFilters()
+                    getFilters() 
                 )
             );
         }
 
-
         [
             status,
             specialization,
-            department
+            department 
         ]
             .filter(Boolean)
             .forEach(select => {
@@ -1402,80 +1090,60 @@ const Doctors = (() => {
                 select.addEventListener(
                     'change',
                     () => filter(
-                        getFilters()
+                        getFilters() 
                     )
                 );
             });
     }
 
-
-    /* ============================================================
-       DOCTOR ACTION BUTTONS
-       ============================================================ */
-
+    /* Doctor action buttons */
     function setupDoctorActions() {
 
         document.addEventListener(
             'click',
             async event => {
 
-                const button =
-                    event.target.closest(
-                        '[data-action]'
-                    );
+                const button = event.target.closest(
+                    '[data-action]'
+                );
 
                 if (!button) {
                     return;
                 }
 
-                const action =
-                    button.dataset.action;
+                const action = button.dataset.action;
 
-                const id =
-                    button.dataset.id;
+                const id = button.dataset.id;
 
                 if (!id) {
                     return;
                 }
 
                 try {
-
+                    
                     switch (action) {
 
-                        case 'view-doctor':
-
-                            await showDetails(
-                                id
-                            );
-
+                        case 'view-doctor': 
+                            await showDetails(id);
                             break;
 
                         case 'edit-doctor':
-
-                            await loadDoctorIntoForm(
-                                id
-                            );
-
+                            await loadDoctorIntoForm(id);
                             break;
 
-                        case 'delete-doctor':
-
-                            await deleteWithConfirmation(
-                                id
-                            );
-
+                        case ' delete-doctor': 
+                            await deleteWithConfirmation(id);
                             break;
                     }
-
                 } catch (error) {
 
                     console.error(
                         'Doctor action failed:',
-                        error
+                        error 
                     );
 
                     showMessage(
-                        error.message ||
+                        error.message || 
                         'Doctor operation failed.',
                         'error'
                     );
@@ -1484,17 +1152,12 @@ const Doctors = (() => {
         );
     }
 
-
-    /* ============================================================
-       DOCTOR FORM EVENTS
-       ============================================================ */
-
+    /* Doctor form events */
     function setupDoctorForms() {
 
-        const forms =
-            document.querySelectorAll(
-                '#doctorForm, #createDoctorForm, #editDoctorForm'
-            );
+        const forms = document.querySelectorAll(
+            '#doctorForm, #createDoctorForm, #editDoctorForm'
+        );
 
         forms.forEach(form => {
 
@@ -1506,45 +1169,28 @@ const Doctors = (() => {
 
                     try {
 
-                        const doctor =
+                        const doctor = 
                             formToObject(
-                                form
+                                form 
                             );
 
-                        const doctorId =
-                            form.dataset.doctorId ||
+                        const doctorId = 
+                            form.dataset.doctorId || 
                             doctor.id;
 
                         let result;
 
                         if (
                             doctorId &&
-                            (
-                                form.dataset.mode ===
-                                'edit' ||
-                                form.id ===
-                                'editDoctorForm'
-                            )
+                            (form.dataset.mode === 'edit' || form.id === 'editDoctorForm')
                         ) {
 
-                            result =
-                                await update(
-                                    doctorId,
-                                    doctor
-                                );
-
+                            result = await update(doctorId, doctor);
                         } else {
-
-                            result =
-                                await create(
-                                    doctor
-                                );
+                            result = await create(doctor);
                         }
 
-                        showMessage(
-                            result.message,
-                            'success'
-                        );
+                        showMessage(result.message, 'success');
 
                         form.reset();
 
@@ -1552,11 +1198,10 @@ const Doctors = (() => {
                         delete form.dataset.doctorId;
 
                         await refreshList();
-
                     } catch (error) {
 
                         console.error(
-                            'Doctor form error:',
+                            'Doctor form error: ',
                             error
                         );
 
@@ -1571,30 +1216,20 @@ const Doctors = (() => {
         });
     }
 
-
-    /* ============================================================
-       UTILITY FUNCTIONS
-       ============================================================ */
-
+    /* Utility functions */
     function clean(value) {
 
-        if (
-            value === undefined ||
-            value === null
-        ) {
-            return '';
+        if (value === undefined || value === null) {
+            return;
         }
 
         return String(value).trim();
     }
 
-
     function isValidEmail(email) {
-
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-            .test(email);
+        
+        return /^[^s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
-
 
     function formatStatus(status) {
 
@@ -1604,17 +1239,16 @@ const Doctors = (() => {
 
         return String(status)
             .replace(/[_-]/g, ' ')
-            .replace(/\b\w/g, char =>
+            .replace(/\b\w/g, char => 
                 char.toUpperCase()
             );
     }
 
-
     function escapeHtml(value) {
 
         if (
-            value === undefined ||
-            value === null
+            value === underfined || 
+            value === null 
         ) {
             return '';
         }
@@ -1627,25 +1261,21 @@ const Doctors = (() => {
             .replace(/'/g, '&#039;');
     }
 
-
     function showMessage(
         message,
         type = 'info'
     ) {
-
-        const element =
-            document.querySelector(
-                '#doctorMessage'
-            );
+        
+        const element = document.querySelector('#doctorMessage');
 
         if (!element) {
             return;
         }
 
-        element.textContent =
+        element.textContent = 
             message || '';
-
-        element.className =
+        
+        element.className = 
             `message message-${type}`;
 
         element.hidden = false;
@@ -1655,13 +1285,9 @@ const Doctors = (() => {
         }, 5000);
     }
 
-
-    /* ============================================================
-       PUBLIC API
-       ============================================================ */
+    /* Public API */
 
     return {
-
         state,
 
         list,
@@ -1690,60 +1316,20 @@ const Doctors = (() => {
 
         deleteWithConfirmation,
 
-        init
+        init 
     };
 
 })();
 
-
-/*
- * Make Doctors available globally.
- */
-window.Doctors = Doctors;
-
-
-/* ================================================================
-   AUTO INITIALIZATION
-   ================================================================ */
-
+/* Make Doctor available globally. */
 document.addEventListener(
     'DOMContentLoaded',
     () => {
 
-        if (
-            document.querySelector(
-                '#doctorsTableBody'
-            ) ||
-            document.querySelector(
-                '#doctorForm'
-            )
-        ) {
+        if (document.querySelector('#doctorTableBodyy') || document.querySelector('#doctorForm')) {
+            
             Doctors.init();
         }
     }
 );
 
-doctors.html
-     │
-     ▼
-doctors.js
-     │
-     ▼
-api.js
-     │
-     ├── doctors/list.php
-     ├── doctors/get.php
-     ├── doctors/create.php
-     ├── doctors/update.php
-     └── doctors/delete.php
-             │
-             ▼
-      DoctorController.php
-             │
-             ▼
-          Doctor.php
-             │
-             ▼
-           MySQL
-
-           
