@@ -1,17 +1,18 @@
 /**
- * Frontend/js/appointments.js
- * Medical Management System
- *
- * Appointment CRUD operations and UI handling.
- *
- * Expected API endpoints:
- * GET  /appointments/list.php
- * GET  /appointments/get.php?id=123
- * POST /appointments/create.php
- * POST /appointments/update.php
- * POST /appointments/cancel.php
- * POST /appointments/delete.php
- */
+* Medical Management System 
+*  
+* Frontend/js/appointments.js
+* Appointment CRUD operations and UI handling.
+*
+* Expected API endpoints:
+* GET /appointments/list.php 
+* GET /appointments/get.php?id=?
+* POST /appointments/create.php 
+* POST /appointments/update.php 
+* POST /appointments/cancel.php
+* POST /appointments/delete.php
+* 
+**/
 
 (function (window, document) {
     'use strict';
@@ -23,10 +24,7 @@
         return;
     }
 
-    // ------------------------------------------------------------
-    // State
-    // ------------------------------------------------------------
-
+    /* State */
     const state = {
         appointments: [],
         currentAppointment: null,
@@ -40,16 +38,12 @@
         appointmentType: '',
         doctorId: '',
         patientId: '',
-        dateFrom: '',
-        dateTo: '',
+        dateForm: '',
 
-        loading: false
+        loading: false 
     };
 
-    // ------------------------------------------------------------
-    // API endpoints
-    // ------------------------------------------------------------
-
+    /* API endpoints */
     const endpoints = {
         list: '/appointments/list.php',
         get: '/appointments/get.php',
@@ -59,24 +53,22 @@
         delete: '/appointments/delete.php'
     };
 
-    // ------------------------------------------------------------
-    // Utilities
-    // ------------------------------------------------------------
-
+    /* Utilities */
     function escapeHtml(value) {
+
         if (value === null || value === undefined) {
             return '';
         }
 
         return String(value)
             .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
+            .replace(/</g, '&lt')
+            .replace(/>/g, '&gt')
             .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
+            .replace(/'/g, '&#039;')
     }
 
-    function getElement(selector) {
+    function getElement(selector) {        
         return document.querySelector(selector);
     }
 
@@ -85,6 +77,7 @@
     }
 
     function showMessage(message, type = 'success', selector = '#appointmentMessage') {
+        
         const element = getElement(selector);
 
         if (!element) {
@@ -109,7 +102,7 @@
             return;
         }
 
-        element.textContent = '';
+        element.textContent = '',
         element.hidden = true;
         element.className = 'message';
     }
@@ -117,20 +110,18 @@
     function setLoading(loading) {
         state.loading = loading;
 
-        document
-            .querySelectorAll('[data-appointments-loading]')
-            .forEach(element => {
-                element.hidden = !loading;
-            });
+        document.querySelectorAll('[data-appointments-loading]').forEach(element => {
+            element.hidden = !loading;
+        });
 
-        document
-            .querySelectorAll('[data-appointments-content]')
-            .forEach(element => {
-                element.hidden = loading;
-            });
+        document.querySelectorAll('[data-appointments-content]').forEach(element => {
+            element.hidden = loading;
+        });
+    
     }
 
     function formatDate(date) {
+
         if (!date) {
             return '';
         }
@@ -148,8 +139,9 @@
         });
     }
 
-    function formatDateTime(date, time) {
-        if (!date) {
+    function formatDateTime(data, time) {
+
+        if (!data) {
             return '';
         }
 
@@ -160,8 +152,8 @@
             return `${formatDate(date)}${time ? ` ${time}` : ''}`;
         }
 
-        return parsed.toLocaleString(undefined, {
-            year: 'numeric',
+        return parsed.toLocaleDateString(undefined, {
+            year: 'number',
             month: 'short',
             day: 'numeric',
             hour: time ? 'numeric' : undefined,
@@ -170,6 +162,7 @@
     }
 
     function formatCurrency(value) {
+
         if (value === null || value === undefined || value === '') {
             return '';
         }
@@ -187,29 +180,28 @@
     }
 
     function capitalize(value) {
+
         if (!value) {
             return '';
         }
 
         return String(value)
-            .replace(/[_-]/g, ' ')
-            .replace(/\b\w/g, character => character.toUpperCase());
+                .replace(/[_-]/g, ' ')
+                .replace(/\b\w/g, character => character.toUpperCase());
     }
 
     function getAppointmentId(appointment) {
         return (
             appointment?.id ??
             appointment?.appointment_id ??
-            appointment?.appointmentId ??
-            ''
+            appointment?.appointmentId ?? 
+            '' 
         );
     }
 
-    // ------------------------------------------------------------
-    // List appointments
-    // ------------------------------------------------------------
-
+    /* List appointments */
     async function list(options = {}) {
+
         const page = Number(options.page || state.currentPage || 1);
         const limit = Number(options.limit || state.perPage || 10);
 
@@ -219,12 +211,12 @@
         params.set('limit', limit);
 
         const search = options.search ?? state.search;
-        const status = options.status ?? state.status;
-        const appointmentType =
-            options.appointment_type ?? state.appointmentType;
+        const status = options ?? state.status;
+
+        const appointmentType = options.appointment_type ?? state.appointmentType;
         const doctorId = options.doctor_id ?? state.doctorId;
         const patientId = options.patient_id ?? state.patientId;
-        const dateFrom = options.date_from ?? state.dateFrom;
+        const dataFrom = options.date_from ?? state.dateForm;
         const dateTo = options.date_to ?? state.dateTo;
 
         if (search) {
@@ -257,26 +249,26 @@
 
         setLoading(true);
 
-        try {
-            const response = await API.get(
-                `${endpoints.list}?${params.toString()}`
-            );
+        try{
+            const response = await API.GET(
+                    `${endpoints.list}?${params.toString()}`
+                );
 
-            const appointments =
+            const appointments = 
                 response?.data?.appointments ??
-                response?.appointments ??
+                response?.appointments ?? 
                 response?.data ??
                 [];
 
             state.appointments = Array.isArray(appointments)
-                ? appointments
+                ? appointments 
                 : [];
 
-            state.total =
+            state.total = 
                 Number(
                     response?.data?.total ??
-                    response?.total ??
-                    state.appointments.length
+                    response?.total ?? 
+                    state.appointments.length 
                 ) || 0;
 
             state.currentPage = page;
@@ -286,15 +278,16 @@
             renderPagination(
                 state.total,
                 state.currentPage,
-                state.perPage
-            );
+                state.perPage 
+            ); 
 
             return response;
         } catch (error) {
-            console.error('Failed to load appointments:', error);
+            console.error('Failed to load appointment:', error);
 
             state.appointments = [];
             state.total = 0;
+
 
             renderAppointmentTable();
             renderPagination(0, page, limit);
@@ -310,34 +303,33 @@
         }
     }
 
-    // ------------------------------------------------------------
-    // Get appointment
-    // ------------------------------------------------------------
-
+    /* GEt appointment */
     async function get(id) {
         if (!id) {
             throw new Error('Appointment ID is required.');
         }
 
         try {
+            
             const response = await API.get(
-                `${endpoints.get}?id=${encodeURIComponent(id)}`
+                `${endpoints.get}?id=${endpointURIComponent(id)}`
             );
 
-            const appointment =
-                response?.data?.appointment ??
+            const appointment = 
+                response?.data?.appointment ?? 
                 response?.appointment ??
-                response?.data ??
+                response?.data ?? 
                 null;
 
             state.currentAppointment = appointment;
 
             return appointment;
         } catch (error) {
+            
             console.error('Failed to get appointment:', error);
 
             showMessage(
-                error?.message || 'Unable to load appointment.',
+                error?.message || 'Unable to load appointment.', 
                 'error'
             );
 
@@ -345,13 +337,10 @@
         }
     }
 
-    // ------------------------------------------------------------
-    // Create appointment
-    // ------------------------------------------------------------
-
+    /* Create appointment */
     async function create(appointmentData) {
         const data = normalizeAppointmentData(appointmentData);
-        const validation = validateAppointment(data);
+        const validation = validationAppointment(data);
 
         if (!validation.valid) {
             throw new Error(validation.errors.join(' '));
@@ -362,7 +351,7 @@
         try {
             const response = await API.post(
                 endpoints.create,
-                data
+                data 
             );
 
             showMessage(
@@ -374,11 +363,12 @@
 
             await list({
                 page: 1,
-                limit: state.perPage
+                limit: state.perPage 
             });
 
             return response;
         } catch (error) {
+            
             console.error('Failed to create appointment:', error);
 
             showMessage(
@@ -392,11 +382,9 @@
         }
     }
 
-    // ------------------------------------------------------------
-    // Update appointment
-    // ------------------------------------------------------------
-
+    /* Update appointment */
     async function update(id, appointmentData) {
+
         if (!id) {
             throw new Error('Appointment ID is required.');
         }
@@ -404,7 +392,7 @@
         const data = normalizeAppointmentData(appointmentData);
 
         data.id = id;
-        data.appointment_id = id;
+        data.appointment_id = id 
 
         const validation = validateAppointment(data);
 
@@ -417,7 +405,7 @@
         try {
             const response = await API.post(
                 endpoints.update,
-                data
+                data 
             );
 
             showMessage(
@@ -427,12 +415,13 @@
 
             await list({
                 page: state.currentPage,
-                limit: state.perPage
+                limit: state.petPage 
             });
 
             return response;
         } catch (error) {
-            console.error('Failed to update appointment:', error);
+            
+            console.error('Failed to update appointment: ', error);
 
             showMessage(
                 error?.message || 'Unable to update appointment.',
@@ -445,18 +434,16 @@
         }
     }
 
-    // ------------------------------------------------------------
-    // Cancel appointment
-    // ------------------------------------------------------------
-
+    /* Cancel appointment */
     async function cancel(id, reason = '') {
+
         if (!id) {
             throw new Error('Appointment ID is required.');
         }
 
         const data = {
             id: id,
-            appointment_id: id
+            appointment_id: id 
         };
 
         if (reason) {
@@ -467,7 +454,7 @@
         try {
             const response = await API.post(
                 endpoints.cancel,
-                data
+                data 
             );
 
             showMessage(
@@ -477,11 +464,12 @@
 
             await list({
                 page: state.currentPage,
-                limit: state.perPage
+                limit: state.perPage 
             });
 
             return response;
         } catch (error) {
+
             console.error('Failed to cancel appointment:', error);
 
             showMessage(
@@ -493,11 +481,9 @@
         }
     }
 
-    // ------------------------------------------------------------
-    // Delete appointment
-    // ------------------------------------------------------------
-
+    /* Delete appointment */
     async function remove(id) {
+
         if (!id) {
             throw new Error('Appointment ID is required.');
         }
@@ -507,29 +493,27 @@
                 endpoints.delete,
                 {
                     id: id,
-                    appointment_id: id
+                    appointment_id: id 
                 }
             );
 
             showMessage(
-                response?.message || 'Appointment deleted successfully.',
+                response?.message || 'Appointment deleted successfully',
                 'success'
-            );
+            ); 
 
-            if (
-                state.appointments.length === 1 &&
-                state.currentPage > 1
-            ) {
+            if (state.appointments.length === 1 && state.currentPage > 1) {
                 state.currentPage--;
             }
 
             await list({
                 page: state.currentPage,
-                limit: state.perPage
+                limit: state.perPage 
             });
 
             return response;
-        } catch (error) {
+        } catch(error) {
+
             console.error('Failed to delete appointment:', error);
 
             showMessage(
@@ -541,50 +525,42 @@
         }
     }
 
-    // ------------------------------------------------------------
-    // Search
-    // ------------------------------------------------------------
-
+    /* Search */
     async function search(term) {
         state.search = String(term || '').trim();
-        state.currentPage = 1;
+        state.currentPage = 1; 
 
         return list({
             page: 1,
             limit: state.perPage,
-            search: state.search
         });
     }
 
-    // ------------------------------------------------------------
-    // Filter
-    // ------------------------------------------------------------
-
+    /* Filter */
     async function filter(filters = {}) {
         state.status = filters.status ?? '';
-        state.appointmentType =
+        state.appointmentType = 
             filters.appointment_type ??
             filters.appointmentType ??
             '';
-
-        state.doctorId =
-            filters.doctor_id ??
-            filters.doctorId ??
+        state.doctorId = 
+            filters.doctor_id ?? 
+            filters.doctorId ?? 
             '';
 
-        state.patientId =
+        state.patientId = 
             filters.patient_id ??
             filters.patientId ??
             '';
 
-        state.dateFrom =
+        state.dateFrom = 
             filters.date_from ??
-            filters.dateFrom ??
+            filters.dataForm ?? 
             '';
 
-        state.dateTo =
-            filters.date_to ??
-            filters.dateTo ??
+        state.dateTo = 
+            filters.date_to ?? 
+            filters.dateTo ?? 
             '';
 
         state.currentPage = 1;
@@ -598,14 +574,11 @@
             doctor_id: state.doctorId,
             patient_id: state.patientId,
             date_from: state.dateFrom,
-            date_to: state.dateTo
+            date_to: state.dateTo   
         });
     }
 
-    // ------------------------------------------------------------
-    // Pagination
-    // ------------------------------------------------------------
-
+    /* Pagination */
     async function goToPage(page) {
         const totalPages = Math.max(
             1,
@@ -614,8 +587,17 @@
 
         const targetPage = Math.min(
             Math.max(Number(page) || 1, 1),
-            totalPages
+            totalPages 
         );
+
+        if (target === state.currentPage && state.appointments.length) {
+            return;
+        }
+
+        return list({
+            page: targetPage,
+            limit: state.perPage
+        });
 
         if (targetPage === state.currentPage && state.appointments.length) {
             return;
@@ -623,7 +605,7 @@
 
         return list({
             page: targetPage,
-            limit: state.perPage
+            limit: state.perPage 
         });
     }
 
@@ -635,10 +617,7 @@
         return goToPage(state.currentPage - 1);
     }
 
-    // ------------------------------------------------------------
-    // Validation
-    // ------------------------------------------------------------
-
+    /* Validation */
     function validateAppointment(appointment) {
         const errors = [];
 
@@ -647,7 +626,7 @@
         }
 
         if (!appointment.doctor_id) {
-            errors.push('Doctor is required.');
+            errors.push('Doctor is requried.');
         }
 
         if (!appointment.appointment_date) {
@@ -658,17 +637,11 @@
             errors.push('Appointment time is required.');
         }
 
-        if (
-            appointment.patient_id &&
-            !/^\d+$/.test(String(appointment.patient_id))
-        ) {
-            errors.push('Patient ID must be valid.');
+        if (appointment.patient_id && !/^\d+$/.test(String(appointment.patient_id))) {
+            errors.push('Patient ID must be valid.')
         }
 
-        if (
-            appointment.doctor_id &&
-            !/^\d+$/.test(String(appointment.doctor_id))
-        ) {
+        if(appointment.doctor_id && !/^\d+$/.test(String(appointment.doctor_id))) {
             errors.push('Doctor ID must be valid.');
         }
 
@@ -678,7 +651,21 @@
             );
 
             if (Number.isNaN(date.getTime())) {
-                errors.push('Appointment date is invalid.');
+                errors.push('Appointment dae is invalid.');
+            }
+        }
+
+        if (appointment.patient_id && !/^\d+$/.test(String(appointment.patient_id))) {
+            errors.push('Doctor ID must be valid.');
+        }
+
+        if (appointment.appointment_date) {
+            const date = new Date(
+                `${appointment.appointment_date}T00:00:00`
+            );
+
+            if (Number.isNaN(date.getTime())) {
+                errors.push('Appointment data is invalid.');
             }
         }
 
@@ -687,21 +674,21 @@
 
             if (!timePattern.test(appointment.appointment_time)) {
                 errors.push(
-                    'Appointment time must use HH:MM format.'
+                    'Appointment time must use HH:mm format.'
                 );
             }
         }
 
         if (
-            appointment.duration_minutes !== '' &&
+            appointment.duration !== '' &&
             appointment.duration_minutes !== null &&
             appointment.duration_minutes !== undefined
         ) {
             const duration = Number(appointment.duration_minutes);
 
             if (
-                Number.isNaN(duration) ||
-                duration <= 0 ||
+                Number.isNaN(duration) || 
+                duration <= 0 || 
                 !Number.isInteger(duration)
             ) {
                 errors.push(
@@ -712,70 +699,67 @@
 
         if (
             appointment.consultation_fee !== '' &&
-            appointment.consultation_fee !== null &&
-            appointment.consultation_fee !== undefined
+            appointment.consultation_fee !== null && 
+            appointment.consultation_fee !== undefined 
         ) {
             const fee = Number(appointment.consultation_fee);
 
             if (Number.isNaN(fee) || fee < 0) {
-                errors.push('Consultation fee must be a valid amount.');
+                errors.push('Consultation fee must be a valid amount');
             }
         }
 
         return {
             valid: errors.length === 0,
-            errors
+            errors 
         };
     }
 
-    // ------------------------------------------------------------
-    // Normalize appointment data
-    // ------------------------------------------------------------
-
+    /* Normalize appointment data */
     function normalizeAppointmentData(appointment = {}) {
         return {
             patient_id: appointment.patient_id ?? '',
             doctor_id: appointment.doctor_id ?? '',
 
-            appointment_date:
-                appointment.appointment_date ??
-                appointment.date ??
+            appointment_date: 
+                appointment.appointment_date ?? 
+                appointment.date ?? 
                 '',
 
             appointment_time:
-                appointment.appointment_time ??
-                appointment.time ??
+                appointment.appointment_time ?? 
+                appointment.time ?? 
                 '',
 
             duration_minutes:
-                appointment.duration_minutes ??
-                appointment.duration ??
+                appointment.duration-minutes ?? 
+                appointment.duration ?? 
                 '',
 
             appointment_type:
-                appointment.appointment_type ??
+                appointment.appointment_type ?? 
                 appointment.type ??
                 '',
 
             reason:
-                appointment.reason ??
-                appointment.visit_reason ??
+                appointment.reason ?? 
+                appointment.visit_reason ?? 
                 '',
 
-            symptoms:
-                appointment.symptoms ?? '',
+            Symptoms:
+                appointment.Symptoms ?? '',
 
-            notes:
-                appointment.notes ??
+            notes: 
+                appointment.notes ?? 
                 appointment.description ??
                 '',
 
             consultation_fee:
-                appointment.consultation_fee ??
-                appointment.fee ??
+                appointment.consultation_fee ?? 
+                appointment.fee ?? 
                 '',
 
-            status:
+            status: 
                 appointment.status ??
                 'scheduled',
 
@@ -792,19 +776,16 @@
                 '',
 
             cancellation_reason:
-                appointment.cancellation_reason ??
+                appointment.cancellation_reason ?? 
                 '',
 
             reminder_sent:
-                appointment.reminder_sent ??
-                0
+                appointment.reminder_sent ?? 
+                0 
         };
     }
 
-    // ------------------------------------------------------------
-    // Form conversion
-    // ------------------------------------------------------------
-
+    /* Form conversion */
     function formToObject(form) {
         const data = {};
 
@@ -814,19 +795,16 @@
 
         const formData = new FormData(form);
 
-        formData.forEach((value, key) => {
+        formData.formEach((value, key) => {
             data[key] = typeof value === 'string'
                 ? value.trim()
-                : value;
+                : value; 
         });
 
         return data;
     }
 
-    // ------------------------------------------------------------
-    // Create form
-    // ------------------------------------------------------------
-
+    /* Create form */
     async function submitCreateForm(form) {
         if (!form) {
             throw new Error('Appointment form was not found.');
@@ -856,9 +834,7 @@
         }
     }
 
-    // ------------------------------------------------------------
-    // Update form
-    // ------------------------------------------------------------
+    /* Update form */
 
     async function submitUpdateForm(form, appointmentId) {
         if (!form) {
@@ -885,10 +861,7 @@
         }
     }
 
-    // ------------------------------------------------------------
-    // Delete confirmation
-    // ------------------------------------------------------------
-
+    /* Delete confirmation */
     async function deleteWithConfirmation(id) {
         if (!id) {
             return;
@@ -899,7 +872,7 @@
         );
 
         const label = appointment
-            ? `${appointment.patient_name || appointment.patient || 'this appointment'}`
+            ? `${appointment.patient_name  || appointment.patient | 'this appointment'}`
             : 'this appointment';
 
         const confirmed = window.confirm(
@@ -913,10 +886,7 @@
         return remove(id);
     }
 
-    // ------------------------------------------------------------
-    // Cancel confirmation
-    // ------------------------------------------------------------
-
+    /* Cancel confirmation */
     async function cancelWithConfirmation(id) {
         if (!id) {
             return;
@@ -933,21 +903,15 @@
         return cancel(id, reason.trim());
     }
 
-    // ------------------------------------------------------------
-    // Refresh
-    // ------------------------------------------------------------
-
+    /* Refresh */
     async function refreshList() {
         return list({
             page: state.currentPage,
-            limit: state.perPage
-        });
+            limit: state.perPage 
+        }); 
     }
 
-    // ------------------------------------------------------------
-    // Render appointment table
-    // ------------------------------------------------------------
-
+    /* Render appointment table */
     function renderAppointmentTable(
         appointments = state.appointments,
         selector = '#appointmentsTableBody'
@@ -960,7 +924,7 @@
 
         if (!appointments.length) {
             tbody.innerHTML = `
-                <tr>
+                <tr> 
                     <td colspan="10" class="empty-state">
                         No appointments found.
                     </td>
@@ -973,123 +937,120 @@
         tbody.innerHTML = appointments.map(appointment => {
             const id = getAppointmentId(appointment);
 
-            const patientName =
-                appointment.patient_name ||
-                appointment.patient_full_name ||
+            const patientName = 
+                appointment.patient_name || 
+                appointment.patient_full_name || 
                 [
                     appointment.patient_first_name,
-                    appointment.patient_last_name
-                ].filter(Boolean).join(' ') ||
-                appointment.patient_id ||
-                '—';
+                    appointment.patient_last_name 
+                ].filter(Boolean).join(' ') || 
+                appointment.patient_id || 
+                '-';
 
-            const doctorName =
-                appointment.doctor_name ||
-                appointment.doctor_full_name ||
+            const doctorName = 
+                appointment.doctor_name || 
+                appointment.doctor_full_name || 
                 [
                     appointment.doctor_first_name,
                     appointment.doctor_last_name
-                ].filter(Boolean).join(' ') ||
-                appointment.doctor_id ||
-                '—';
+                ].filter(Boolean).join(' ') || 
+                appointment.doctor_id || 
+                '-';
 
-            const date =
-                appointment.appointment_date ||
-                appointment.date ||
+            const date = 
+                appointment.appointment_date || 
+                appointment.date || 
                 '';
 
-            const time =
+            const time = 
                 appointment.appointment_time ||
-                appointment.time ||
-                '';
-
-            const status =
-                appointment.status ||
+                appointment.time || 
                 'scheduled';
 
-            const type =
-                appointment.appointment_type ||
-                appointment.type ||
-                '—';
+            const type = 
+                appointment.appointment_type || 
+                appointment.type || 
+                '-';
 
-            const reason =
-                appointment.reason ||
-                appointment.visit_reason ||
-                '—';
+            const reason = 
+                appointment.reason || 
+                appointment.visit_reason || 
+                '-';
 
             return `
                 <tr data-appointment-id="${escapeHtml(id)}">
                     <td>
                         ${escapeHtml(id)}
                     </td>
-
+                    
                     <td>
                         ${escapeHtml(patientName)}
                     </td>
-
+                    
                     <td>
                         ${escapeHtml(doctorName)}
                     </td>
-
+                    
                     <td>
-                        ${escapeHtml(formatDate(date))}
+                        ${escapeHtml(formData(date))}
                     </td>
-
+                    
                     <td>
                         ${escapeHtml(time)}
                     </td>
-
+                    
                     <td>
                         ${escapeHtml(capitalize(type))}
                     </td>
-
+                    
                     <td>
                         ${escapeHtml(reason)}
                     </td>
-
+                    
                     <td>
                         <span class="status status-${escapeHtml(
                             String(status).toLowerCase().replace(/\s+/g, '-')
                         )}">
                             ${escapeHtml(capitalize(status))}
                         </span>
-                    </td>
+                    </div>
 
                     <td>
                         ${formatCurrency(
-                            appointment.consultation_fee ??
+                            appointment.consultation_fee ?? 
                             appointment.fee ??
-                            ''
+                            '' 
                         )}
                     </td>
 
                     <td class="actions">
-                        <button
+                        <button 
                             type="button"
                             class="btn btn-sm"
                             data-action="view-appointment"
-                            data-id="${escapeHtml(id)}"
+                            data-id="${escapeHtml(id)}
+
                         >
-                            View
+                            view 
                         </button>
 
-                        <button
+                        <button 
                             type="button"
                             class="btn btn-sm"
                             data-action="edit-appointment"
                             data-id="${escapeHtml(id)}"
                         >
-                            Edit
+                            Edit 
                         </button>
 
                         ${
                             String(status).toLowerCase() !== 'cancelled'
                                 ? `
-                                    <button
+                                    <button 
                                         type="button"
                                         class="btn btn-sm"
                                         data-action="cancel-appointment"
-                                        data-id="${escapeHtml(id)}"
+                                        data-in="${escapeHtml(id)}"
                                     >
                                         Cancel
                                     </button>
@@ -1097,13 +1058,13 @@
                                 : ''
                         }
 
-                        <button
+                        <button 
                             type="button"
                             class="btn btn-sm btn-danger"
                             data-action="delete-appointment"
                             data-id="${escapeHtml(id)}"
                         >
-                            Delete
+                            Delete 
                         </button>
                     </td>
                 </tr>
@@ -1111,10 +1072,7 @@
         }).join('');
     }
 
-    // ------------------------------------------------------------
-    // Render pagination
-    // ------------------------------------------------------------
-
+    /* Render pagination */
     function renderPagination(
         total = state.total,
         page = state.currentPage,
@@ -1127,10 +1085,10 @@
             return;
         }
 
-        const totalPages = Math.ceil(total / limit);
+        const totalPage = Math.ceil(total / limit);
 
-        if (totalPages <= 1) {
-            container.innerHTML = '';
+        if (!totalPages <= 1) {
+            container.innerHTML =  '';
             return;
         }
 
@@ -1139,13 +1097,13 @@
                 <button
                     type="button"
                     class="pagination-prev"
-                    data-page="${page - 1}"
+                    data-page="${page -1}"
                     ${page <= 1 ? 'disabled' : ''}
                 >
-                    Previous
+                    Previous 
                 </button>
         `;
-
+        
         const maxVisiblePages = 5;
 
         let startPage = Math.max(
@@ -1154,27 +1112,27 @@
         );
 
         let endPage = Math.min(
-            totalPages,
+            totalPage,
             startPage + maxVisiblePages - 1
         );
 
         if (endPage - startPage + 1 < maxVisiblePages) {
             startPage = Math.max(
                 1,
-                endPage - maxVisiblePages + 1
+                endPage - maxVisiblePages + 1            
             );
         }
 
         for (let current = startPage; current <= endPage; current++) {
             html += `
-                <button
+                <button 
                     type="button"
                     class="pagination-page ${
                         current === page ? 'active' : ''
-                    }"
+                    }
                     data-page="${current}"
                     ${
-                        current === page
+                        current === page 
                             ? 'aria-current="page"'
                             : ''
                     }
@@ -1189,7 +1147,7 @@
                     type="button"
                     class="pagination-next"
                     data-page="${page + 1}"
-                    ${page >= totalPages ? 'disabled' : ''}
+                    ${page >= totalPage ? 'disabled' : ''}
                 >
                     Next
                 </button>
@@ -1204,10 +1162,7 @@
         container.innerHTML = html;
     }
 
-    // ------------------------------------------------------------
-    // Show appointment details
-    // ------------------------------------------------------------
-
+    /* Show appointment details */
     async function showDetails(
         id,
         containerSelector = '#appointmentDetails'
@@ -1223,7 +1178,7 @@
 
             if (!appointment) {
                 container.innerHTML = `
-                    <div class="empty-state">
+                    <div class="empty-state>
                         Appointment not found.
                     </div>
                 `;
@@ -1231,34 +1186,34 @@
                 return null;
             }
 
-            const patientName =
-                appointment.patient_name ||
-                appointment.patient_full_name ||
+            const patientName = 
+                appointment.patient_name || 
+                appointment.patient_full_name || 
                 [
                     appointment.patient_first_name,
                     appointment.patient_last_name
-                ].filter(Boolean).join(' ') ||
-                appointment.patient_id ||
-                '—';
+                ].filter(Boolean).join(' ') || 
+                appointment.patient_id || 
+                '-';
 
-            const doctorName =
-                appointment.doctor_name ||
+            const doctorName = 
+                appointment.doctor_name || 
                 appointment.doctor_full_name ||
                 [
                     appointment.doctor_first_name,
                     appointment.doctor_last_name
-                ].filter(Boolean).join(' ') ||
+                ].filter(Boolean).join(' ') || 
                 appointment.doctor_id ||
-                '—';
+                '_';
 
-            const date =
-                appointment.appointment_date ||
-                appointment.date ||
+            const date = 
+                appointment.appointment_date || 
+                appointment.date || 
                 '';
-
-            const time =
+            
+            const time = 
                 appointment.appointment_time ||
-                appointment.time ||
+                appointment.time || 
                 '';
 
             container.innerHTML = `
@@ -1269,49 +1224,47 @@
                             getAppointmentId(appointment)
                         )}</span>
                     </div>
-
+                    
                     <div class="detail-row">
                         <strong>Patient:</strong>
                         <span>${escapeHtml(patientName)}</span>
                     </div>
-
+                    
                     <div class="detail-row">
                         <strong>Doctor:</strong>
-                        <span>${escapeHtml(doctorName)}</span>
+                        <span<${escapeHtml(doctorName)}</span>
                     </div>
-
+                    
                     <div class="detail-row">
-                        <strong>Date:</strong>
+                        <strong>Doctor: </strong>
                         <span>${escapeHtml(
-                            formatDate(date)
+                                            formatDate(date)
                         )}</span>
                     </div>
-
+                    
                     <div class="detail-row">
-                        <strong>Time:</strong>
+                        <strong>Time:</string>
                         <span>${escapeHtml(time)}</span>
                     </div>
-
+                    
                     <div class="detail-row">
                         <strong>Type:</strong>
                         <span>${escapeHtml(
-                            capitalize(
-                                appointment.appointment_type ||
-                                appointment.type ||
-                                ''
-                            )
+                            appointment.appointment_type || 
+                            appointment.type || 
+                            ''
                         )}</span>
                     </div>
-
+                    
                     <div class="detail-row">
-                        <strong>Status:</strong>
+                        <strong>Stratus:</strong>
                         <span>${escapeHtml(
                             capitalize(
                                 appointment.status || ''
                             )
                         )}</span>
                     </div>
-
+                    
                     <div class="detail-row">
                         <strong>Priority:</strong>
                         <span>${escapeHtml(
@@ -1320,66 +1273,64 @@
                             )
                         )}</span>
                     </div>
-
+                    
                     <div class="detail-row">
                         <strong>Duration:</strong>
                         <span>
                             ${
                                 appointment.duration_minutes
                                     ? `${escapeHtml(
-                                        appointment.duration_minutes
+                                        appointment.duration_minutes 
                                     )} minutes`
-                                    : '—'
+                                    : '-'
                             }
                         </span>
-                    </div>
-
-                    <div class="detail-row">
+                    <div  class="detail-row">
                         <strong>Reason:</strong>
                         <span>${escapeHtml(
-                            appointment.reason ||
-                            appointment.visit_reason ||
-                            '—'
+                            appointment.reason || 
+                            appointment.visit_reason || 
+                            '-'
                         )}</span>
                     </div>
-
-                    <div class="detail-row">
+                    
+                    <div class=detail-row">
                         <strong>Symptoms:</strong>
                         <span>${escapeHtml(
-                            appointment.symptoms || '—'
+                            appointment.Symptoms || '-'
                         )}</span>
                     </div>
 
                     <div class="detail-row">
                         <strong>Notes:</strong>
                         <span>${escapeHtml(
-                            appointment.notes ||
+                            appointment.notes || 
                             appointment.description ||
-                            '—'
+                            '-'                            
                         )}</span>
                     </div>
 
                     <div class="detail-row">
                         <strong>Location:</strong>
                         <span>${escapeHtml(
-                            appointment.location || '—'
+                            appointment.location || '-'
                         )}</span>
                     </div>
-
+                    
                     <div class="detail-row">
                         <strong>Room:</strong>
                         <span>${escapeHtml(
-                            appointment.room_number ||
-                            appointment.room ||
-                            '—'
+                            appointment.room_number || 
+                            appointment.room || 
+                            '-'
                         )}</span>
                     </div>
 
                     <div class="detail-row">
-                        <strong>Consultation Fee:</strong>
+                        <strong>Consultation Fee:<strong>
                         <span>${escapeHtml(
                             formatCurrency(
-                                appointment.consultation_fee ??
+                                appointment.consultation_fee ?? 
                                 appointment.fee ??
                                 ''
                             )
@@ -1392,7 +1343,7 @@
                                 <div class="detail-row">
                                     <strong>Cancellation Reason:</strong>
                                     <span>${escapeHtml(
-                                        appointment.cancellation_reason
+                                        appointment.cancellation_reason 
                                     )}</span>
                                 </div>
                             `
@@ -1406,7 +1357,7 @@
             if (container) {
                 container.innerHTML = `
                     <div class="message error">
-                        Unable to load appointment details.
+                        Unable too load appointment details.
                     </div>
                 `;
             }
@@ -1415,10 +1366,7 @@
         }
     }
 
-    // ------------------------------------------------------------
-    // Load appointment into edit form
-    // ------------------------------------------------------------
-
+    /* Load appointment into edit form */
     async function loadAppointmentIntoForm(
         id,
         formSelector = '#editAppointmentForm'
@@ -1440,24 +1388,22 @@
 
             appointment_id: getAppointmentId(appointment),
 
-            patient_id:
-                appointment.patient_id ?? '',
+            patient_id: appointment.patient_id ?? '',
 
-            doctor_id:
-                appointment.doctor_id ?? '',
+            doctor_id: appointment.doctor_id ?? '',
 
-            appointment_date:
+            appointment_date: 
                 appointment.appointment_date ??
-                appointment.date ??
+                appointment.date ?? 
                 '',
 
-            appointment_time:
-                appointment.appointment_time ??
-                appointment.time ??
+            appointment_time: 
+                appointment.appointment_time ?? 
+                appointment.time ?? 
                 '',
 
             duration_minutes:
-                appointment.duration_minutes ??
+                appointment.duration_minutes ?? 
                 appointment.duration ??
                 '',
 
@@ -1473,6 +1419,7 @@
 
             symptoms:
                 appointment.symptoms ??
+                appointment.description ??
                 '',
 
             notes:
@@ -1481,30 +1428,30 @@
                 '',
 
             consultation_fee:
-                appointment.consultation_fee ??
-                appointment.fee ??
+                appointment.consultation_fee ?? 
+                appointment.fee ?? 
                 '',
 
             status:
-                appointment.status ??
+                appointment.status ?? 
                 '',
 
             priority:
-                appointment.priority ??
+                appointment.priority ?? 
                 '',
 
             location:
-                appointment.location ??
+                appointment.location ?? 
                 '',
 
             room_number:
-                appointment.room_number ??
-                appointment.room ??
+                appointment.room_number ?? 
+                appointment.room ?? 
                 '',
 
             cancellation_reason:
-                appointment.cancellation_reason ??
-                ''
+                appointment.cancellation_reason ?? 
+                '',
         };
 
         Object.keys(values).forEach(name => {
@@ -1515,7 +1462,7 @@
             }
 
             if (
-                field.type === 'checkbox' ||
+                field.type === 'checkbox' || 
                 field.type === 'radio'
             ) {
                 field.checked = String(field.value) === String(values[name]);
@@ -1527,10 +1474,7 @@
         return appointment;
     }
 
-    // ------------------------------------------------------------
-    // Form submission handlers
-    // ------------------------------------------------------------
-
+    /* Form submission handlers */
     function setupForms() {
         const createForms = [
             '#appointmentForm',
@@ -1547,8 +1491,7 @@
             form.addEventListener('submit', async event => {
                 event.preventDefault();
 
-                const submitButton =
-                    form.querySelector('[type="submit"]');
+                const submitButton = form.querySelector('[type="submit"]');
 
                 if (submitButton) {
                     submitButton.disabled = true;
@@ -1572,12 +1515,12 @@
             editForm.addEventListener('submit', async event => {
                 event.preventDefault();
 
-                const appointmentId =
-                    editForm.dataset.appointmentId ||
-                    editForm.elements.id?.value ||
+                const appointmentId = 
+                    editForm.dataset.appointmentId || 
+                    editForm.element.id?.value || 
                     editForm.elements.appointment_id?.value;
 
-                const submitButton =
+                const submitButton = 
                     editForm.querySelector('[type="submit"]');
 
                 if (submitButton) {
@@ -1600,17 +1543,14 @@
         }
     }
 
-    // ------------------------------------------------------------
-    // Search/filter handlers
-    // ------------------------------------------------------------
-
-    function setupSearchAndFilters() {
+    /* Search/filter handlers */
+    function setupSearchFilters() {
         const searchInput = getElement('#appointmentSearch');
 
         if (searchInput) {
             let timeout;
 
-            searchInput.addEventListener('input', event => {
+            searchInput.addEventListener('inpuut', event => {
                 clearTimeout(timeout);
 
                 timeout = setTimeout(() => {
@@ -1619,8 +1559,7 @@
             });
         }
 
-        const applyButton =
-            getElement('#applyAppointmentFilters');
+        const applyButton = getElement('#applyAppointmentFilters');
 
         if (applyButton) {
             applyButton.addEventListener('click', () => {
@@ -1652,10 +1591,9 @@
             });
         }
 
-        const clearButton =
-            getElement('#clearAppointmentFilters');
+        const clearButton = getElement('#clearAppointmentFilters');
 
-        if (clearButton) {
+        if (cleatButton) {
             clearButton.addEventListener('click', async () => {
                 const fields = [
                     '#appointmentSearch',
@@ -1691,8 +1629,7 @@
             });
         }
 
-        const perPageSelect =
-            getElement('#appointmentsPerPage');
+        const perPageSelect = getElement('#appointmentPerPage');
 
         if (perPageSelect) {
             perPageSelect.addEventListener('change', () => {
@@ -1704,21 +1641,18 @@
 
                     list({
                         page: 1,
-                        limit: value
-                    });
+                        limit: value 
+                    })
                 }
             });
         }
     }
 
-    // ------------------------------------------------------------
-    // Table actions
-    // ------------------------------------------------------------
-
+    /* Table actions */
     function setupTableActions() {
         document.addEventListener('click', async event => {
             const button = event.target.closest(
-                '[data-action]'
+                '[data-actions]'
             );
 
             if (!button) {
@@ -1737,9 +1671,9 @@
                     case 'view-appointment':
                         await showDetails(id);
                         break;
-
+                        
                     case 'edit-appointment':
-                        await loadAppointmentIntoForm(id);
+                        await loadAppointmentIntoForm(id)  ;
 
                         document.dispatchEvent(
                             new CustomEvent(
@@ -1747,15 +1681,14 @@
                                 {
                                     detail: {
                                         id: id,
-                                        appointment:
-                                            state.currentAppointment
+                                        appointment: state.currentAppointment
                                     }
                                 }
                             )
                         );
                         break;
 
-                    case 'cancel-appointment':
+                    case 'cancel-appointment': 
                         await cancelWithConfirmation(id);
                         break;
 
@@ -1770,15 +1703,12 @@
                 console.error(
                     `Appointment action "${action}" failed:`,
                     error
-                );
+                )
             }
         });
     }
 
-    // ------------------------------------------------------------
-    // Pagination actions
-    // ------------------------------------------------------------
-
+    /* Pagination actions */
     function setupPagination() {
         document.addEventListener('click', event => {
             const button = event.target.closest(
@@ -1787,7 +1717,7 @@
 
             if (!button || button.disabled) {
                 return;
-            }
+            };
 
             const page = Number(button.dataset.page);
 
@@ -1797,25 +1727,22 @@
         });
     }
 
-    // ------------------------------------------------------------
-    // Initialize
-    // ------------------------------------------------------------
-
-    async function init(options = {}) {
-        if (options.perPage) {
+    /* Initialize */
+    async function init(optional = {}) {
+        if (optional.perPage) {
             state.perPage = Number(options.perPage);
         }
 
-        setupForms();
-        setupSearchAndFilters();
+        setupPage();
+        setupSearchFilters();
         setupTableActions();
         setupPagination();
 
-        const hasAppointmentUI =
-            getElement('#appointmentsTableBody') ||
-            getElement('#appointmentForm') ||
-            getElement('#createAppointmentForm') ||
-            getElement('#editAppointmentForm');
+        const hasAppointmentUI = 
+            getElement('#appointmentsTableBody') || 
+            getElement('#appointmentForm') || 
+            getElement('#createAppointmentForm') || 
+            getElement('#editAppointment'); 
 
         if (!hasAppointmentUI) {
             return;
@@ -1828,20 +1755,17 @@
             });
         } catch (error) {
             console.error(
-                'Appointment module initialization failed:',
-                error
-            );
+                'Appointment module initialization failed.',
+                error 
+            )
         }
     }
 
-    // ------------------------------------------------------------
-    // Public API
-    // ------------------------------------------------------------
-
-    const Appointments = {
+    /* Public API */
+    const Appointment = {
         state,
 
-        endpoints,
+        endpoint, 
 
         list,
         get,
@@ -1864,9 +1788,6 @@
         submitCreateForm,
         submitUpdateForm,
 
-        deleteWithConfirmation,
-        cancelWithConfirmation,
-
         refreshList,
 
         renderAppointmentTable,
@@ -1875,38 +1796,36 @@
         showDetails,
         loadAppointmentIntoForm,
 
-        init
+        init 
+
     };
 
-    window.Appointments = Appointments;
+    window.Appointment = Appointments;
 
-    // ------------------------------------------------------------
-    // Auto initialization
-    // ------------------------------------------------------------
-
+    /* Auto initialization */
     if (document.readyState === 'loading') {
         document.addEventListener(
             'DOMContentLoaded',
-            () => init()
+            () => init() 
         );
     } else {
         init();
     }
-
 })(window, document);
 
-patient_id
-doctor_id
+patient_id 
+doctor_id 
 appointment_date
 appointment_time
 duration_minutes
-appointment_type
+appointment_type 
 reason
-symptoms
-notes
-consultation_fee
-status
-priority
+symptoms 
+notes 
+consultation_fee 
+status 
+priority 
 location
-room_number
+room_number 
 cancellation_reason
+
