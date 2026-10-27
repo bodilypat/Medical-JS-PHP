@@ -2,6 +2,18 @@
 * Medical Management System
 * frontend/js/doctors.js 
 *
+* Doctor operations:
+* - Load doctors 
+* - Search doctors 
+* - Filter doctors 
+* - Pagination 
+* - Get doctor 
+* - Create doctor 
+* - Update doctor 
+* - Delete Doctor 
+* - Doctor form handling 
+* - Doctor details 
+* 
 */
 
 'use strict';
