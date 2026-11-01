@@ -1,17 +1,17 @@
-/**
- * Frontend/js/prescriptions.js
- * Medical Management System
- *
- * Prescription CRUD operations and UI handling.
- *
- * Expected API endpoints:
- * GET  /prescriptions/list.php
- * GET  /prescriptions/get.php?id=123
- * POST /prescriptions/create.php
- * POST /prescriptions/update.php
- * POST /prescriptions/cancel.php
- * POST /prescriptions/delete.php
- */
+/** 
+* Frontend/js/prescriptions.js 
+* Medical Management System
+
+* prescriptions CRUD operations and UI handling 
+
+* Expected API endpoints:
+* GET /prescriptions/list.php
+* GET /prescriptions/get.php?id=?
+* POST /prescriptions/create.php 
+* POST /prescriptions/update.php
+* POST /prescriptions/cancel.php
+* POST / prescriptions/delete.php
+**/ 
 
 (function (window, document) {
     'use strict';
@@ -20,22 +20,18 @@
 
     if (!API) {
         console.error(
-            'API module is not loaded. Load api.js before prescriptions.js.'
+            'API modlue is not loaded. Load api.js before prescriptions.js'
         );
         return;
     }
 
-    // ============================================================
-    // State
-    // ============================================================
-
+    /* State */
     const state = {
         prescriptions: [],
         currentPrescription: null,
 
         currentPage: 1,
         perPage: 10,
-        total: 0,
 
         search: '',
         patientId: '',
@@ -43,53 +39,46 @@
         medicalRecordId: '',
         status: '',
         prescriptionType: '',
-        dateFrom: '',
+        dateForm: '',
         dateTo: '',
 
-        loading: false
+        loading: false 
     };
 
-    // ============================================================
-    // API endpoints
-    // ============================================================
-
+    /* API endpoints */
     const endpoints = {
         list: '/prescriptions/list.php',
         get: '/prescriptions/get.php',
         create: '/prescriptions/create.php',
-        update: '/prescriptions/update.php',
         cancel: '/prescriptions/cancel.php',
-        delete: '/prescriptions/delete.php'
+        delete: '/prescription/delete.php'
     };
 
-    // ============================================================
-    // Utility functions
-    // ============================================================
-
+    /* Utilities functions */
     function escapeHtml(value) {
         if (value === null || value === undefined) {
             return '';
         }
 
-        return String(value)
+        return String(value) 
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
+            .replace(/"/g, '&quit;')
             .replace(/'/g, '&#039;');
     }
 
-    function getElement(selector) {
-        return document.querySelector(selector);
+    function getElement(selctor) {
+        return document.querySeelctor(selector);
     }
 
     function getValue(selector) {
-        const element =
+        const element = 
             typeof selector === 'string'
                 ? getElement(selector)
                 : selector;
 
-        return element ? element.value.trim() : '';
+            return element ? element.value.trim() : '';
     }
 
     function showMessage(
@@ -124,7 +113,7 @@
         }
 
         element.textContent = '';
-        element.hidden = true;
+        element.hidden = true,
         element.className = 'message';
     }
 
@@ -136,27 +125,30 @@
             .forEach(element => {
                 element.hidden = !loading;
             });
-
+        
         document
-            .querySelectorAll('[data-prescriptions-content]')
+            .querySelectorAll('[data-prescriptions-content')
             .forEach(element => {
                 element.hidden = loading;
             });
+
     }
 
     function capitalize(value) {
+
         if (!value) {
             return '';
         }
 
-        return String(value)
+        return String(value) 
             .replace(/[_-]/g, ' ')
-            .replace(/\b\w/g, character =>
-                character.toUpperCase()
+            .replace(/\b\w/g, character => 
+                    character.toUpperCase()
             );
     }
 
     function formatDate(value) {
+
         if (!value) {
             return '';
         }
@@ -171,10 +163,11 @@
             year: 'numeric',
             month: 'short',
             day: 'numeric'
-        });
+        })
     }
 
     function formatDateTime(value) {
+
         if (!value) {
             return '';
         }
@@ -189,12 +182,12 @@
             year: 'numeric',
             month: 'short',
             day: 'numeric',
-            hour: 'numeric',
+            hour: 'number',
             minute: '2-digit'
         });
     }
 
-    function getPrescriptionId(prescription) {
+    function getPrescriptionId(prescription)  {
         return (
             prescription?.id ??
             prescription?.prescription_id ??
@@ -204,59 +197,56 @@
 
     function getPatientName(prescription) {
         return (
-            prescription?.patient_name ||
-            prescription?.patient_full_name ||
+            prescription?.patient_name || 
+            prescription?.patient_full_name || 
             [
                 prescription?.patient_first_name,
                 prescription?.patient_last_name
             ]
                 .filter(Boolean)
-                .join(' ') ||
-            prescription?.patient_id ||
-            '—'
+                .join(' ') || 
+                prescription?.patient_id || 
+                '-'
         );
     }
 
     function getDoctorName(prescription) {
         return (
-            prescription?.doctor_name ||
-            prescription?.doctor_full_name ||
+            prescription?.doctor_name || 
+            prescription?.doctor_full_name || 
             [
                 prescription?.doctor_first_name,
-                prescription?.doctor_last_name
+                prescription?.doctor_last_name 
             ]
                 .filter(Boolean)
-                .join(' ') ||
-            prescription?.doctor_id ||
-            '—'
+                .join(' ') || 
+            prescription?.doctor_id || 
+            '-'
         );
     }
 
     function getMedicationName(prescription) {
         return (
-            prescription?.medication_name ||
-            prescription?.medicine_name ||
-            prescription?.drug_name ||
-            prescription?.medication ||
-            prescription?.medicine ||
-            '—'
+            prescription?.medication_name || 
+            prescription?.medicine_name || 
+            prescription?.drug_name || 
+            prescription?.medication || 
+            prescription?.medicien || 
+            '-'
         );
     }
 
-    // ============================================================
-    // List prescriptions
-    // ============================================================
-
+    /* List prescriptions */
     async function list(options = {}) {
         const page = Number(
-            options.page ||
-            state.currentPage ||
+            options.page || 
+            state.currentPage || 
             1
         );
 
         const limit = Number(
-            options.limit ||
-            state.perPage ||
+            options.limit || 
+            state.perPage || 
             10
         );
 
@@ -265,36 +255,32 @@
         params.set('page', page);
         params.set('limit', limit);
 
-        const search =
-            options.search ??
-            state.search;
-
-        const patientId =
+        const patientId = 
             options.patient_id ??
             state.patientId;
 
-        const doctorId =
-            options.doctor_id ??
+        const doctorId = 
+            options.doctor_id ?? 
             state.doctorId;
 
-        const medicalRecordId =
-            options.medical_record_id ??
+        const medicalRecordId = 
+            options.medical_record_id ?? 
             state.medicalRecordId;
 
-        const status =
-            options.status ??
+        const status = 
+            options.status ?? 
             state.status;
 
         const prescriptionType =
-            options.prescription_type ??
+            options.prescriptionType ?? 
             state.prescriptionType;
 
         const dateFrom =
-            options.date_from ??
+            options.date_from ?? 
             state.dateFrom;
 
-        const dateTo =
-            options.date_to ??
+        const dateTo = 
+            options.date_to ?? 
             state.dateTo;
 
         if (search) {
@@ -312,7 +298,7 @@
         if (medicalRecordId) {
             params.set(
                 'medical_record_id',
-                medicalRecordId
+                medicalRecordId 
             );
         }
 
@@ -323,7 +309,7 @@
         if (prescriptionType) {
             params.set(
                 'prescription_type',
-                prescriptionType
+                prescriptionType 
             );
         }
 
@@ -342,23 +328,23 @@
                 `${endpoints.list}?${params.toString()}`
             );
 
-            const prescriptions =
-                response?.data?.prescriptions ??
-                response?.prescriptions ??
-                response?.data ??
+            const prescriptions = 
+                response?.data?.prescriptions ?? 
+                response?.prescription ?? 
+                response?.data ?? 
                 [];
 
-            state.prescriptions =
+            state .prescriptions = 
                 Array.isArray(prescriptions)
                     ? prescriptions
                     : [];
 
-            state.total =
+            state.total = 
                 Number(
                     response?.data?.total ??
                     response?.total ??
                     state.prescriptions.length
-                ) || 0;
+            ) || 0;
 
             state.currentPage = page;
             state.perPage = limit;
@@ -367,14 +353,13 @@
             renderPagination(
                 state.total,
                 state.currentPage,
-                state.perPage
-            );
+                state.perPage 
+            ); 
 
             return response;
         } catch (error) {
             console.error(
-                'Failed to load prescriptions:',
-                error
+                'Failed to load prescriptions: ',
             );
 
             state.prescriptions = [];
@@ -388,7 +373,7 @@
             );
 
             showMessage(
-                error?.message ||
+                error?.message || 
                 'Unable to load prescriptions.',
                 'error'
             );
@@ -399,11 +384,9 @@
         }
     }
 
-    // ============================================================
-    // Get prescription
-    // ============================================================
-
+    /* Get prescription */
     async function get(id) {
+
         if (!id) {
             throw new Error(
                 'Prescription ID is required.'
@@ -415,24 +398,24 @@
                 `${endpoints.get}?id=${encodeURIComponent(id)}`
             );
 
-            const prescription =
+            const prescription = 
                 response?.data?.prescription ??
-                response?.prescription ??
-                response?.data ??
+                response?.prescription ?? 
+                response?.data ?? 
                 null;
 
-            state.currentPrescription =
+            state.currentPrescription = 
                 prescription;
-
+            
             return prescription;
         } catch (error) {
             console.error(
                 'Failed to get prescription:',
-                error
+                error 
             );
 
             showMessage(
-                error?.message ||
+                error?.message || 
                 'Unable to load prescription.',
                 'error'
             );
@@ -441,36 +424,34 @@
         }
     }
 
-    // ============================================================
-    // Create prescription
-    // ============================================================
+    /* Create prescription */
 
     async function create(prescriptionData) {
-        const data =
+        const data = 
             normalizePrescriptionData(
-                prescriptionData
+                prescriptionData 
             );
 
-        const validation =
+        const validation = 
             validatePrescription(data);
 
         if (!validation.valid) {
             throw new Error(
-                validation.errors.join(' ')
+                validation.error.join(' ')
             );
         }
 
         setLoading(true);
 
         try {
-            const response =
+            const response = 
                 await API.post(
                     endpoints.create,
                     data
                 );
 
             showMessage(
-                response?.message ||
+                response?.message || 
                 'Prescription created successfully.',
                 'success'
             );
@@ -478,7 +459,7 @@
             state.currentPage = 1;
 
             await list({
-                page: 1,
+                page: 1, 
                 limit: state.perPage
             });
 
@@ -486,11 +467,11 @@
         } catch (error) {
             console.error(
                 'Failed to create prescription:',
-                error
+                error 
             );
 
             showMessage(
-                error?.message ||
+                error?.message || 
                 'Unable to create prescription.',
                 'error'
             );
@@ -501,10 +482,7 @@
         }
     }
 
-    // ============================================================
-    // Update prescription
-    // ============================================================
-
+    /* Update prescription */
     async function update(
         id,
         prescriptionData
@@ -515,15 +493,15 @@
             );
         }
 
-        const data =
+        const data = 
             normalizePrescriptionData(
-                prescriptionData
+                prescriptionData 
             );
 
         data.id = id;
         data.prescription_id = id;
 
-        const validation =
+        const validation = 
             validatePrescription(data);
 
         if (!validation.valid) {
@@ -532,35 +510,33 @@
             );
         }
 
-        setLoading(true);
-
         try {
             const response =
                 await API.post(
                     endpoints.update,
-                    data
+                    data 
                 );
 
             showMessage(
-                response?.message ||
-                'Prescription updated successfully.',
+                response?.message || 
+                'Prescription updated successfull.',
                 'success'
             );
 
             await list({
                 page: state.currentPage,
-                limit: state.perPage
+                limit: state.perPage 
             });
 
-            return response;
+            return response 
         } catch (error) {
             console.error(
                 'Failed to update prescription:',
-                error
+                error 
             );
 
-            showMessage(
-                error?.message ||
+            showMessage (
+                error?.message || 
                 'Unable to update prescription.',
                 'error'
             );
@@ -571,15 +547,12 @@
         }
     }
 
-    // ============================================================
-    // Cancel prescription
-    // ============================================================
-
+    /* Cancel prescription */
     async function cancel(
         id,
         reason = ''
     ) {
-        if (!id) {
+        if (id) {
             throw new Error(
                 'Prescription ID is required.'
             );
@@ -587,7 +560,7 @@
 
         const data = {
             id: id,
-            prescription_id: id
+            prescription_id: id 
         };
 
         if (reason) {
@@ -596,32 +569,33 @@
         }
 
         try {
-            const response =
+            const response = 
                 await API.post(
                     endpoints.cancel,
-                    data
+                    data 
                 );
-
+            
             showMessage(
-                response?.message ||
+                response?.message || 
                 'Prescription cancelled successfully.',
                 'success'
             );
 
             await list({
                 page: state.currentPage,
-                limit: state.perPage
+                limit: state.perPage 
             });
 
             return response;
+
         } catch (error) {
             console.error(
                 'Failed to cancel prescription:',
-                error
+                error 
             );
 
             showMessage(
-                error?.message ||
+                error?.message || 
                 'Unable to cancel prescription.',
                 'error'
             );
@@ -630,11 +604,9 @@
         }
     }
 
-    // ============================================================
-    // Delete prescription
-    // ============================================================
-
+    /* Delete Prescription */
     async function remove(id) {
+
         if (!id) {
             throw new Error(
                 'Prescription ID is required.'
@@ -642,25 +614,22 @@
         }
 
         try {
-            const response =
+            const response = 
                 await API.post(
                     endpoints.delete,
                     {
                         id: id,
-                        prescription_id: id
+                        prescription_id: id 
                     }
                 );
 
             showMessage(
-                response?.message ||
+                response?.message || 
                 'Prescription deleted successfully.',
                 'success'
             );
 
-            if (
-                state.prescriptions.length === 1 &&
-                state.currentPage > 1
-            ) {
+            if (state.prescriptions.length === 1 && state.currentPage > 1) {
                 state.currentPage--;
             }
 
@@ -670,14 +639,15 @@
             });
 
             return response;
+
         } catch (error) {
             console.error(
                 'Failed to delete prescription:',
-                error
+                error 
             );
 
             showMessage(
-                error?.message ||
+                error?.message || 
                 'Unable to delete prescription.',
                 'error'
             );
@@ -686,10 +656,7 @@
         }
     }
 
-    // ============================================================
-    // Search
-    // ============================================================
-
+    /* Search */
     async function search(term) {
         state.search =
             String(term || '').trim();
@@ -699,47 +666,39 @@
         return list({
             page: 1,
             limit: state.perPage,
-            search: state.search
+            search: state.search 
         });
     }
 
-    // ============================================================
-    // Filter
-    // ============================================================
-
+    /* Filter */
     async function filter(filters = {}) {
         state.patientId =
             filters.patient_id ??
             filters.patientId ??
             '';
 
-        state.doctorId =
-            filters.doctor_id ??
+        state.doctorId = 
+            filters.doctor_id ?? 
             filters.doctorId ??
             '';
 
-        state.medicalRecordId =
-            filters.medical_record_id ??
+        state.medicalRecordId = 
+            filters.medical_record_id ?? 
             filters.medicalRecordId ??
             '';
 
-        state.status =
-            filters.status ??
+        state.status = 
+            filters.status ?? 
             '';
-
-        state.prescriptionType =
+        
+        state.prescriptionType = 
             filters.prescription_type ??
-            filters.prescriptionType ??
-            filters.type ??
+            filters.prescriptionType ?? 
+            filters.type ?? 
             '';
 
-        state.dateFrom =
-            filters.date_from ??
-            filters.dateFrom ??
-            '';
-
-        state.dateTo =
-            filters.date_to ??
+        stateDateForm = 
+            filters.date_to ?? 
             filters.dateTo ??
             '';
 
@@ -752,71 +711,57 @@
             search: state.search,
             patient_id: state.patientId,
             doctor_id: state.doctorId,
-            medical_record_id:
-                state.medicalRecordId,
+            medical_record_id: state.medicalRecordId,
             status: state.status,
-            prescription_type:
-                state.prescriptionType,
-            date_from: state.dateFrom,
-            date_to: state.dateTo
-        });
+            prescription_type: state.prescriptionType,
+            date_from: state.dateForm,
+            date_to: state.dateTo 
+        }); 
     }
 
-    // ============================================================
-    // Pagination
-    // ============================================================
-
+    /* Pagination */
     async function goToPage(page) {
-        const totalPages =
+        const totalPages = 
             Math.max(
                 1,
                 Math.ceil(
-                    state.total /
-                    state.perPage
+                    state.total / state.perPage
                 )
             );
 
-        const targetPage =
+        const targetPage = 
             Math.min(
                 Math.max(
                     Number(page) || 1,
                     1
-                ),
+                ), 
                 totalPages
             );
 
-        if (
-            targetPage === state.currentPage &&
-            state.prescriptions.length
-        ) {
+        if (targetPage === state.currentPage && state.prescriptions.length) {
             return;
         }
 
         return list({
             page: targetPage,
-            limit: state.perPage
+            limit: state.perPage 
         });
     }
 
     async function nextPage() {
         return goToPage(
-            state.currentPage + 1
+            state.currentPage + 1 
         );
     }
 
     async function previousPage() {
         return goToPage(
-            state.currentPage - 1
+            state.currentPage - 1 
         );
     }
 
-    // ============================================================
-    // Validation
-    // ============================================================
-
-    function validatePrescription(
-        prescription
-    ) {
+    /* Validation  */
+    function validatePrescription(prescription) {
         const errors = [];
 
         if (!prescription.patient_id) {
@@ -831,13 +776,19 @@
             );
         }
 
+        if (!prescription.doctor_id) {
+            errors.push(
+                'Doctor is required.'
+            )
+        }
+
         if (!prescription.prescription_date) {
             errors.push(
                 'Prescription date is required.'
-            );
+            )
         }
 
-        if (!prescription.medication_name) {
+        if (!prescription.medicine_name) {
             errors.push(
                 'Medication name is required.'
             );
@@ -852,234 +803,133 @@
         if (!prescription.frequency) {
             errors.push(
                 'Frequency is required.'
-            );
+            )
         }
 
-        if (
-            prescription.patient_id &&
-            !/^\d+$/.test(
-                String(
-                    prescription.patient_id
-                )
-            )
-        ) {
+        if (prescription.patient_id && !/^\d+$/.test(String(prescription.patient_id ))) {
             errors.push(
                 'Patient ID must be valid.'
-            );
+            )
         }
 
-        if (
-            prescription.doctor_id &&
-            !/^\d+$/.test(
-                String(
-                    prescription.doctor_id
-                )
-            )
-        ) {
+        if (prescription.doctor_id && !/^\d+$/.test(String(prescription.doctor_id))) {
             errors.push(
                 'Doctor ID must be valid.'
             );
         }
 
-        if (
-            prescription.medical_record_id &&
-            !/^\d+$/.test(
-                String(
-                    prescription.medical_record_id
-                )
-            )
-        ) {
+        if (prescription.medical_record_id && !/^\d+$/.test(String(prescription.medical_record_id))) {
             errors.push(
                 'Medical record ID must be valid.'
             );
         }
 
         if (prescription.prescription_date) {
-            const date =
+            const date = 
                 new Date(
                     `${prescription.prescription_date}T00:00:00`
                 );
 
-            if (
-                Number.isNaN(
-                    date.getTime()
-                )
-            ) {
-                errors.push(
-                    'Prescription date is invalid.'
-                );
+            if (Number.isNaN(date.getTime())) {
+                errors.push('Prescription date is invalid.');
             }
         }
 
         if (
-            prescription.quantity !== '' &&
-            prescription.quantity !== null &&
-            prescription.quantity !== undefined
+            prescription.quantity !== '' && 
+            prescription.quantity !== Null && 
+            prescription.quantity !== undefined 
         ) {
-            const quantity =
-                Number(
-                    prescription.quantity
-                );
+            const quantity = Number(prescription.quantity);
 
-            if (
-                Number.isNaN(quantity) ||
-                quantity <= 0
-            ) {
-                errors.push(
-                    'Quantity must be greater than zero.'
-                );
+            if (Number.isNaN(quantity) || quantity <= 0) {
+                errors.push('Quantity must be greater than zero.');
             }
         }
 
         if (
-            prescription.refills !== '' &&
+            prescription.refills !== '' && 
             prescription.refills !== null &&
-            prescription.refills !== undefined
+            prescription.refills != undefined
         ) {
-            const refills =
-                Number(
-                    prescription.refills
-                );
+            const refills = Number(prescription.refills);
 
-            if (
-                Number.isNaN(refills) ||
-                refills < 0 ||
-                !Number.isInteger(refills)
-            ) {
-                errors.push(
-                    'Refills must be a valid whole number.'
-                );
+            if (Number.isNaN(refills) || refills < 0 || !Number.isInteger(refills)) {
+                errors.push('Refills must be a valid whole number.');
             }
         }
 
         return {
-            valid: errors.length === 0,
-            errors
+            valid: errors.length == 0,
+            errors 
         };
     }
 
-    // ============================================================
-    // Normalize prescription data
-    // ============================================================
-
-    function normalizePrescriptionData(
-        prescription = {}
-    ) {
+    /* Normalize prescription data */
+    function normalizePrescriptionData(prescription = {}) {
         return {
-            patient_id:
-                prescription.patient_id ??
-                '',
 
-            doctor_id:
-                prescription.doctor_id ??
-                '',
+            patient_id: prescription.patient_id ?? '',
 
-            medical_record_id:
-                prescription.medical_record_id ??
-                prescription.record_id ??
-                '',
+            doctor_id: prescription.doctor_id ?? '',
 
-            appointment_id:
-                prescription.appointment_id ??
-                '',
+            medical_record_id: prescription.medical_record_id ?? '',
 
-            prescription_date:
-                prescription.prescription_date ??
-                prescription.date ??
-                '',
+            appointment_id: prescription.appointment_id ?? '',
 
-            prescription_type:
-                prescription.prescription_type ??
-                prescription.type ??
-                '',
+            prescription_date: prescription.prescription_date ?? prescription.type ?? '',
+
+            prescription_type: prescription.prescription_type ?? prescription.type ??  '',
 
             medication_name:
                 prescription.medication_name ??
-                prescription.medicine_name ??
+                prescription.medicine_name ?? 
                 prescription.drug_name ??
-                prescription.medication ??
+                prescription.medication ?? 
                 '',
 
-            generic_name:
-                prescription.generic_name ??
-                '',
+            generic_name: prescription.generic_name ?? '',
 
-            strength:
-                prescription.strength ??
-                '',
+            strength: prescription_strength ?? '',
 
-            dosage:
-                prescription.dosage ??
-                '',
+            dosage:  prescription.dosage ?? '',
 
-            dosage_form:
-                prescription.dosage_form ??
-                prescription.form ??
-                '',
+            dosage_form: prescription.dosage_form ?? prescription.form ?? '',
 
-            route:
-                prescription.route ??
-                '',
+            route: prescription.route ?? '',
 
-            frequency:
-                prescription.frequency ??
-                '',
+            frequency: prescription.frequency ??
+            '',
 
-            duration:
-                prescription.duration ??
-                '',
+            duration: prescription.duration ?? '',
 
-            quantity:
-                prescription.quantity ??
-                '',
+            quantity: prescription.quantity ?? '',
 
-            unit:
-                prescription.unit ??
-                '',
+            unit: prescription.unit ?? '',
 
-            refills:
-                prescription.refills ??
-                0,
-
-            instructions:
-                prescription.instructions ??
+            instructions: 
+                prescription.instructions ?? 
                 prescription.directions ??
                 '',
 
-            indication:
-                prescription.indication ??
-                '',
+            indication: prescription.indication ?? '',
 
-            notes:
-                prescription.notes ??
-                '',
+            notes: prescription.notes ?? '',
 
-            status:
-                prescription.status ??
-                'active',
+            status: prescription.status ?? 'active',
 
-            cancellation_reason:
-                prescription.cancellation_reason ??
-                '',
+            cancellation_reason: prescription.cancellation_reason ?? '',
 
-            pharmacy_id:
-                prescription.pharmacy_id ??
-                '',
+            pharmacy_id: prescription.pharmacy_id ?? '',
 
-            dispensed:
-                prescription.dispensed ??
-                0,
+            dispensed: prescription.dispensed ?? 0,
 
-            dispensed_at:
-                prescription.dispensed_at ??
-                ''
+            dispensed_at: prescription.dispensed_at ??  ''
+
         };
     }
 
-    // ============================================================
-    // Form conversion
-    // ============================================================
-
+    /* Form Conversion */
     function formToObject(form) {
         const data = {};
 
@@ -1087,26 +937,24 @@
             return data;
         }
 
-        const formData =
-            new FormData(form);
+        const formData = new FormData(form);
 
         formData.forEach(
             (value, key) => {
-                data[key] =
+                data[key] = 
                     typeof value === 'string'
                         ? value.trim()
-                        : value;
+                        :value;
+
             }
         );
 
         return data;
     }
 
-    // ============================================================
-    // Create form
-    // ============================================================
-
+    /* Create form */
     async function submitCreateForm(form) {
+
         if (!form) {
             throw new Error(
                 'Prescription form was not found.'
@@ -1115,19 +963,18 @@
 
         clearMessage();
 
-        const data =
-            formToObject(form);
+        const data = formObject(form);
 
         try {
-            const response =
-                await create(data);
+            const response = await create(data);
 
             form.reset();
 
             return response;
-        } catch (error) {
+
+        } catch(error) {
             showMessage(
-                error?.message ||
+                error?.message || 
                 'Unable to create prescription.',
                 'error'
             );
@@ -1136,12 +983,9 @@
         }
     }
 
-    // ============================================================
-    // Update form
-    // ============================================================
-
+    /* Update form */
     async function submitUpdateForm(
-        form,
+        form, 
         prescriptionId
     ) {
         if (!form) {
@@ -1158,17 +1002,16 @@
 
         clearMessage();
 
-        const data =
-            formToObject(form);
+        const data = formToObject(form);
 
         try {
             return await update(
                 prescriptionId,
-                data
+                data 
             );
-        } catch (error) {
+        } catch(error) {
             showMessage(
-                error?.message ||
+                error?.message || 
                 'Unable to update prescription.',
                 'error'
             );
@@ -1177,33 +1020,30 @@
         }
     }
 
-    // ============================================================
-    // Delete confirmation
-    // ============================================================
-
+    /* Delete confirmation */
     async function deleteWithConfirmation(id) {
+
         if (!id) {
             return;
         }
 
-        const prescription =
+        const prescription = 
             state.prescriptions.find(
-                item =>
-                    String(
-                        getPrescriptionId(item)
-                    ) === String(id)
-            );
+                String(
+                    getPrescriptionId(item)
+                ) === String(id)
+        );
 
-        const medication =
+        const medication = 
             prescription
                 ? getMedicationName(
                     prescription
                 )
                 : 'this prescription';
-
+        
         const confirmed =
             window.confirm(
-                `Are you sure you want to permanently delete ${medication}?`
+                `Are you sure want to permanently delete ${medication}?`
             );
 
         if (!confirmed) {
@@ -1213,16 +1053,14 @@
         return remove(id);
     }
 
-    // ============================================================
-    // Cancel confirmation
-    // ============================================================
-
+    /* Cancel confirmation */
     async function cancelWithConfirmation(id) {
+
         if (!id) {
             return;
         }
 
-        const reason =
+        const reason = 
             window.prompt(
                 'Enter a cancellation reason (optional):'
             );
@@ -1237,39 +1075,30 @@
         );
     }
 
-    // ============================================================
-    // Refresh
-    // ============================================================
-
+    /* Refresh */
     async function refreshList() {
         return list({
             page: state.currentPage,
-            limit: state.perPage
+            limit: state.perPage 
         });
     }
 
-    // ============================================================
-    // Render prescription table
-    // ============================================================
-
+    /* Render prescription table */
     function renderPrescriptionTable(
-        prescriptions =
-            state.prescriptions,
-        selector =
-            '#prescriptionsTableBody'
+        prescriptions = state.prescriptions,
+        selector = '#prescriptionsTableBody'
     ) {
-        const tbody =
-            getElement(selector);
+        const tbody = getElement(selector);
 
         if (!tbody) {
             return;
         }
 
         if (!prescriptions.length) {
-            tbody.innerHTML = `
+            tbody.innerHTML =`
                 <tr>
-                    <td
-                        colspan="11"
+                    <tr>
+                        colspan"1"
                         class="empty-state"
                     >
                         No prescriptions found.
@@ -1280,119 +1109,114 @@
             return;
         }
 
-        tbody.innerHTML =
+        tbody.innerHTML = 
             prescriptions.map(
                 prescription => {
-                    const id =
-                        getPrescriptionId(
-                            prescription
-                        );
+                    const id = getPrescriptionId(
+                        prescription
+                    );
 
-                    const patientName =
+                    const patientName = 
                         getPatientName(
                             prescription
                         );
 
-                    const doctorName =
+                    const doctorName = 
                         getDoctorName(
                             prescription
                         );
 
-                    const medicationName =
+                    const medicationName = 
                         getMedicationName(
                             prescription
                         );
 
-                    const date =
+                    const date = 
                         prescription.prescription_date ??
-                        prescription.date ??
+                        prescription.date ?? 
                         '';
 
-                    const dosage =
-                        prescription.dosage ??
-                        '—';
+                    const dosage = 
+                        prescription.dosage ?? 
+                        '-';
 
-                    const frequency =
-                        prescription.frequency ??
-                        '—';
+                    const frequency = 
+                        prescription.frequency ?? 
+                        '-';
 
-                    const duration =
+                    const duration = 
                         prescription.duration ??
-                        '—';
+                        '-';
 
-                    const status =
+                    const status = 
                         prescription.status ??
                         'active';
 
                     return `
-                        <tr
-                            data-prescription-id="${escapeHtml(id)}"
-                        >
+                        <tr data-prescription-id="${escapeHtml(id)}">
                             <td>
                                 ${escapeHtml(id)}
                             </td>
-
+                            
                             <td>
                                 ${escapeHtml(
                                     patientName
                                 )}
                             </td>
-
+                            
                             <td>
                                 ${escapeHtml(
                                     doctorName
                                 )}
                             </td>
-
+                            
                             <td>
                                 ${escapeHtml(
                                     medicationName
                                 )}
                             </td>
-
+                            
                             <td>
                                 ${escapeHtml(
                                     dosage
                                 )}
                             </td>
-
+                            
                             <td>
                                 ${escapeHtml(
                                     frequency
                                 )}
                             </td>
-
+                            
                             <td>
                                 ${escapeHtml(
                                     duration
                                 )}
                             </td>
-
+                            
                             <td>
                                 ${escapeHtml(
                                     formatDate(date)
                                 )}
-                            </td>
-
                             <td>
-                                <span
+                            
+                            <td>
+                                <span 
                                     class="status status-${escapeHtml(
                                         String(status)
                                             .toLowerCase()
-                                            .replace(
-                                                /\s+/g,
-                                                '-'
-                                            )
+                                            .replace(/\s+/g, '-')
                                     )}"
                                 >
+                                
                                     ${escapeHtml(
                                         capitalize(
-                                            status
+                                            status 
                                         )
                                     )}
                                 </span>
                             </td>
-
+                            
                             <td>
                                 ${
                                     prescription.dispensed
@@ -1400,21 +1224,21 @@
                                         : 'No'
                                 }
                             </td>
-
+                            
                             <td class="actions">
-                                <button
+                                <button 
                                     type="button"
                                     class="btn btn-sm"
                                     data-action="view-prescription"
                                     data-id="${escapeHtml(id)}"
                                 >
                                     View
-                                </button>
+                                <button>
 
                                 <button
                                     type="button"
                                     class="btn btn-sm"
-                                    data-action="edit-prescription"
+                                    data-action="edit-prescript"
                                     data-id="${escapeHtml(id)}"
                                 >
                                     Edit
@@ -1422,28 +1246,28 @@
 
                                 ${
                                     String(status)
-                                        .toLowerCase() !==
+                                        .toLowerCase() !== 
                                     'cancelled'
                                         ? `
-                                            <button
+                                            <button 
                                                 type="button"
                                                 class="btn btn-sm"
                                                 data-action="cancel-prescription"
-                                                data-id="${escapeHtml(id)}"
+                                                data-in="${escapeHtml(id)}"
                                             >
-                                                Cancel
+                                                Cancel 
                                             </button>
                                         `
                                         : ''
                                 }
 
-                                <button
+                                <button 
                                     type="button"
                                     class="btn btn-sm btn-danger"
                                     data-action="delete-prescription"
                                     data-id="${escapeHtml(id)}"
                                 >
-                                    Delete
+                                    Delete 
                                 </button>
                             </td>
                         </tr>
@@ -1452,26 +1276,21 @@
             ).join('');
     }
 
-    // ============================================================
-    // Render pagination
-    // ============================================================
-
+    /* Render pagination */
     function renderPagination(
         total = state.total,
         page = state.currentPage,
         limit = state.perPage,
-        selector =
-            '#prescriptionsPagination'
+        selector = '#prescriptionPagination'
     ) {
-        const container =
-            getElement(selector);
+        const container = getElement(selector);
 
         if (!container) {
             return;
         }
 
-        const totalPages =
-            Math.ceil(total / limit);
+        /* Calculate total pages */
+        const totalPages = Math.ceil(total / limit);
 
         if (totalPages <= 1) {
             container.innerHTML = '';
@@ -1480,111 +1299,91 @@
 
         const maxVisiblePages = 5;
 
-        let startPage =
-            Math.max(
-                1,
-                page -
-                Math.floor(
-                    maxVisiblePages / 2
-                )
-            );
+        let startPage = Math.max(
+            1,
+            page - Math.floor(
+                maxVisiblePages / 2
+            )
+        );
 
-        let endPage =
-            Math.min(
+        let endPage = Math.min(
                 totalPages,
-                startPage +
-                maxVisiblePages -
-                1
-            );
+                startPage + maxVisiblePages - 1
+        );
 
-        if (
-            endPage -
-            startPage +
-            1 <
-            maxVisiblePages
-        ) {
-            startPage =
-                Math.max(
-                    1,
-                    endPage -
-                    maxVisiblePages +
-                    1
-                );
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(
+                                1,
+                                endPage - maxVisiblePages + 1
+            );
         }
 
         let html = `
             <div class="pagination">
-
-                <button
+                <button 
                     type="button"
                     data-page="${page - 1}"
-                    ${page <= 1 ? 'disabled' : ''}
+                    ${page <= 1 ? 'disable' : ''}
                 >
-                    Previous
-                </button>
-        `;
-
-        for (
-            let current = startPage;
-            current <= endPage;
-            current++
-        ) {
-            html += `
-                <button
-                    type="button"
-                    data-page="${current}"
-                    class="${
-                        current === page
-                            ? 'active'
-                            : ''
-                    }"
-                    ${
-                        current === page
-                            ? 'aria-current="page"'
-                            : ''
-                    }
-                >
-                    ${current}
+                    Previous 
                 </button>
             `;
-        }
+        
+            for ( let current = startPage; currentPage <= endPage; current++) 
+            {
+                html += `
+                    <button
+                        type="button"
+                        data-page="${current}"
+                        class="${
+                                current === page 
+                                    ? 'active'
+                                    : ''
+                                }"
+                                ${
+                                current === page
+                                    ? 'active'
+                                    : ''
+                                }"
+                                ${
+                                current === page 
+                                    ? 'aria-current="page"'
+                                    : ''
+                                }
+                    >
+                        ${current}
+                    </button>
+                `;
+            }
 
         html += `
-                <button
-                    type="button"
-                    data-page="${page + 1}"
+                <button 
+                    type="buutton"
+                    data-page=${page + 1}"
                     ${page >= totalPages ? 'disabled' : ''}
                 >
                     Next
-                </button>
-
+                <button>
             </div>
 
             <div class="pagination-info">
                 Page ${page} of ${totalPages}
-                (${total}
-                prescription${total === 1 ? '' : 's'})
+                (${total} prescription${total === 1 ? '' : 's'})
             </div>
         `;
-
+        
         container.innerHTML = html;
     }
 
-    // ============================================================
-    // Show prescription details
-    // ============================================================
-
+    /* Show Prescription details */
     async function showDetails(
         id,
-        containerSelector =
-            '#prescriptionDetails'
+        containerSelector = '#prescriptionDetails'
     ) {
-        const container =
-            getElement(containerSelector);
+        const container = getElement(containerSelector);
 
         try {
-            const prescription =
-                await get(id);
+            const prescription = await get(id);
 
             if (!container) {
                 return prescription;
@@ -1600,19 +1399,19 @@
                 return null;
             }
 
-            const date =
-                prescription.prescription_date ??
-                prescription.date ??
+            const date = 
+                prescription.prescription_date ?? 
+                prescription.date ?? 
                 '';
 
-            container.innerHTML = `
+            containerSelector.innerHTML = `
                 <div class="prescription-details">
-
+                
                     <div class="detail-section">
                         <h3>
                             Prescription Information
                         </h3>
-
+                        
                         <div class="detail-row">
                             <strong>
                                 Prescription ID:
@@ -1625,12 +1424,9 @@
                                 )}
                             </span>
                         </div>
-
-                        <div class="detail-row">
+                        
+                        <div class="detail-row"
                             <strong>
-                                Patient:
-                            </strong>
-                            <span>
                                 ${escapeHtml(
                                     getPatientName(
                                         prescription
@@ -1638,7 +1434,7 @@
                                 )}
                             </span>
                         </div>
-
+                        
                         <div class="detail-row">
                             <strong>
                                 Doctor:
@@ -1651,31 +1447,31 @@
                                 )}
                             </span>
                         </div>
-
+                        
                         <div class="detail-row">
                             <strong>
                                 Medical Record:
                             </strong>
                             <span>
                                 ${escapeHtml(
-                                    prescription.medical_record_id ||
-                                    '—'
+                                    prescription.medical_record_id || 
+                                    '-'
                                 )}
                             </span>
                         </div>
-
+                        
                         <div class="detail-row">
                             <strong>
                                 Appointment:
                             </strong>
                             <span>
                                 ${escapeHtml(
-                                    prescription.appointment_id ||
-                                    '—'
+                                    prescription.appointment_id || 
+                                    '-'
                                 )}
                             </span>
                         </div>
-
+                        
                         <div class="detail-row">
                             <strong>
                                 Prescription Date:
@@ -1686,7 +1482,7 @@
                                 )}
                             </span>
                         </div>
-
+                        
                         <div class="detail-row">
                             <strong>
                                 Type:
@@ -1694,14 +1490,14 @@
                             <span>
                                 ${escapeHtml(
                                     capitalize(
-                                        prescription.prescription_type ||
-                                        prescription.type ||
+                                        prescription.prescription_type || 
+                                        prescription.type || 
                                         ''
                                     )
                                 )}
                             </span>
                         </div>
-
+                        
                         <div class="detail-row">
                             <strong>
                                 Status:
@@ -1716,12 +1512,10 @@
                             </span>
                         </div>
                     </div>
-
+                    
                     <div class="detail-section">
-                        <h3>
-                            Medication
-                        </h3>
-
+                        <h3>Medication<h3>
+                        
                         <div class="detail-row">
                             <strong>
                                 Medication:
@@ -1734,27 +1528,15 @@
                                 )}
                             </span>
                         </div>
-
+                        
                         <div class="detail-row">
                             <strong>
                                 Generic Name:
                             </strong>
                             <span>
                                 ${escapeHtml(
-                                    prescription.generic_name ||
-                                    '—'
-                                )}
-                            </span>
-                        </div>
-
-                        <div class="detail-row">
-                            <strong>
-                                Strength:
-                            </strong>
-                            <span>
-                                ${escapeHtml(
-                                    prescription.strength ||
-                                    '—'
+                                    prescription.generic_name || 
+                                    '-'
                                 )}
                             </span>
                         </div>
@@ -1765,8 +1547,8 @@
                             </strong>
                             <span>
                                 ${escapeHtml(
-                                    prescription.dosage ||
-                                    '—'
+                                    prescription.dosage || 
+                                    '-'
                                 )}
                             </span>
                         </div>
@@ -1777,9 +1559,9 @@
                             </strong>
                             <span>
                                 ${escapeHtml(
-                                    prescription.dosage_form ||
-                                    prescription.form ||
-                                    '—'
+                                    prescription.dosage_form || 
+                                    prescription.form || 
+                                    '-'
                                 )}
                             </span>
                         </div>
@@ -1788,10 +1570,9 @@
                             <strong>
                                 Route:
                             </strong>
-                            <span>
                                 ${escapeHtml(
-                                    prescription.route ||
-                                    '—'
+                                    prescription.route || 
+                                    '-'
                                 )}
                             </span>
                         </div>
@@ -1803,11 +1584,11 @@
                             <span>
                                 ${escapeHtml(
                                     prescription.frequency ||
-                                    '—'
+                                    '-'
                                 )}
                             </span>
-                        </div>
-
+                        </span>
+                            
                         <div class="detail-row">
                             <strong>
                                 Duration:
@@ -1815,24 +1596,24 @@
                             <span>
                                 ${escapeHtml(
                                     prescription.duration ||
-                                    '—'
+                                    '-'
                                 )}
                             </span>
                         </div>
-
+                
                         <div class="detail-row">
                             <strong>
                                 Quantity:
                             </strong>
                             <span>
                                 ${escapeHtml(
-                                    prescription.quantity ||
-                                    '—'
+                                    prescription.quantity || 
+                                    '-'
                                 )}
                                 ${
-                                    prescription.unit
+                                    prescription.unit 
                                         ? ` ${escapeHtml(
-                                            prescription.unit
+                                            prescription.unit 
                                         )}`
                                         : ''
                                 }
@@ -1850,125 +1631,101 @@
                                 )}
                             </span>
                         </div>
-                    </div>
 
-                    <div class="detail-section">
-                        <h3>
-                            Instructions
-                        </h3>
+                        <div class="detail-section">
+                            <h3>Instructions</h3>
+                            <div class="detail-row">
+                                <strong>
+                                    Directions:
+                                </strong>
+                                <span>
+                                    ${escapeHtml(
+                                        prescription.instructions || 
+                                        prescription.directions || 
+                                        '-'
+                                    )}
+                                </span>
+                            </div>
 
-                        <div class="detail-row">
-                            <strong>
-                                Directions:
-                            </strong>
-                            <span>
-                                ${escapeHtml(
-                                    prescription.instructions ||
-                                    prescription.directions ||
-                                    '—'
-                                )}
-                            </span>
+                            <div class="detail-row">
+                                <strong>
+                                    Indication:
+                                </strong>
+                                <span>
+                                    ${escapeHtml(
+                                        prescription.indication || 
+                                        '-'
+                                    )}
+                                </span>
+                            </div>
                         </div>
 
-                        <div class="detail-row">
-                            <strong>
-                                Indication:
-                            </strong>
-                            <span>
-                                ${escapeHtml(
-                                    prescription.indication ||
-                                    '—'
-                                )}
-                            </span>
+                        <div class="detail-section">
+                            <h3>Dispensing</h3>
+                            <div class="detail-row">
+                                <strong>
+                                    Pharmacy:
+                                </strong>
+                                <span>
+                                    ${escapeHtml(
+                                        prescription.pharmacy_name ||
+                                        prescription.pharmacy_id || 
+                                        '-'
+                                    )}
+                                </span>
+                            </div>
+
+                            <div class="detail-row">
+                                <strong>
+                                    Dispensed:
+                                <strong>
+                                <span>
+                                    ${
+                                        prescription.dispensed 
+                                            ? 'Yes'
+                                            : 'No'
+                                    }
+                                </span>
+                            </div>
+
+                            <div class="detail-row">
+                                <strong>
+                                    Dispensed At:
+                                </strong>
+                                <span>
+                                    ${escapeHtml(
+                                        prescription.dispensed_at   
+                                            ? formatDateTime(
+                                                prescription.dispensed_at
+                                            )
+                                            : '-'
+                                    )}
+                                </span>
+                            </div>
                         </div>
 
-                        <div class="detail-row">
-                            <strong>
-                                Notes:
-                            </strong>
-                            <span>
-                                ${escapeHtml(
-                                    prescription.notes ||
-                                    '—'
-                                )}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="detail-section">
-                        <h3>
-                            Dispensing
-                        </h3>
-
-                        <div class="detail-row">
-                            <strong>
-                                Pharmacy:
-                            </strong>
-                            <span>
-                                ${escapeHtml(
-                                    prescription.pharmacy_name ||
-                                    prescription.pharmacy_id ||
-                                    '—'
-                                )}
-                            </span>
-                        </div>
-
-                        <div class="detail-row">
-                            <strong>
-                                Dispensed:
-                            </strong>
-                            <span>
-                                ${
-                                    prescription.dispensed
-                                        ? 'Yes'
-                                        : 'No'
-                                }
-                            </span>
-                        </div>
-
-                        <div class="detail-row">
-                            <strong>
-                                Dispensed At:
-                            </strong>
-                            <span>
-                                ${escapeHtml(
-                                    prescription.dispensed_at
-                                        ? formatDateTime(
-                                            prescription.dispensed_at
-                                        )
-                                        : '—'
-                                )}
-                            </span>
-                        </div>
-                    </div>
-
-                    ${
-                        prescription.cancellation_reason
-                            ? `
-                                <div class="detail-section">
-                                    <h3>
-                                        Cancellation
-                                    </h3>
-
-                                    <div class="detail-row">
-                                        <strong>
-                                            Reason:
-                                        </strong>
-                                        <span>
-                                            ${escapeHtml(
-                                                prescription.cancellation_reason
-                                            )}
-                                        </span>
+                        ${
+                            prescription.cancellation_reason 
+                                ? `
+                                    <div class="detail-section"
+                                        <h3>Cancellation</h3>
+                                        <div class="detail-row">
+                                            <strong>
+                                                Reason:
+                                            </strong>
+                                            <span>
+                                                ${escapeHtml(
+                                                    prescription.cancellation_reason
+                                                )}
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
-                            `
-                            : ''
-                    }
-
-                </div>
-            `;
-
-            return prescription;
+                                `
+                                : ''
+                        }
+                    </div>
+                `;
+            return prescription
         } catch (error) {
             if (container) {
                 container.innerHTML = `
@@ -1978,21 +1735,16 @@
                 `;
             }
 
-            throw error;
+            throw error
         }
     }
 
-    // ============================================================
-    // Load prescription into edit form
-    // ============================================================
-
+    /* Load prescription into edit form */
     async function loadPrescriptionIntoForm(
         id,
-        formSelector =
-            '#editPrescriptionForm'
+        formSelector = '#editPrescriptionForm'
     ) {
-        const form =
-            getElement(formSelector);
+        const form = getElement(formSelector);
 
         if (!form) {
             throw new Error(
@@ -2000,23 +1752,22 @@
             );
         }
 
-        const prescription =
-            await get(id);
+        const prescription = await get(id);
 
         if (!prescription) {
             throw new Error(
                 'Prescription was not found.'
             );
         }
-
+        
         const values = {
             id: getPrescriptionId(
                 prescription
             ),
 
-            prescription_id:
+            prescription_id: 
                 getPrescriptionId(
-                    prescription
+                    prescription 
                 ),
 
             patient_id:
@@ -2032,49 +1783,45 @@
                 '',
 
             appointment_id:
-                prescription.appointment_id ??
+                prescription.appointment_id ?? 
                 '',
 
             prescription_date:
-                prescription.prescription_date ??
+                prescription.prescription_date ?? 
                 prescription.date ??
                 '',
 
             prescription_type:
                 prescription.prescription_type ??
-                prescription.type ??
+                prescription.type ?? 
                 '',
 
             medication_name:
                 prescription.medication_name ??
-                prescription.medicine_name ??
-                prescription.drug_name ??
-                prescription.medication ??
+                prescription.medication_name ?? 
+                prescription.drug_name ?? 
+                prescription.medication ?? 
                 '',
 
             generic_name:
-                prescription.generic_name ??
+                prescription.generic_name ?? 
                 '',
 
-            strength:
-                prescription.strength ??
+            strength: 
+                prescription.strength ?? 
                 '',
 
             dosage:
-                prescription.dosage ??
+                prescription.strength ?? 
                 '',
-
-            dosage_form:
+            
+            dosage_form: 
                 prescription.dosage_form ??
-                prescription.form ??
+                prescription.form ?? 
                 '',
 
             route:
                 prescription.route ??
-                '',
-
-            frequency:
-                prescription.frequency ??
                 '',
 
             duration:
@@ -2086,20 +1833,20 @@
                 '',
 
             unit:
-                prescription.unit ??
+                prescription.unit ?? 
                 '',
 
-            refills:
+            refills: 
                 prescription.refills ??
                 0,
 
             instructions:
                 prescription.instructions ??
-                prescription.directions ??
+                prescription.directions ?? 
                 '',
 
             indication:
-                prescription.indication ??
+                prescription.indication ?? 
                 '',
 
             notes:
@@ -2111,7 +1858,7 @@
                 '',
 
             cancellation_reason:
-                prescription.cancellation_reason ??
+                prescription.cancellation_reason ?? 
                 '',
 
             pharmacy_id:
@@ -2120,52 +1867,37 @@
 
             dispensed:
                 prescription.dispensed ??
-                0
+                0 
         };
 
         Object.keys(values).forEach(
             name => {
-                const field =
-                    form.elements[name];
+                const field = form.elements[name];
 
                 if (!field) {
                     return;
                 }
 
-                if (
-                    field.type === 'checkbox'
-                ) {
-                    field.checked =
-                        Boolean(values[name]);
+                if (field.type === 'checkbox') {
+                    field.checked = Boolean(values[name]); 
                 } else if (
                     field.type === 'radio'
                 ) {
-                    field.checked =
-                        String(
-                            field.value
-                        ) ===
-                        String(
-                            values[name]
-                        );
+                    field.checked = String(values[name]) === String(values[name]);
                 } else {
-                    field.value =
-                        values[name] ?? '';
+                    field.value = values[name] ?? '';
                 }
             }
         );
 
-        form.dataset.prescriptionId =
-            getPrescriptionId(
-                prescription
-            );
+        form.dataset.prescriptionId = getPrescriptionId(
+            prescription 
+        );
 
         return prescription;
     }
 
-    // ============================================================
-    // Form handlers
-    // ============================================================
-
+    /* Form handlers */
     function setupForms() {
         const createForms = [
             '#prescriptionForm',
@@ -2174,8 +1906,7 @@
 
         createForms.forEach(
             selector => {
-                const form =
-                    getElement(selector);
+                const form = getElement(selector);
 
                 if (!form) {
                     return;
@@ -2186,14 +1917,12 @@
                     async event => {
                         event.preventDefault();
 
-                        const submitButton =
-                            form.querySelector(
-                                '[type="submit"]'
-                            );
-
+                        const submitButton = form.querySelector(
+                                                '[type="submit"'
+                                            );
+                        
                         if (submitButton) {
-                            submitButton.disabled =
-                                true;
+                            submitButton.dispensed = true;
                         }
 
                         try {
@@ -2203,9 +1932,9 @@
                         } catch (error) {
                             console.error(error);
                         } finally {
+
                             if (submitButton) {
-                                submitButton.disabled =
-                                    false;
+                                submitButton.dispensed = false;
                             }
                         }
                     }
@@ -2213,24 +1942,22 @@
             }
         );
 
-        const editForm =
-            getElement(
-                '#editPrescriptionForm'
-            );
-
+        const editForm = getElement(
+                            '#editPrescriptionForm'
+                        );
         if (editForm) {
             editForm.addEventListener(
                 'submit',
                 async event => {
                     event.preventDefault();
 
-                    const prescriptionId =
+                    const prescriptionId = 
                         editForm.dataset
-                            .prescriptionId ||
-                        editForm.elements.id
-                            ?.value ||
-                        editForm.elements
-                            .prescription_id
+                            .prescription ||
+                        editForm.elements.id 
+                            ?.value || 
+                        editForm.elements 
+                            .prescription_id 
                             ?.value;
 
                     const submitButton =
@@ -2239,21 +1966,19 @@
                         );
 
                     if (submitButton) {
-                        submitButton.disabled =
-                            true;
+                        submitButton.disabled = true;
                     }
 
                     try {
                         await submitUpdateForm(
                             editForm,
-                            prescriptionId
+                            prescriptionIdId 
                         );
                     } catch (error) {
                         console.error(error);
                     } finally {
                         if (submitButton) {
-                            submitButton.disabled =
-                                false;
+                            submitButton.disabled = false;
                         }
                     }
                 }
@@ -2261,15 +1986,9 @@
         }
     }
 
-    // ============================================================
-    // Search and filters
-    // ============================================================
-
+    /* Search and filters */
     function setupSearchAndFilters() {
-        const searchInput =
-            getElement(
-                '#prescriptionSearch'
-            );
+        const searchInput = getElement('#prescriptionSearch');
 
         if (searchInput) {
             let timeout;
@@ -2279,21 +1998,19 @@
                 event => {
                     clearTimeout(timeout);
 
-                    timeout =
-                        setTimeout(() => {
-                            search(
-                                event.target.value
-                            );
-                        }, 300);
+                    timeout = setTimeout(() => {
+                        search(
+                            event.target.value 
+                        );
+                    }, 300);
                 }
             );
         }
 
-        const applyButton =
-            getElement(
-                '#applyPrescriptionFilters'
+        const applyButton = getElement(
+                                '#applyPrescriptionFilters'
             );
-
+        
         if (applyButton) {
             applyButton.addEventListener(
                 'click',
@@ -2328,7 +2045,7 @@
                             getValue(
                                 '#prescriptionDateFrom'
                             ),
-
+                        
                         date_to:
                             getValue(
                                 '#prescriptionDateTo'
@@ -2338,10 +2055,9 @@
             );
         }
 
-        const clearButton =
-            getElement(
-                '#clearPrescriptionFilters'
-            );
+        const clearButton = getElement(
+                                '#clearPrescriptionFilters'
+                            );
 
         if (clearButton) {
             clearButton.addEventListener(
@@ -2360,10 +2076,9 @@
 
                     fields.forEach(
                         selector => {
-                            const element =
-                                getElement(
+                            const element = getElement(
                                     selector
-                                );
+                            );
 
                             if (element) {
                                 element.value = '';
@@ -2372,47 +2087,41 @@
                     );
 
                     state.search = '';
-                    state.patientId = '';
+                    state.patient = '';
                     state.doctorId = '';
                     state.medicalRecordId = '';
                     state.status = '';
-                    state.prescriptionType = '';
-                    state.dateFrom = '';
+                    state.dateForm = '';
                     state.dateTo = '';
                     state.currentPage = 1;
 
                     await list({
                         page: 1,
-                        limit: state.perPage
-                    });
+                        limit: state.perPage 
+                    }); 
                 }
-            );
+            ); 
         }
 
-        const perPageSelect =
-            getElement(
-                '#prescriptionsPerPage'
-            );
+        const perPageSelect = getElement(
+            '#prescriptionsPerPage'
+        );
 
         if (perPageSelect) {
             perPageSelect.addEventListener(
                 'change',
                 () => {
-                    const value =
-                        Number(
-                            perPageSelect.value
-                        );
+                    const value = Number(
+                        perPageSelect.value 
+                    );
 
-                    if (
-                        !Number.isNaN(value) &&
-                        value > 0
-                    ) {
+                    if (!Number.isNaN(value) && value > 0) {
                         state.perPage = value;
                         state.currentPage = 1;
 
                         list({
                             page: 1,
-                            limit: value
+                            limit: value 
                         });
                     }
                 }
@@ -2420,28 +2129,22 @@
         }
     }
 
-    // ============================================================
-    // Table actions
-    // ============================================================
-
+    /* Table actions */
     function setupTableActions() {
         document.addEventListener(
             'click',
             async event => {
-                const button =
-                    event.target.closest(
-                        '[data-action]'
-                    );
+                const button = event.target.closest(
+                    '[data-action'
+                );
 
                 if (!button) {
                     return;
                 }
 
-                const action =
-                    button.dataset.action;
+                const action = button.dataset.action;
 
-                const id =
-                    button.dataset.id;
+                const id = button.dataset.id;
 
                 if (!id) {
                     return;
@@ -2455,7 +2158,7 @@
 
                         case 'edit-prescription':
                             await loadPrescriptionIntoForm(
-                                id
+                                id 
                             );
 
                             document.dispatchEvent(
@@ -2464,13 +2167,11 @@
                                     {
                                         detail: {
                                             id: id,
-                                            prescription:
-                                                state.currentPrescription
+                                            prescription: state.currentPrescription 
                                         }
                                     }
                                 )
                             );
-
                             break;
 
                         case 'cancel-prescription':
@@ -2481,63 +2182,53 @@
 
                         case 'delete-prescription':
                             await deleteWithConfirmation(
-                                id
+                                id 
                             );
                             break;
 
                         default:
                             break;
-                    }
-                } catch (error) {
-                    console.error(
+                }
+            } catch (error) {
+                console.error(
                         `Prescription action "${action}" failed:`,
-                        error
-                    );
+                        error 
+                    ); 
                 }
             }
         );
     }
 
-    // ============================================================
-    // Pagination actions
-    // ============================================================
-
+    /* Pagination actions */
     function setupPagination() {
         document.addEventListener(
             'click',
             event => {
-                const button =
+                const button = 
                     event.target.closest(
-                        '#prescriptionsPagination [data-page]'
+                        '#prescriptionsPagination [data-page]' 
                     );
-
-                if (
-                    !button ||
-                    button.disabled
-                ) {
+                
+                if(!button || button.disabled) {
                     return;
                 }
 
-                const page =
-                    Number(
-                        button.dataset.page
-                    );
+                const page = Number(
+                    button.dataset.page 
+                );
 
                 if (!Number.isNaN(page)) {
                     goToPage(page);
                 }
+                
             }
         );
     }
 
-    // ============================================================
-    // Initialize
-    // ============================================================
-
+    /* Initialize */
     async function init(options = {}) {
         if (options.perPage) {
-            state.perPage =
-                Number(options.perPage);
+            state.perPage = Number(optionals.perPage);
         }
 
         setupForms();
@@ -2545,16 +2236,16 @@
         setupTableActions();
         setupPagination();
 
-        const hasPrescriptionUI =
+        const hasPrescriptionUI = 
             getElement(
                 '#prescriptionsTableBody'
-            ) ||
+            ) || 
             getElement(
                 '#prescriptionForm'
-            ) ||
+            ) || 
             getElement(
                 '#createPrescriptionForm'
-            ) ||
+            ) || 
             getElement(
                 '#editPrescriptionForm'
             );
@@ -2566,7 +2257,7 @@
         try {
             await list({
                 page: 1,
-                limit: state.perPage
+                limit: state.perPage 
             });
         } catch (error) {
             console.error(
@@ -2576,10 +2267,7 @@
         }
     }
 
-    // ============================================================
-    // Public API
-    // ============================================================
-
+    /* Public API */
     const Prescriptions = {
         state,
         endpoints,
@@ -2619,17 +2307,10 @@
         init
     };
 
-    window.Prescriptions =
-        Prescriptions;
+    window.Prescriptions = Prescriptions;
 
-    // ============================================================
-    // Auto initialization
-    // ============================================================
-
-    if (
-        document.readyState ===
-        'loading'
-    ) {
+    /* Auto initialization */
+    if (document.readyState === 'loading') {
         document.addEventListener(
             'DOMContentLoaded',
             () => init()
@@ -2640,22 +2321,23 @@
 
 })(window, document);
 
-Prescriptions.list()
-Prescriptions.get(id)
+Prescriptions.list();
+prescriptions.get(id);
 
-Prescriptions.create(data)
-Prescriptions.update(id, data)
-Prescriptions.cancel(id, reason)
-Prescriptions.remove(id)
+prescriptions.create(data)
+prescriptions.update(id, data)
+prescriptions.cancel(id, reason)
+prescriptions.remove(id)
 
-Prescriptions.search(term)
-Prescriptions.filter(filters)
+prescriptions.search(term)
+prescriptions.filter(filters)
 
-Prescriptions.goToPage(page)
-Prescriptions.nextPage()
-Prescriptions.previousPage()
+prescriptions.goToPage(page)
+prescriptions.nextPage()
+prescriptions.previousPage() 
 
-Prescriptions.showDetails(id)
-Prescriptions.loadPrescriptionIntoForm(id)
+prescriptions.showDetails(id)
+prescriptions.loadPrescriptionIntoForm(id)
 
-Prescriptions.refreshList()
+prescriptions.refreshList()
+
