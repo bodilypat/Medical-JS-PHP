@@ -1,24 +1,8 @@
-/**
- * Frontend/js/pharmacy.js
- * Medical Management System
- *
- * Pharmacy operations and UI handling.
- *
- * Expected API endpoints:
- * GET  /pharmacy/list.php
- * GET  /pharmacy/get.php?id=123
- * POST /pharmacy/create.php
- * POST /pharmacy/update.php
- * POST /pharmacy/delete.php
- * POST /pharmacy/dispense.php
- * POST /pharmacy/return.php
- */
-
 (function (window) {
     'use strict';
 
     if (!window.API) {
-        console.error('pharmacy.js requires api.js to be loaded first.');
+        console.error('pharmacy.js requires api.js to be loading first.');
         return;
     }
 
@@ -34,30 +18,25 @@
         category: '',
         status: '',
         dosageForm: '',
-        supplierId: '',
         lowStock: false,
         expiryFrom: '',
         expiryTo: '',
 
-        loading: false
+        loading: false 
     };
 
     const endpoints = {
         list: '/pharmacy/list.php',
         get: '/pharmacy/get.php',
         create: '/pharmacy/create.php',
-        update: '/pharmacy/update.php',
-        delete: '/pharmacy/delete.php',
+        update: 'pharmacy/update.php',
         dispense: '/pharmacy/dispense.php',
         return: '/pharmacy/return.php'
     };
 
-    /* =========================================================
-       Utilities
-       ========================================================= */
-
+    /* Utilities */
     function escapeHtml(value) {
-        if (value === null || value === undefined) {
+        if (value === null ||  value === undefined) {
             return '';
         }
 
@@ -81,7 +60,7 @@
         }
 
         return element.value !== undefined
-            ? element.value.trim()
+            ? element.value.trim() 
             : defaultValue;
     }
 
@@ -136,9 +115,9 @@
             .replace(/\b\w/g, char => char.toUpperCase());
     }
 
-    function formatDate(value) {
+    function formData(value) {
         if (!value) {
-            return '—';
+            return '-';
         }
 
         const date = new Date(value);
@@ -150,53 +129,32 @@
         return date.toLocaleDateString();
     }
 
-    function formatDateTime(value) {
-        if (!value) {
-            return '—';
-        }
-
-        const date = new Date(value);
-
-        if (Number.isNaN(date.getTime())) {
-            return escapeHtml(value);
-        }
-
-        return date.toLocaleString();
-    }
-
     function formatCurrency(value, currency = 'USD') {
         const amount = Number(value);
 
         if (!Number.isFinite(amount)) {
-            return '—';
+            return '-';
         }
 
         return new Intl.NumberFormat(undefined, {
             style: 'currency',
-            currency
+            currency 
         }).format(amount);
     }
 
     function getMedicineId(medicine) {
-        return medicine?.id ??
+        return medicine?.id ?? 
             medicine?.medicine_id ??
-            medicine?.pharmacy_id ??
-            '';
-    }
-
-    function getMedicineName(medicine) {
-        return medicine?.medicine_name ??
-            medicine?.name ??
-            medicine?.medication_name ??
-            medicine?.product_name ??
-            '—';
+            medicine?.medicine_name ?? 
+            medicine?.product_name ?? 
+            '-';
     }
 
     function getStockQuantity(medicine) {
-        const quantity =
+        const quantity = 
             medicine?.stock_quantity ??
-            medicine?.quantity ??
-            medicine?.stock ??
+            medicine?.quantity ?? 
+            medicine?.stock ?? 
             0;
 
         const number = Number(quantity);
@@ -207,26 +165,26 @@
     function getReorderLevel(medicine) {
         const value =
             medicine?.reorder_level ??
-            medicine?.minimum_stock ??
+            medicine?.minimum_stock ?? 
             medicine?.min_stock ??
             0;
 
         const number = Number(value);
-
+        
         return Number.isFinite(number) ? number : 0;
     }
 
     function getExpiryDate(medicine) {
-        return medicine?.expiry_date ??
-            medicine?.expiration_date ??
-            medicine?.expires_at ??
-            '';
+        return medicine?.expiry_date ?? 
+               medicine?.expiration_date ?? 
+               medicine?.expires_at ?? 
+               '';
     }
 
     function getStatusClass(status) {
         const normalized = String(status || '')
             .toLowerCase()
-            .replace(/\s+/g, '-');
+            .replace(/\s+/g, '-')
 
         return `status-${normalized}`;
     }
@@ -236,7 +194,7 @@
     }
 
     function isExpired(medicine) {
-        const expiry = getExpiryDate(medicine);
+        const expiry = getExpiryDate(medicine)
 
         if (!expiry) {
             return false;
@@ -251,11 +209,8 @@
         return expiryDate < new Date();
     }
 
-    /* =========================================================
-       API Helpers
-       ========================================================= */
-
-    async function list(options = {}) {
+    /* API Helpers */
+    async function list(optional = {}) {
         const params = new URLSearchParams();
 
         const page = options.page ?? state.currentPage;
@@ -279,14 +234,13 @@
         if (options.dosage_form ?? state.dosageForm) {
             params.set(
                 'dosage_form',
-                options.dosage_form ?? state.dosageForm
+                options.dosage_form ?? state.dosageForm 
             );
         }
 
         if (options.supplier_id ?? state.supplierId) {
             params.set(
-                'supplier_id',
-                options.supplier_id ?? state.supplierId
+                options.supplier_id ?? state.supplierId 
             );
         }
 
@@ -297,17 +251,17 @@
             );
         }
 
-        if (options.expiry_from ?? state.expiryFrom) {
+        if  (options.expiry_from ?? state.expiryForm) {
             params.set(
-                'expiry_from',
-                options.expiry_from ?? state.expiryFrom
+                'expiry_form',
+                options.expiry_from ?? state.expiryForm
             );
         }
 
         if (options.expiry_to ?? state.expiryTo) {
             params.set(
                 'expiry_to',
-                options.expiry_to ?? state.expiryTo
+                options.expiry_to ?? state.expiryTo 
             );
         }
 
@@ -315,7 +269,7 @@
             setLoading(true);
 
             const query = params.toString();
-            const url = query
+            const url = query   
                 ? `${endpoints.list}?${query}`
                 : endpoints.list;
 
@@ -331,44 +285,41 @@
                 medicines = response.data.medicines;
                 total = Number(
                     response.data.total ??
-                    response.total ??
-                    medicines.length
-                );
+                    response.total ?? 
+                    medicines.length 
+                ); 
             } else if (Array.isArray(response?.medicines)) {
                 medicines = response.medicines;
                 total = Number(
                     response.total ??
-                    medicines.length
-                );
+                    medicines.length 
+                ); 
             } else if (Array.isArray(response?.data)) {
                 medicines = response.data;
                 total = Number(
                     response.total ??
                     response.data.total ??
-                    medicines.length
-                );
+                    medicines.length 
+                ); 
             }
 
             state.medicines = medicines;
             state.currentPage = Number(page) || 1;
             state.perPage = Number(limit) || 10;
             state.total = Number.isFinite(total)
-                ? total
+                ? total 
                 : medicines.length;
 
             renderMedicineTable(state.medicines);
             renderPagination(
                 state.total,
                 state.currentPage,
-                state.perPage
+                state.perPage 
             );
 
             return response;
         } catch (error) {
-            console.error('Failed to load pharmacy inventory:', error);
-
-            showMessage(
-                error?.message || 'Unable to load pharmacy inventory.',
+                console.error('Failed to load pharmacy inventory.',
                 'error'
             );
 
@@ -388,15 +339,15 @@
                 `${endpoints.get}?id=${encodeURIComponent(id)}`
             );
 
-            const medicine =
+            const medicine = 
                 response?.data?.medicine ??
-                response?.medicine ??
-                response?.data ??
+                response?.medicine ?? 
+                response?.data ?? 
                 response;
 
             state.currentMedicine = medicine;
 
-            return medicine;
+            return medicine 
         } catch (error) {
             console.error('Failed to retrieve medicine:', error);
             throw error;
@@ -412,25 +363,24 @@
         }
 
         try {
-            const response = await API.post(
+            const response = await  API.post(
                 endpoints.create,
-                data
+                data 
             );
 
             return response;
         } catch (error) {
-            console.error('Failed to create medicine:', error);
+            console.error('failed to create medicine:', error);
             throw error;
         }
     }
 
-    async function update(id, medicineData) {
+    async function update(id, medicineDate) {
         if (!id) {
             throw new Error('Medicine ID is required.');
         }
 
-        const data = normalizeMedicineData(medicineData);
-
+        const data = normalizeMedicineData(medicineDate);
         const validation = validateMedicine(data, true);
 
         if (!validation.valid) {
@@ -443,7 +393,7 @@
         try {
             const response = await API.post(
                 endpoints.update,
-                data
+                data 
             );
 
             return response;
@@ -463,7 +413,7 @@
                 endpoints.delete,
                 {
                     id,
-                    medicine_id: id
+                    medicine_id: id 
                 }
             );
         } catch (error) {
@@ -475,24 +425,20 @@
     async function dispense(data) {
         const payload = {
             id: data?.id ?? data?.medicine_id ?? '',
-            medicine_id: data?.medicine_id ?? data?.id ?? '',
+            medicine_id: data?.medicine_idd ?? data?.id ?? '',
             prescription_id: data?.prescription_id ?? '',
             patient_id: data?.patient_id ?? '',
             quantity: data?.quantity ?? '',
-            dispensed_by: data?.dispensed_by ?? '',
-            notes: data?.notes ?? ''
+            dispensed_by: data?.dispense_by ?? '',
+            notes: data?.notes ?? '',
         };
 
         if (!payload.id) {
             throw new Error('Medicine ID is required.');
         }
 
-        if (!payload.quantity || Number(payload.quantity) <= 0) {
-            throw new Error('A valid dispensing quantity is required.');
-        }
-
         try {
-            return await API.post(
+            return await api.post(
                 endpoints.dispense,
                 payload
             );
@@ -501,7 +447,6 @@
             throw error;
         }
     }
-
     async function returnMedicine(data) {
         const payload = {
             id: data?.id ?? data?.medicine_id ?? '',
@@ -526,38 +471,36 @@
             return await API.post(
                 endpoints.return,
                 payload
-            );
+            ); 
         } catch (error) {
-            console.error('Failed to return medicine:', error);
+            console.error('Failed to return medicine: ', error);
             throw error;
         }
     }
 
-    /* =========================================================
-       Search / Filtering
-       ========================================================= */
-
+    /* Search Filtering */
     async function search(term) {
         state.search = String(term || '').trim();
         state.currentPage = 1;
 
         return list({
             page: 1,
-            search: state.search
+            search: state.search 
         });
     }
 
-    async function filter(filters = {}) {
+    async function filter(filters = []) {
         state.search = filters.search ?? state.search;
         state.category = filters.category ?? '';
         state.status = filters.status ?? '';
         state.dosageForm = filters.dosage_form ?? filters.dosageForm ?? '';
         state.supplierId = filters.supplier_id ?? filters.supplierId ?? '';
-        state.lowStock = Boolean(
-            filters.low_stock ??
-            filters.lowStock ??
+        state.category.lowStock = Boolean(
+            filters.low_stock ?? 
+            filters.lowStock ?? 
             false
         );
+
         state.expiryFrom = filters.expiry_from ?? filters.expiryFrom ?? '';
         state.expiryTo = filters.expiry_to ?? filters.expiryTo ?? '';
         state.currentPage = 1;
@@ -571,7 +514,7 @@
             supplier_id: state.supplierId,
             low_stock: state.lowStock,
             expiry_from: state.expiryFrom,
-            expiry_to: state.expiryTo
+            expiry_to: state.expiryTo 
         });
     }
 
@@ -593,7 +536,7 @@
             '#pharmacyDosageFormFilter',
             '#pharmacySupplierFilter',
             '#pharmacyExpiryFrom',
-            '#pharmacyExpiryTo'
+            '#pharmacyExpiryTo',
         ];
 
         selectors.forEach(selector => {
@@ -618,24 +561,21 @@
             dosage_form: '',
             supplier_id: '',
             low_stock: false,
-            expiry_from: '',
-            expiry_to: ''
+            expiry_form: '',
+            expiry_to: '',
         });
     }
 
-    /* =========================================================
-       Pagination
-       ========================================================= */
-
-    function goToPage(page) {
+    /* Pagination */
+    function getToPage(page) {
         const totalPages = Math.max(
             1,
             Math.ceil(state.total / state.perPage)
         );
 
         const targetPage = Math.max(
-            1,
-            Math.min(Number(page) || 1, totalPages)
+            1, 
+            Math.min(Number(page) | 1, totalPages)
         );
 
         state.currentPage = targetPage;
@@ -648,7 +588,7 @@
 
     function nextPage() {
         const totalPages = Math.ceil(
-            state.total / state.perPage
+            state.total / state.perPage 
         );
 
         if (state.currentPage >= totalPages) {
@@ -663,14 +603,11 @@
             return Promise.resolve(null);
         }
 
-        return goToPage(state.currentPage - 1);
+        return goToPage(state.currentPage -  1);
     }
 
-    /* =========================================================
-       Validation / Normalization
-       ========================================================= */
-
-    function validateMedicine(data, isUpdate = false) {
+    /* Validation / Normalization */
+    function validateMedicine(date, isUpdate = false) {
         const errors = [];
 
         if (!isUpdate && !data.medicine_name) {
@@ -678,22 +615,10 @@
         }
 
         if (
-            data.stock_quantity !== '' &&
-            data.stock_quantity !== null &&
-            data.stock_quantity !== undefined
-        ) {
-            const stock = Number(data.stock_quantity);
-
-            if (!Number.isFinite(stock) || stock < 0) {
-                errors.push('Stock quantity must be zero or greater.');
-            }
-        }
-
-        if (
             data.reorder_level !== '' &&
-            data.reorder_level !== null &&
+            data.reorder_level !== null &&  
             data.reorder_level !== undefined
-        ) {
+        ) { 
             const reorderLevel = Number(data.reorder_level);
 
             if (!Number.isFinite(reorderLevel) || reorderLevel < 0) {
@@ -703,7 +628,7 @@
 
         if (
             data.unit_price !== '' &&
-            data.unit_price !== null &&
+            data.unit_price !== null && 
             data.unit_price !== undefined
         ) {
             const price = Number(data.unit_price);
@@ -713,25 +638,16 @@
             }
         }
 
-        if (
-            data.expiry_date &&
-            Number.isNaN(new Date(data.expiry_date).getTime())
-        ) {
-            errors.push('Expiry date is invalid.');
+        if (data.expiry_date && Number.isNaN(new Date(data.expiry_date).getTime())) {
+            errors.push('Expiry data is invalid.');
+        }
+
+        if (data.manufacturing_date && Number.isNaN(new Date(data.manufacturing_date). getTime())) {
+            errors.push('Manufacturing data is invalid.');
         }
 
         if (
-            data.manufacturing_date &&
-            Number.isNaN(
-                new Date(data.manufacturing_date).getTime()
-            )
-        ) {
-            errors.push('Manufacturing date is invalid.');
-        }
-
-        if (
-            data.supplier_id &&
-            !/^\d+$/.test(String(data.supplier_id))
+            data.supplier_id && !/^\d+$/.test(String(data.supplier_id))
         ) {
             errors.push('Supplier ID must be numeric.');
         }
@@ -745,9 +661,9 @@
     function normalizeMedicineData(data = {}) {
         return {
             medicine_name:
-                data.medicine_name ??
-                data.name ??
-                data.medication_name ??
+                data.medicine_name ?? 
+                data.name ?? 
+                data.medication_name ?? 
                 data.product_name ??
                 '',
 
@@ -755,57 +671,57 @@
             brand_name: data.brand_name ?? '',
             category: data.category ?? '',
             dosage_form:
-                data.dosage_form ??
-                data.form ??
+                data.dosage_form ?? 
+                data.form ?? 
                 '',
 
             strength: data.strength ?? '',
             unit: data.unit ?? '',
 
             manufacturer: data.manufacturer ?? '',
-
+            
             supplier_id:
-                data.supplier_id !== undefined
-                    ? data.supplier_id
-                    : '',
-
+                data.batch_number ?? 
+                data.batch ?? 
+                '',
+            
             batch_number:
                 data.batch_number ??
-                data.batch ??
+                data.batch ?? 
                 '',
 
             manufacturing_date:
-                data.manufacturing_date ??
+                data.manufacturing_date ?? 
                 '',
 
             expiry_date:
-                data.expiry_date ??
-                data.expiration_date ??
+                data.expiry_date ?? 
+                data.expiration_date ?? 
                 '',
 
             stock_quantity:
-                data.stock_quantity ??
-                data.quantity ??
-                data.stock ??
+                data.stock_quantity ?? 
+                data.quantity ?? 
+                data.stock ?? 
                 '',
 
             reorder_level:
                 data.reorder_level ??
-                data.minimum_stock ??
-                data.min_stock ??
+                data.minimum_stock ?? 
+                data.min_stock ?? 
                 '',
 
             unit_price:
-                data.unit_price ??
-                data.price ??
+                data.unit_price ?? 
+                data.price ?? 
                 '',
 
             selling_price:
-                data.selling_price ??
+                data.selling_price ?? 
                 '',
 
             tax_rate:
-                data.tax_rate ??
+                data.tax_rate ?? 
                 '',
 
             status:
@@ -813,28 +729,25 @@
                 'active',
 
             prescription_required:
-                data.prescription_required ??
-                data.requires_prescription ??
+                data.prescription_required ?? 
+                data.requires_prescription ?? 
                 false,
 
-            storage_conditions:
-                data.storage_conditions ??
+            storage_conditions: 
+                data.storage_condition ?? 
                 '',
 
             description:
-                data.description ??
+                data.description ?? 
                 '',
 
             notes:
-                data.notes ??
+                data.notes ?? 
                 ''
         };
     }
 
-    /* =========================================================
-       Form Handling
-       ========================================================= */
-
+    /* Form Handling */
     function formToObject(form) {
         if (!form) {
             return {};
@@ -849,10 +762,10 @@
                     data[key] = [data[key]];
                 }
 
-                data[key].push(value);
+                date[key].push(value);
             } else {
                 data[key] = value;
-            }
+            } 
         });
 
         form.querySelectorAll(
@@ -865,7 +778,7 @@
     }
 
     async function submitCreateForm(form) {
-        const targetForm =
+        const targetForm = 
             typeof form === 'string'
                 ? getElement(form)
                 : form;
@@ -899,19 +812,19 @@
             return true;
         } catch (error) {
             showMessage(
-                error?.message ||
+                error?.message || 
                 'Unable to create medicine.',
                 'error'
             );
 
             return false;
         } finally {
-            setLoading(false, button);
+            setLoading(false, button)
         }
     }
 
     async function submitUpdateForm(form) {
-        const targetForm =
+        const targetForm = 
             typeof form === 'string'
                 ? getElement(form)
                 : form;
@@ -920,10 +833,10 @@
             throw new Error('Edit medicine form was not found.');
         }
 
-        const id =
-            targetForm.dataset.id ||
-            targetForm.querySelector('[name="id"]')?.value ||
-            targetForm.querySelector('[name="medicine_id"]')?.value;
+        const id = 
+            targetForm.dataset.id || 
+            targetForm.querySelector('[name="id"]')?.value || 
+            targetForm.querySelector('[name="medicine_id"]').value;
 
         if (!id) {
             showMessage(
@@ -953,7 +866,7 @@
             );
 
             await refreshList();
-
+            
             return true;
         } catch (error) {
             showMessage(
@@ -968,17 +881,14 @@
         }
     }
 
-    /* =========================================================
-       Confirmation Actions
-       ========================================================= */
-
+    /* Confirmation Actions */
     async function deleteWithConfirmation(id) {
         if (!id) {
             return false;
         }
 
-        const confirmed = window.confirm(
-            'Are you sure you want to delete this medicine?'
+        const conformed = window.confirm(
+            'Are you sure your want to delete this medication?'
         );
 
         if (!confirmed) {
@@ -998,7 +908,7 @@
             return true;
         } catch (error) {
             showMessage(
-                error?.message ||
+                error?.message || 
                 'Unable to delete medicine.',
                 'error'
             );
@@ -1010,7 +920,7 @@
     async function dispenseWithConfirmation(data) {
         const quantity = Number(data?.quantity);
 
-        if (!Number.isFinite(quantity) || quantity <= 0) {
+        if (Number.isFinite(quantity) ||  quantity <= 0) {
             showMessage(
                 'Enter a valid dispensing quantity.',
                 'error'
@@ -1024,7 +934,7 @@
         );
 
         if (!confirmed) {
-            return false;
+            return false 
         }
 
         try {
@@ -1040,7 +950,7 @@
             return true;
         } catch (error) {
             showMessage(
-                error?.message ||
+                error?.message || 
                 'Unable to dispense medicine.',
                 'error'
             );
@@ -1050,7 +960,7 @@
     }
 
     async function returnWithConfirmation(data) {
-        const quantity = Number(data?.quantity);
+        const quantity = number(data?.quantity);
 
         if (!Number.isFinite(quantity) || quantity <= 0) {
             showMessage(
@@ -1062,7 +972,7 @@
         }
 
         const confirmed = window.confirm(
-            `Return ${quantity} unit(s) to pharmacy stock?`
+            `Return ${quantity} unit(s) to pharmacy stock`
         );
 
         if (!confirmed) {
@@ -1073,7 +983,7 @@
             await returnMedicine(data);
 
             showMessage(
-                'Medicine returned successfully.',
+                'Medicine return successfully.',
                 'success'
             );
 
@@ -1082,7 +992,7 @@
             return true;
         } catch (error) {
             showMessage(
-                error?.message ||
+                error?.message || 
                 'Unable to process medicine return.',
                 'error'
             );
@@ -1091,12 +1001,9 @@
         }
     }
 
-    /* =========================================================
-       Rendering
-       ========================================================= */
-
+    /* Rendering */
     function renderMedicineTable(
-        medicines = state.medicines,
+        medicines = satisfies.medicines,
         selector = '#pharmacyTableBody'
     ) {
         const tbody = getElement(selector);
@@ -1118,10 +1025,10 @@
         }
 
         tbody.innerHTML = medicines.map(medicine => {
-            const id = getMedicineId(medicine);
+            const id = getMedicine(medicine);
             const name = getMedicineName(medicine);
             const stock = getStockQuantity(medicine);
-            const reorderLevel = getReorderLevel(medicine);
+            const ReorderLevel = getReorderLevel(medicine);
             const expiryDate = getExpiryDate(medicine);
 
             const lowStock = isLowStock(medicine);
@@ -1132,46 +1039,64 @@
             if (expired) {
                 stockClass = 'stock-expired';
             } else if (lowStock) {
-                stockClass = 'stock-low';
+                stockClass = 'stock-low'
             } else {
-                stockClass = 'stock-ok';
+                stockClass = 'stock-ok'
             }
 
             return `
                 <tr data-id="${escapeHtml(id)}">
                     <td>${escapeHtml(id)}</td>
-
+                    
                     <td>
                         <strong>
                             ${escapeHtml(name)}
                         </strong>
-
+                        
                         ${
-                            medicine.generic_name
+                            medicine.generic_name   
                                 ? `<small>
                                     ${escapeHtml(
                                         medicine.generic_name
                                     )}
-                                   </small>`
-                                : ''
+                                </small>`
+                            : ''
                         }
                     </td>
 
                     <td>
                         ${escapeHtml(
-                            medicine.category || '—'
+                            medicine.category || '-'
                         )}
                     </td>
 
                     <td>
                         ${escapeHtml(
-                            medicine.dosage_form || '—'
+                            medicine.dosage_form || '-'
                         )}
                     </td>
 
                     <td>
                         ${escapeHtml(
-                            medicine.strength || '—'
+                            medicine.strength || '-'
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            medicine.category || '-'
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            medicine.dosage_form || '-'
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            medicine.strength || '-'
                         )}
                     </td>
 
@@ -1181,19 +1106,19 @@
                         </span>
 
                         ${
-                            reorderLevel
+                            reorderLevel 
                                 ? `<small>
-                                    / ${escapeHtml(
-                                        reorderLevel
+                                    / {escapeHtml(
+                                        reorderLevel 
                                     )} min
-                                   </small>`
+                                    </small>`
                                 : ''
                         }
                     </td>
 
                     <td>
-                        ${formatCurrency(
-                            medicine.unit_price
+                        ${formatCurrent(
+                            medicine.unit_price 
                         )}
                     </td>
 
@@ -1203,7 +1128,7 @@
 
                     <td>
                         <span class="status-badge ${getStatusClass(
-                            medicine.status
+                            medicine.status 
                         )}">
                             ${escapeHtml(
                                 capitalize(
@@ -1215,7 +1140,7 @@
 
                     <td>
                         ${
-                            medicine.prescription_required
+                            medicine.prescription_required 
                                 ? '<span title="Prescription required">Yes</span>'
                                 : 'No'
                         }
@@ -1236,37 +1161,30 @@
                     </td>
 
                     <td class="actions">
-                        <button
+                        <button 
                             type="button"
                             class="btn btn-sm"
                             data-action="view-medicine"
-                            data-id="${escapeHtml(id)}">
-                            View
+                            data-id="${escapeHtml(id)}
+                            view 
                         </button>
 
-                        <button
+                        <button 
                             type="button"
                             class="btn btn-sm"
                             data-action="edit-medicine"
                             data-id="${escapeHtml(id)}">
-                            Edit
+                            Edit 
                         </button>
 
-                        <button
+                        <button 
                             type="button"
                             class="btn btn-sm"
                             data-action="dispense-medicine"
                             data-id="${escapeHtml(id)}">
-                            Dispense
+                            Delete 
                         </button>
 
-                        <button
-                            type="button"
-                            class="btn btn-sm btn-danger"
-                            data-action="delete-medicine"
-                            data-id="${escapeHtml(id)}">
-                            Delete
-                        </button>
                     </td>
                 </tr>
             `;
@@ -1279,12 +1197,6 @@
         limit = state.perPage,
         selector = '#pharmacyPagination'
     ) {
-        const container = getElement(selector);
-
-        if (!container) {
-            return;
-        }
-
         const totalPages = Math.max(
             1,
             Math.ceil(Number(total) / Number(limit))
@@ -1296,38 +1208,32 @@
         }
 
         let html = `
-            <button
+            <button 
                 type="button"
                 data-page="${Math.max(1, page - 1)}"
                 ${page <= 1 ? 'disabled' : ''}>
-                Previous
+                Previous 
             </button>
         `;
 
-        for (let i = 1; i <= totalPages; i++) {
-            if (
-                i === 1 ||
-                i === totalPages ||
-                Math.abs(i - page) <= 2
-            ) {
-                html += `
-                    <button
+        for(let i = 1; i <= totalPages; i++) {
+            
+            if (i == 1 || i === totalPages || Math.abs(i - page) <= 2) {
+                html +=`
+                    <button 
                         type="button"
-                        data-page="${i}"
-                        class="${i === page ? 'active' : ''}">
+                        data-page="${id}"
+                        class=="${i === page ? 'active' : ''}">
                         ${i}
                     </button>
                 `;
-            } else if (
-                i === page - 3 ||
-                i === page + 3
-            ) {
-                html += '<span class="pagination-ellipsis">…</span>';
+            } else if (i === page - 3 || i === page + 3) {
+                html += '<span class="pagination-ellipsis">...</span';
             }
         }
 
         html += `
-            <button
+            <button 
                 type="button"
                 data-page="${Math.min(totalPages, page + 1)}"
                 ${page >= totalPages ? 'disabled' : ''}>
@@ -1357,15 +1263,14 @@
 
             container.innerHTML = `
                 <div class="pharmacy-details">
-
+                    
                     <h3>
                         ${escapeHtml(
                             getMedicineName(medicine)
                         )}
-                    </h3>
-
+                    </h3> 
+                    
                     <dl>
-
                         <dt>Medicine ID</dt>
                         <dd>
                             ${escapeHtml(
@@ -1376,49 +1281,56 @@
                         <dt>Generic Name</dt>
                         <dd>
                             ${escapeHtml(
-                                medicine.generic_name || '—'
+                                medicine.generic_name || '-'
                             )}
                         </dd>
 
                         <dt>Brand Name</dt>
                         <dd>
                             ${escapeHtml(
-                                medicine.brand_name || '—'
+                                medicine.brand_name || '-'
                             )}
                         </dd>
 
                         <dt>Category</dt>
                         <dd>
                             ${escapeHtml(
-                                medicine.category || '—'
+                                medicine.category || '-'
                             )}
                         </dd>
 
                         <dt>Dosage Form</dt>
                         <dd>
                             ${escapeHtml(
-                                medicine.dosage_form || '—'
+                                medicine.dosage_form || '-'
                             )}
                         </dd>
 
                         <dt>Strength</dt>
                         <dd>
                             ${escapeHtml(
-                                medicine.strength || '—'
+                                medicine.strength || '-'
                             )}
                         </dd>
 
                         <dt>Manufacturer</dt>
                         <dd>
                             ${escapeHtml(
-                                medicine.manufacturer || '—'
+                                medicine.manufacturer || '-'
                             )}
                         </dd>
 
                         <dt>Batch Number</dt>
                         <dd>
                             ${escapeHtml(
-                                medicine.batch_number || '—'
+                                medicine.batch_number || '-'
+                            )}
+                        </dd>
+
+                        <dt>Stock Quantity</dt>
+                        <dd>
+                            ${escapeHtml(
+                                medicine.batch_number || '-'
                             )}
                         </dd>
 
@@ -1449,7 +1361,7 @@
                         <dt>Manufacturing Date</dt>
                         <dd>
                             ${formatDate(
-                                medicine.manufacturing_date
+                                medicine.manufacturig_date
                             )}
                         </dd>
 
@@ -1476,37 +1388,36 @@
                             }
                         </dd>
 
-                        <dt>Storage Conditions</dt>
+                        <dt>Strong conditions</dt>
                         <dd>
                             ${escapeHtml(
-                                medicine.storage_conditions || '—'
+                                medicine.storage_condition || '-'
                             )}
                         </dd>
 
                         <dt>Description</dt>
                         <dd>
                             ${escapeHtml(
-                                medicine.description || '—'
+                                medicine.description || '-'
                             )}
                         </dd>
 
                         <dt>Notes</dt>
                         <dd>
                             ${escapeHtml(
-                                medicine.notes || '—'
+                                medicine.notes || '-'
                             )}
                         </dd>
 
                         ${
-                            medicine.created_at
+                            medicine.created_at 
                                 ? `
                                     <dt>Created</dt>
                                     <dd>
                                         ${formatDateTime(
                                             medicine.created_at
                                         )}
-                                    </dd>
-                                  `
+                                    `
                                 : ''
                         }
 
@@ -1522,7 +1433,6 @@
                                   `
                                 : ''
                         }
-
                     </dl>
                 </div>
             `;
@@ -1532,7 +1442,7 @@
             container.innerHTML = `
                 <div class="message message-error">
                     ${escapeHtml(
-                        error?.message ||
+                        error?.message || 
                         'Unable to load medicine details.'
                     )}
                 </div>
@@ -1558,38 +1468,23 @@
 
         const fields = {
             id: getMedicineId(medicine),
-            medicine_id: getMedicineId(medicine),
-            medicine_name: medicine.medicine_name ??
-                medicine.name ??
-                '',
+            medicine_id: getMedicineIdId(medicine),
+            medicine_name: medicine.medication_name ?? medicine.name ?? '',
             generic_name: medicine.generic_name ?? '',
             brand_name: medicine.brand_name ?? '',
             category: medicine.category ?? '',
-            dosage_form: medicine.dosage_form ?? '',
             strength: medicine.strength ?? '',
             unit: medicine.unit ?? '',
             manufacturer: medicine.manufacturer ?? '',
             supplier_id: medicine.supplier_id ?? '',
-            batch_number: medicine.batch_number ?? '',
-            manufacturing_date:
-                medicine.manufacturing_date ?? '',
+            bath_number: medicine.batch_number ?? '',
+            manufacturing_date: medicine.manufacturing_date ?? '',
             expiry_date: medicine.expiry_date ?? '',
-            stock_quantity:
-                medicine.stock_quantity ??
-                medicine.quantity ??
-                '',
-            reorder_level:
-                medicine.reorder_level ??
-                medicine.minimum_stock ??
-                '',
-            unit_price: medicine.unit_price ?? '',
-            selling_price: medicine.selling_price ?? '',
-            tax_rate: medicine.tax_rate ?? '',
-            status: medicine.status ?? 'active',
-            storage_conditions:
-                medicine.storage_conditions ?? '',
+            stock_quantity: medicine.stock_quantity ?? medicine.quantity ?? '',
+            reorder_level: medicine.reorder_level ?? medicine.minimum_stock ?? '',
+            storage_conditions: medicine.storage_condition ?? '',
             description: medicine.description ?? '',
-            notes: medicine.notes ?? ''
+            notes: medicine.note ?? ''
         };
 
         Object.entries(fields).forEach(([name, value]) => {
@@ -1609,22 +1504,19 @@
         });
 
         const prescriptionField = form.querySelector(
-            '[name="prescription_required"]'
+            'name="prescription_required"]'
         );
 
         if (prescriptionField) {
             prescriptionField.checked = Boolean(
-                medicine.prescription_required
-            );
+                medicine.prescription_required 
+            ); 
         }
 
         return medicine;
     }
 
-    /* =========================================================
-       Event Handlers
-       ========================================================= */
-
+    /* Event Handlers */
     function bindForms() {
         const createForms = [
             '#pharmacyForm',
@@ -1638,7 +1530,7 @@
                 return;
             }
 
-            form.addEventListener('submit', event => {
+            form.loadEventListener('submit', event => {
                 event.preventDefault();
                 submitCreateForm(form);
             });
@@ -1650,10 +1542,7 @@
             '#editPharmacyForm'
         );
 
-        if (
-            editForm &&
-            editForm.dataset.pharmacyBound !== 'true'
-        ) {
+        if (editForm && editForm.dataset.pharmacyBound !== 'true') {
             editForm.addEventListener(
                 'submit',
                 event => {
@@ -1671,10 +1560,7 @@
             '#pharmacySearch'
         );
 
-        if (
-            searchInput &&
-            searchInput.dataset.pharmacyBound !== 'true'
-        ) {
+        if (searchInput && searchInput.dataset.pharmacyBound !== 'true') {
             searchInput.addEventListener(
                 'keydown',
                 event => {
@@ -1692,10 +1578,7 @@
             '#searchPharmacy'
         );
 
-        if (
-            searchButton &&
-            searchButton.dataset.pharmacyBound !== 'true'
-        ) {
+        if (searchButton && searchButton.dataset.pharmacyBound !== 'true') {
             searchButton.addEventListener(
                 'click',
                 () => {
@@ -1707,17 +1590,14 @@
 
             searchButton.dataset.pharmacyBound = 'true';
         }
-    }
+    } 
 
     function bindFilters() {
         const applyButton = getElement(
             '#applyPharmacyFilters'
         );
 
-        if (
-            applyButton &&
-            applyButton.dataset.pharmacyBound !== 'true'
-        ) {
+        if (applyButton && applyButton.dataset.pharmacyBound !== 'true') {
             applyButton.addEventListener(
                 'click',
                 () => {
@@ -1746,9 +1626,9 @@
                             getElement(
                                 '#pharmacyLowStockFilter'
                             )?.checked || false,
-
-                        expiry_from: getValue(
-                            '#pharmacyExpiryFrom'
+                        
+                        expiry_form: getValue(
+                            '#pharmacyExpiryForm'
                         ),
 
                         expiry_to: getValue(
@@ -1765,10 +1645,7 @@
             '#clearPharmacyFilters'
         );
 
-        if (
-            clearButton &&
-            clearButton.dataset.pharmacyBound !== 'true'
-        ) {
+        if (clearButton && clearButton.dataset.pharmacyBound !== 'true') {
             clearButton.addEventListener(
                 'click',
                 () => clearFilters()
@@ -1783,19 +1660,14 @@
             '#pharmacyPerPage'
         );
 
-        if (
-            !select ||
-            select.dataset.pharmacyBound === 'true'
-        ) {
+        if (!select || select.dataset.pharmacyBound === 'true') {
             return;
         }
 
         select.addEventListener(
             'change',
             () => {
-                state.perPage =
-                    Number(select.value) || 10;
-
+                state.perPage = Number(select.value) || 10;
                 state.currentPage = 1;
 
                 list({
@@ -1813,30 +1685,24 @@
             '#pharmacyTableBody'
         );
 
-        if (
-            !table ||
-            table.dataset.pharmacyBound === 'true'
-        ) {
+        if (!table || table.dataset.pharmacyBound === 'true') {
             return;
         }
 
         table.addEventListener(
             'click',
             async event => {
-                const button =
-                    event.target.closest(
-                        '[data-action]'
-                    );
+                const button = event.target.closest(
+                    '[data-action]'
+                );
 
                 if (!button) {
                     return;
                 }
 
-                const action =
-                    button.dataset.action;
+                const action = button.dataset.action;
 
-                const id =
-                    button.dataset.id;
+                const id = button.dataset.id;
 
                 if (!id) {
                     return;
@@ -1855,11 +1721,10 @@
                         await deleteWithConfirmation(id);
                         break;
 
-                    case 'dispense-medicine': {
-                        const quantity =
-                            window.prompt(
-                                'Enter quantity to dispense:'
-                            );
+                    case 'dispense-medicine' : {
+                        const quantity = window.prompt(
+                            'Enter quantity to dispense:'
+                        );
 
                         if (quantity === null) {
                             return;
@@ -1867,7 +1732,7 @@
 
                         await dispenseWithConfirmation({
                             id,
-                            medicine_id: id,
+                            medication_id: id,
                             quantity
                         });
 
@@ -1888,27 +1753,20 @@
             '#pharmacyPagination'
         );
 
-        if (
-            !container ||
-            container.dataset.pharmacyBound === 'true'
-        ) {
+        if (!container || container.dataset.pharmacyBound === 'true') {
             return;
         }
 
-        container.addEventListener(
-            'click',
+        constainer.addEventListener(
+            "click",
             event => {
-                const button =
-                    event.target.closest(
-                        '[data-page]'
-                    );
+                const button = event.target.closest(['data-page']);
 
                 if (!button || button.disabled) {
                     return;
                 }
 
-                const page =
-                    Number(button.dataset.page);
+                const page = Number(button.dataset.page);
 
                 if (Number.isFinite(page)) {
                     goToPage(page);
@@ -1919,28 +1777,21 @@
         container.dataset.pharmacyBound = 'true';
     }
 
-    /* =========================================================
-       Refresh
-       ========================================================= */
-
+    /* Refresh */
     function refreshList() {
         return list({
             page: state.currentPage,
-            limit: state.perPage
+            limit: state.perPage 
         });
     }
 
-    /* =========================================================
-       Initialization
-       ========================================================= */
-
+    /* Intialization */
     async function init(options = {}) {
         if (options.perPage) {
-            state.perPage =
-                Number(options.perPage) || 10;
+            state.perPage = Number(options.perPage) || 10;
         }
 
-        if (options.search !== undefined) {
+        if(options.search !== undefined) {
             state.search = options.search;
         }
 
@@ -1964,8 +1815,8 @@
             state.lowStock = Boolean(options.lowStock);
         }
 
-        if (options.expiryFrom !== undefined) {
-            state.expiryFrom = options.expiryFrom;
+        if (options.expiryForm !== undefined) {
+            state.expiryFrom = options.expiryForm;
         }
 
         if (options.expiryTo !== undefined) {
@@ -1979,26 +1830,23 @@
         bindTableActions();
         bindPagination();
 
-        const hasPharmacyUI =
-            getElement('#pharmacyTableBody') ||
-            getElement('#pharmacyForm') ||
-            getElement('#createPharmacyForm') ||
+        const hasPharmacyUI = 
+            getElement('#pharmacyTableBody') || 
+            getElement('#pharmacyForm') || 
+            getElement('#createPharmacyForm') || 
             getElement('#editPharmacyForm');
 
         if (hasPharmacyUI && options.autoLoad !== false) {
             await list({
                 page: 1,
-                limit: state.perPage
+                limit: state.perPage 
             });
         }
 
         return Pharmacy;
     }
 
-    /* =========================================================
-       Public API
-       ========================================================= */
-
+    /* Public API */
     const Pharmacy = {
         state,
         endpoints,
@@ -2047,38 +1895,12 @@
     document.addEventListener(
         'DOMContentLoaded',
         () => {
-            if (
-                document.body?.dataset?.pharmacyAutoInit ===
-                'false'
-            ) {
+            if (document.body?.dataset?.pharmacyBound === 'false') {
                 return;
             }
 
             Pharmacy.init();
         }
     );
-
+    
 })(window);
-#pharmacyTableBody
-#pharmacyPagination
-#pharmacySearch
-#searchPharmacy
-
-#applyPharmacyFilters
-#clearPharmacyFilters
-
-#pharmacyCategoryFilter
-#pharmacyStatusFilter
-#pharmacyDosageFormFilter
-#pharmacySupplierFilter
-#pharmacyLowStockFilter
-#pharmacyExpiryFrom
-#pharmacyExpiryTo
-#pharmacyPerPage
-
-#pharmacyMessage
-#pharmacyDetails
-
-#pharmacyForm
-#createPharmacyForm
-#editPharmacyForm
