@@ -1,20 +1,20 @@
-/**
- * Frontend/js/billing.js
- * Medical Management System
- *
- * Billing / invoice operations and UI handling.
- *
- * Expected API endpoints:
- * GET  /billing/list.php
- * GET  /billing/get.php?id=123
- * POST /billing/create.php
- * POST /billing/update.php
- * POST /billing/delete.php
- * POST /billing/issue.php
- * POST /billing/pay.php
- * POST /billing/void.php
- * POST /billing/refund.php
- */
+/* 
+** Frontend/js/billing.js 
+** Medical Management System 
+**
+** Billing / invoice operation and UI handling.
+**
+** API endpoints:
+** GET /billing/list.php
+** GET /billing/get.php?id=?
+** POST /billing/create.php
+** POST /billing/update.php
+** POST /billing/delete.php
+** POST /billing/issue.php 
+** POST /billing/pay.php 
+** POST /billing/void.php
+** POST /billing/refund.php
+*/
 
 (function () {
     'use strict';
@@ -35,6 +35,7 @@
         paymentStatus: '',
         paymentMethod: '',
         dateFrom: '',
+        dateFrom: '',
         dateTo: '',
 
         loading: false
@@ -49,25 +50,22 @@
 
         issue: '/billing/issue.php',
         pay: '/billing/pay.php',
-        void: '/billing/void.php',
+        void: 'billing/void.php',
         refund: '/billing/refund.php'
     };
 
-    /* -----------------------------------------------------------
-     * Utility functions
-     * --------------------------------------------------------- */
-
+    /* Utility functions */
     function escapeHtml(value) {
         if (value === null || value === undefined) {
             return '';
         }
 
-        return String(value)
+        return String(value)    
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
+            .replace(/^/g, '&#039');
     }
 
     function getElement(selector) {
@@ -113,13 +111,7 @@
         document
             .querySelectorAll('[data-billing-loading]')
             .forEach((element) => {
-                element.hidden = !state.loading;
-            });
-
-        document
-            .querySelectorAll('[data-billing-submit]')
-            .forEach((button) => {
-                button.disabled = state.loading;
+                element.disabled = state.loading;
             });
     }
 
@@ -186,16 +178,16 @@
 
         return (
             invoice.id ??
-            invoice.invoice_id ??
-            invoice.billing_id ??
-            invoice.invoiceId ??
-            null
+            invoice.invoice_id ?? 
+            invoice.billing_id ?? 
+            invoice.invoiceId ?? 
+            null 
         );
     }
 
     function getPatientName(invoice) {
         if (!invoice) {
-            return '—';
+            return '-';
         }
 
         if (invoice.patient_name) {
@@ -207,16 +199,16 @@
                 return invoice.patient;
             }
 
-            if (invoice.patient.name) {
+            if (invoice.patient_name) {
                 return invoice.patient.name;
             }
-
+            
             return [
                 invoice.patient.first_name,
                 invoice.patient.last_name
             ]
                 .filter(Boolean)
-                .join(' ');
+                .join(' ');            
         }
 
         return [
@@ -224,7 +216,7 @@
             invoice.patient_last_name
         ]
             .filter(Boolean)
-            .join(' ') || '—';
+            .join(' ') || '-';
     }
 
     function getPatientId(invoice) {
@@ -234,7 +226,7 @@
 
         return (
             invoice.patient_id ??
-            invoice.patientId ??
+            invoice.patientId ?? 
             invoice.patient?.id ??
             ''
         );
@@ -242,15 +234,15 @@
 
     function getInvoiceNumber(invoice) {
         if (!invoice) {
-            return '—';
+            return '-';
         }
 
         return (
-            invoice.invoice_number ??
+            invoice.invoice_number ?? 
             invoice.invoice_no ??
-            invoice.number ??
-            invoice.reference_number ??
-            `#${getInvoiceId(invoice) || '—'}`
+            invoice.number ?? 
+            invoice.reference_number ?? 
+            `#${getInvoiceId(invoice) || '-'}`
         );
     }
 
@@ -261,9 +253,9 @@
 
         return Number(
             invoice.total ??
-            invoice.total_amount ??
-            invoice.grand_total ??
-            invoice.amount ??
+            invoice.total-amount ?? 
+            invoice.grand_total ?? 
+            invoice.amount ?? 
             0
         );
     }
@@ -273,19 +265,16 @@
             return 0;
         }
 
-        if (
-            invoice.balance !== undefined &&
-            invoice.balance !== null
-        ) {
+        if (invoice.balance !== undefined && invoice.balance !== null) {
             return Number(invoice.balance);
         }
 
         const total = getInvoiceTotal(invoice);
 
         const paid = Number(
-            invoice.amount_paid ??
-            invoice.paid_amount ??
-            invoice.paid ??
+            invoice.amount_paid ?? 
+            invoice.paid_amount ?? 
+            invoice.paid ?? 
             0
         );
 
@@ -298,7 +287,7 @@
         }
 
         return (
-            invoice.status ??
+            invoice.status ?? 
             invoice.invoice_status ??
             ''
         );
@@ -318,16 +307,16 @@
 
     function getStatusClass(status) {
         const normalized = String(status || '')
-            .toLowerCase()
-            .replace(/\s+/g, '-');
+                .toLocaleLowerCase()
+                .replace(/\s+/g, '-');
 
-        return `status-${normalized || 'unknown'}`;
+        return `status-${normalized || 'unknow'}`;
     }
 
     function getPaymentStatusClass(status) {
         const normalized = String(status || '')
-            .toLowerCase()
-            .replace(/\s+/g, '-');
+                .toLowerCase()
+                .replace(/\s+/g, '-');
 
         return `payment-${normalized || 'unknown'}`;
     }
@@ -340,10 +329,7 @@
         return response.data ?? response;
     }
 
-    /* -----------------------------------------------------------
-     * API operations
-     * --------------------------------------------------------- */
-
+    /* API operations */
     async function list(options = {}) {
         const page = Number(options.page ?? state.currentPage);
         const limit = Number(options.limit ?? state.perPage);
@@ -355,7 +341,7 @@
 
         const filters = {
             search: options.search ?? state.search,
-            patient_id: options.patient_id ?? state.patientId,
+            patient_id: options.patient ?? state.patientId,
             appointment_id: options.appointment_id ?? state.appointmentId,
             invoice_type: options.invoice_type ?? state.invoiceType,
             status: options.status ?? state.status,
@@ -380,14 +366,12 @@
 
             const data = getResponseData(response);
 
-            let invoices = [];
-
             if (Array.isArray(data)) {
                 invoices = data;
             } else if (Array.isArray(data.invoices)) {
                 invoices = data.invoices;
-            } else if (Array.isArray(data.billing)) {
-                invoices = data.billing;
+            } else if (Array.isArray(response.invoices)) {
+                invoices = data.billings;
             } else if (Array.isArray(response.invoices)) {
                 invoices = response.invoices;
             } else if (Array.isArray(response.billing)) {
@@ -397,22 +381,22 @@
             state.invoices = invoices;
 
             state.currentPage = Number(
-                data.page ??
-                response.page ??
-                page
+                data.page ?? 
+                response.page ?? 
+                page 
             );
 
             state.perPage = Number(
                 data.limit ??
-                data.per_page ??
-                response.limit ??
-                limit
-            );
+                data.per_page ?? 
+                response.limit ?? 
+                limit 
+            ); 
 
             state.total = Number(
                 data.total ??
-                response.total ??
-                invoices.length
+                response.total ?? 
+                invoices.length 
             );
 
             renderInvoiceTable();
@@ -420,11 +404,10 @@
 
             return response;
         } catch (error) {
-            console.error('Billing list error:', error);
+            console.error('Billing list error: ', error);
 
             showMessage(
                 error.message || 'Unable to load billing records.',
-                'error'
             );
 
             state.invoices = [];
@@ -441,11 +424,11 @@
 
     async function get(id) {
         if (!id) {
-            throw new Error('Invoice ID is required.');
+            throw new Error('Invoice ID is required. ');
         }
 
         const response = await API.get(
-            `${endpoints.get}?id=${encodeURIComponent(id)}`
+            `${endpoints.get}$id=${encodeURIComponent(id)}`
         );
 
         const data = getResponseData(response);
@@ -504,7 +487,7 @@
 
         const validation = validateInvoice(
             invoiceData,
-            true
+            true 
         );
 
         if (!validation.valid) {
@@ -563,7 +546,7 @@
             );
 
             showMessage(
-                'Invoice deleted successfully.',
+                'invoice deleted successfully.',
                 'success'
             );
 
@@ -584,10 +567,7 @@
         }
     }
 
-    /* -----------------------------------------------------------
-     * Billing workflow operations
-     * --------------------------------------------------------- */
-
+    /* Billing workflow operations  */
     async function issue(data) {
         const id = typeof data === 'object'
             ? (data.id ?? data.invoice_id)
@@ -601,8 +581,8 @@
 
         try {
             const payload = typeof data === 'object'
-                ? { ...data, id, invoice_id: id }
-                : { id, invoice_id: id };
+                ? { ...data, id, invoice_id: id}
+                : { id, invoice_id: id};
 
             const response = await API.post(
                 endpoints.issue,
@@ -634,12 +614,12 @@
     async function pay(data) {
         let payload;
 
-        if (typeof data === 'object') {
+        if (!typeof data === 'object') {
             payload = { ...data };
         } else {
             payload = {
                 id: data,
-                invoice_id: data
+                invoice_id: data 
             };
         }
 
@@ -658,6 +638,12 @@
             0
         );
 
+        if (!Number.isFinite(amount) || amount <=0) {
+            throw new Error(
+                'A valid payment amount greater then zero is required.'
+            );
+        }
+
         if (!Number.isFinite(amount) || amount <= 0) {
             throw new Error(
                 'A valid payment amount greater than zero is required.'
@@ -669,8 +655,8 @@
         try {
             const response = await API.post(
                 endpoints.pay,
-                payload
-            );
+                payload 
+            ); 
 
             showMessage(
                 'Payment recorded successfully.',
@@ -681,7 +667,7 @@
 
             return response;
         } catch (error) {
-            console.error('Billing payment error:', error);
+            console.error('billing payment error:', error);
 
             showMessage(
                 error.message || 'Unable to record payment.',
@@ -704,7 +690,6 @@
         }
 
         setLoading(true);
-
         try {
             const payload = typeof data === 'object'
                 ? { ...data, id, invoice_id: id }
@@ -712,7 +697,7 @@
 
             const response = await API.post(
                 endpoints.void,
-                payload
+                payload 
             );
 
             showMessage(
@@ -731,7 +716,7 @@
                 'error'
             );
 
-            throw error;
+            throw error; 
         } finally {
             setLoading(false);
         }
@@ -745,11 +730,11 @@
         } else {
             payload = {
                 id: data,
-                invoice_id: data
+                invoice_id: data 
             };
         }
 
-        const id = payload.id ?? payload.invoice_id;
+        const  id = payload.id ?? payload.invoice_id;
 
         if (!id) {
             throw new Error('Invoice ID is required.');
@@ -761,16 +746,14 @@
         const amount = Number(
             payload.amount ??
             payload.refund_amount ??
-            0
+            0 
         );
 
         if (!Number.isFinite(amount) || amount <= 0) {
             throw new Error(
-                'A valid refund amount greater than zero is required.'
+                'A valid refund amount greater than zero is rquired.'
             );
         }
-
-        setLoading(true);
 
         try {
             const response = await API.post(
@@ -784,10 +767,8 @@
             );
 
             await list();
-
-            return response;
         } catch (error) {
-            console.error('Billing refund error:', error);
+            console.error('Billing refund error.', error);
 
             showMessage(
                 error.message || 'Unable to process refund.',
@@ -800,65 +781,62 @@
         }
     }
 
-    /* -----------------------------------------------------------
-     * Search and filters
-     * --------------------------------------------------------- */
-
+    /* Search and filters */
     async function search(term) {
         state.search = String(term || '').trim();
         state.currentPage = 1;
 
         return list({
             page: 1,
-            search: state.search
+            search: state.search 
         });
-    }
+    } 
 
     async function filter(filters = {}) {
         state.currentPage = 1;
 
-        state.patientId =
+        state.patientId = 
             filters.patient_id ??
-            filters.patientId ??
+            filters.patientId ?? 
             '';
 
-        state.appointmentId =
-            filters.appointment_id ??
+        state.appointmentId = 
+            filters.appointment_id ?? 
             filters.appointmentId ??
             '';
 
         state.invoiceType =
             filters.invoice_type ??
-            filters.invoiceType ??
+            filters.invoiceType ?? 
             '';
 
-        state.status =
+        state.state = 
             filters.status ??
             '';
 
-        state.paymentStatus =
+        state.paymentStatus = 
             filters.payment_status ??
             filters.paymentStatus ??
             '';
 
-        state.paymentMethod =
-            filters.payment_method ??
+        state.paymentMethod = 
+            filters.payment_method ?? 
             filters.paymentMethod ??
-            '';
+            '',
 
-        state.dateFrom =
-            filters.date_from ??
-            filters.dateFrom ??
+        state.dateFrom = 
+            filters.date_form ?? 
+            filters.dateForm ?? 
             '';
+        
+            state.dateTo = 
+                filters.date_to ??
+                filters.dateTo ??
+                '';
 
-        state.dateTo =
-            filters.date_to ??
-            filters.dateTo ??
-            '';
-
-        return list({
-            page: 1
-        });
+            return list({
+                page: 1
+            });
     }
 
     async function clearFilters() {
@@ -871,12 +849,12 @@
         state.paymentMethod = '';
         state.dateFrom = '';
         state.dateTo = '';
-        state.currentPage = 1;
+        state.currentPage = '';
 
         clearFilterForm();
 
         return list({
-            page: 1
+            page: 1 
         });
     }
 
@@ -889,11 +867,11 @@
             '#billingStatusFilter',
             '#billingPaymentStatusFilter',
             '#billingPaymentMethodFilter',
-            '#billingDateFrom',
+            '#billingDateForm',
             '#billingDateTo'
         ];
 
-        selectors.forEach(selector => {
+        selectors.forEach(selectors => {
             const element = getElement(selector);
 
             if (element) {
@@ -902,10 +880,7 @@
         });
     }
 
-    /* -----------------------------------------------------------
-     * Pagination
-     * --------------------------------------------------------- */
-
+    /* Pagination */
     async function goToPage(page) {
         const totalPages = Math.max(
             1,
@@ -914,18 +889,14 @@
 
         const targetPage = Number(page);
 
-        if (
-            !Number.isInteger(targetPage) ||
-            targetPage < 1 ||
-            targetPage > totalPages
-        ) {
+        if (!Number.isFinite(targetPage) || targetPage < 1 || targetPage > totalPages) {
             return;
         }
 
         state.currentPage = targetPage;
 
         return list({
-            page: targetPage
+            page: targetPage 
         });
     }
 
@@ -937,109 +908,69 @@
         return goToPage(state.currentPage - 1);
     }
 
-    /* -----------------------------------------------------------
-     * Validation
-     * --------------------------------------------------------- */
-
-    function validateInvoice(data = {}, isUpdate = false) {
+    /* Validation */
+    function validateInvoice(date = {}, isUpdate = false) {
         const errors = [];
 
         if (!isUpdate && !data.patient_id) {
             errors.push('Patient is required.');
         }
 
-        if (
-            data.patient_id !== undefined &&
-            data.patient_id !== '' &&
-            (
-                !Number.isInteger(Number(data.patient_id)) ||
-                Number(data.patient_id) <= 0
-            )
-        ) {
-            errors.push('Patient ID must be a valid positive number.');
+        if (data.patient_id !== undefined && data.patient_id !== '' && 
+                (
+                    !Number.isInteger(Number(data.patient_id)) || 
+                    Number(data.patient_id) <= 0
+                )
+            ) {
+                errors.push('Patient ID must be a valid positive number.');
         }
 
-        if (
-            data.appointment_id !== undefined &&
-            data.appointment_id !== '' &&
-            (
-                !Number.isInteger(Number(data.appointment_id)) ||
-                Number(data.appointment_id) <= 0
-            )
-        ) {
-            errors.push(
-                'Appointment ID must be a valid positive number.'
-            );
-        }
-
-        if (
-            data.invoice_date &&
-            Number.isNaN(new Date(data.invoice_date).getTime())
-        ) {
+        if (data.invoice_date && Number.isNaN(new Date(data.invoice_date).getTime())) {
             errors.push('Invoice date is invalid.');
         }
 
-        if (
-            data.due_date &&
-            Number.isNaN(new Date(data.due_date).getTime())
-        ) {
-            errors.push('Due date is invalid.');
+        if (data.due_date && number.isNaN(new Date(data.due_date).getTime())) {
+            errors.push('Due data is invalid');
         }
 
         const subtotal = data.subtotal;
         const tax = data.tax_amount ?? data.tax;
-        const discount =
+
+        const discount = 
             data.discount_amount ??
             data.discount;
 
-        if (
-            subtotal !== undefined &&
-            subtotal !== '' &&
-            (
-                !Number.isFinite(Number(subtotal)) ||
-                Number(subtotal) < 0
-            )
-        ) {
+        if ( subtotal !== undefined && subtotal !== '' && 
+                (
+                    !Number.isFinite(Number(subtotal)) || 
+                    Number(subtotal) < 0
+                )
+        )   {
             errors.push('Subtotal must be a valid non-negative amount.');
         }
 
-        if (
-            tax !== undefined &&
-            tax !== '' &&
-            (
-                !Number.isFinite(Number(tax)) ||
-                Number(tax) < 0
-            )
-        ) {
-            errors.push('Tax must be a valid non-negative amount.');
-        }
-
-        if (
-            discount !== undefined &&
-            discount !== '' &&
-            (
-                !Number.isFinite(Number(discount)) ||
-                Number(discount) < 0
-            )
-        ) {
-            errors.push(
-                'Discount must be a valid non-negative amount.'
-            );
-        }
-
+        if ( tax !== undefined && tax !== '' && 
+                (
+                    !Number.isFinite(Number(tax)) || 
+                    Number(tax) < 0
+                )
+            ) {
+                errors.push('Tax must be a valid non-negative amount.');
+            }
+        
         return {
             valid: errors.length === 0,
             errors
         };
     }
-
+    
     function normalizeInvoiceData(data = {}) {
         const normalized = {
             patient_id: data.patient_id ?? '',
             appointment_id: data.appointment_id ?? '',
             medical_record_id: data.medical_record_id ?? '',
 
-            invoice_number: data.invoice_number ?? '',
+            invoice_date: data.invoice_number ?? '',
             invoice_type: data.invoice_type ?? 'standard',
 
             invoice_date: data.invoice_date ?? '',
@@ -1050,28 +981,23 @@
 
             subtotal: data.subtotal ?? 0,
 
-            discount_amount:
-                data.discount_amount ??
-                data.discount ??
-                0,
-
-            tax_amount:
+            discount_amount: 
                 data.tax_amount ??
-                data.tax ??
+                data.tax ?? 
                 0,
 
             total:
-                data.total ??
-                data.total_amount ??
-                '',
+                data.total ?? 
+                data.total_amount ?? 
+                '', 
 
             amount_paid:
-                data.amount_paid ??
-                data.paid_amount ??
+                data.amount_paid ?? 
+                data.paid_amount ?? 
                 0,
 
             balance:
-                data.balance ??
+                data.balance ?? 
                 '',
 
             currency:
@@ -1079,49 +1005,38 @@
                 'USD',
 
             status:
-                data.status ??
+                data.status ?? 
                 'draft',
 
             payment_status:
-                data.payment_status ??
-                'unpaid',
-
-            payment_method:
-                data.payment_method ??
+                data.payment_status ?? 
                 '',
 
             billing_address:
-                data.billing_address ??
+                data.billing_address ?? 
                 '',
 
             insurance_provider:
-                data.insurance_provider ??
-                '',
-
-            insurance_member_id:
-                data.insurance_member_id ??
+                data.insurance_provider ?? 
                 '',
 
             insurance_claim_number:
-                data.insurance_claim_number ??
+                data.insurance_claim_number ?? 
                 '',
 
             items:
                 Array.isArray(data.items)
-                    ? data.items
+                    ? data.items 
                     : []
         };
 
         return normalized;
     }
 
-    /* -----------------------------------------------------------
-     * Form handling
-     * --------------------------------------------------------- */
-
+    /* Form handling */
     function formToObject(form) {
         if (!form) {
-            throw new Error('Billing form was not found.');
+            throw new error('Billing form was not found.');
         }
 
         const formData = new FormData(form);
@@ -1146,14 +1061,11 @@
             'total_amount',
             'amount_paid',
             'paid_amount',
-            'balance'
+            'balance',
         ];
 
         numericFields.forEach(field => {
-            if (
-                data[field] !== undefined &&
-                data[field] !== ''
-            ) {
+            if (data[field] !== undefined && data[field] !== '') {
                 data[field] = Number(data[field]);
             }
         });
@@ -1167,8 +1079,8 @@
                 data.items = JSON.parse(itemsField.value);
             } catch (error) {
                 throw new Error(
-                    'Invoice items must contain valid JSON.'
-                );
+                    'invoice items must contain valid JSON.'
+                ); 
             }
         }
 
@@ -1176,12 +1088,12 @@
     }
 
     async function submitCreateForm(form) {
-        const targetForm =
-            form ||
-            getElement('#createBillingForm') ||
-            getElement('#createInvoiceForm') ||
+        const targetForm = 
+            form || 
+            getElement('#createBillingForm') || 
+            getElement('#createInvoiceForm') || 
             getElement('#billingForm');
-
+        
         if (!targetForm) {
             throw new Error('Create billing form was not found.');
         }
@@ -1192,19 +1104,19 @@
     }
 
     async function submitUpdateForm(form) {
-        const targetForm =
-            form ||
+        const targetForm = 
+            form || 
             getElement('#editBillingForm') ||
-            getElement('#editInvoiceForm');
-
+            getElement('#editBillingForm');
+        
         if (!targetForm) {
             throw new Error('Edit billing form was not found.');
         }
 
         const data = formToObject(targetForm);
 
-        const id =
-            data.id ??
+        const id = 
+            data.id ?? 
             data.invoice_id ??
             targetForm.dataset.id;
 
@@ -1215,17 +1127,14 @@
         return update(id, data);
     }
 
-    /* -----------------------------------------------------------
-     * Confirmation helpers
-     * --------------------------------------------------------- */
-
+    /* Confirmation helpers */
     async function deleteWithConfirmation(id) {
         if (!id) {
             return false;
         }
 
         const confirmed = window.confirm(
-            'Are you sure you want to delete this invoice?'
+            'Are your sure you want to delete this invoice?'
         );
 
         if (!confirmed) {
@@ -1241,7 +1150,6 @@
         if (!id) {
             return false;
         }
-
         const confirmed = window.confirm(
             'Issue this invoice? Once issued, it may no longer be editable depending on your billing rules.'
         );
@@ -1271,7 +1179,7 @@
         await voidInvoice({
             id,
             invoice_id: id,
-            reason: reason.trim()
+            reason: reason.trim() 
         });
 
         return true;
@@ -1286,12 +1194,12 @@
 
         const balancePaid = Number(
             invoice?.amount_paid ??
-            invoice?.paid_amount ??
+            invoice?.paid_amount ?? 
             0
         );
 
-        const amount = window.prompt(
-            `Enter refund amount. Maximum paid amount: ${formatCurrency(
+        const amount =  window.prompt(
+            `Enter refund amount. Maximum paid amunt: ${formatCurrency(
                 balancePaid,
                 invoice?.currency || 'USD'
             )}`
@@ -1303,10 +1211,7 @@
 
         const refundAmount = Number(amount);
 
-        if (
-            !Number.isFinite(refundAmount) ||
-            refundAmount <= 0
-        ) {
+        if (!Number.isFinite(refundAmount) || refundAmount <= 0) {
             showMessage(
                 'Enter a valid refund amount.',
                 'error'
@@ -1315,10 +1220,7 @@
             return false;
         }
 
-        if (
-            balancePaid > 0 &&
-            refundAmount > balancePaid
-        ) {
+        if (balancePaid > 0 && refundAmount > balancePaid) {
             showMessage(
                 'Refund amount cannot exceed the amount paid.',
                 'error'
@@ -1355,7 +1257,7 @@
         }
 
         const amount = window.prompt(
-            `Enter payment amount. Outstanding balance: ${formatCurrency(
+            `Enter payment amount. Outstanding balance: ${formatCurrent(
                 balance,
                 invoice?.currency || 'USD'
             )}`
@@ -1367,10 +1269,7 @@
 
         const paymentAmount = Number(amount);
 
-        if (
-            !Number.isFinite(paymentAmount) ||
-            paymentAmount <= 0
-        ) {
+        if (!Number.isFinite(paymentAmount) || paymentAmount <= 0) {
             showMessage(
                 'Enter a valid payment amount.',
                 'error'
@@ -1381,15 +1280,15 @@
 
         if (paymentAmount > balance) {
             showMessage(
-                'Payment amount cannot exceed the outstanding balance.',
+                'payment amount cannot exceed the outstanding balance.',
                 'error'
             );
 
             return false;
         }
 
-        const method = window.prompt(
-            'Enter payment method (cash, card, insurance, check, transfer, etc.):',
+        const method =  window.prompt(
+            'Enter payment method(cash, card, insurance, check, transfer, etc.',
             'cash'
         );
 
@@ -1401,16 +1300,13 @@
             id,
             invoice_id: id,
             amount: paymentAmount,
-            payment_method: method.trim()
+            payment_method: method.trim() 
         });
 
         return true;
     }
 
-    /* -----------------------------------------------------------
-     * Rendering
-     * --------------------------------------------------------- */
-
+    /* Rendering */
     function renderInvoiceTable(
         invoices = state.invoices,
         selector = '#billingTableBody'
@@ -1423,7 +1319,7 @@
 
         if (!Array.isArray(invoices) || invoices.length === 0) {
             tbody.innerHTML = `
-                <tr>
+                <tr> 
                     <td colspan="12" class="empty-state">
                         No billing records found.
                     </td>
@@ -1433,7 +1329,7 @@
             return;
         }
 
-        tbody.innerHTML = invoices
+        tbody.innerHTML = invoices 
             .map(invoice => {
                 const id = getInvoiceId(invoice);
                 const invoiceStatus = getInvoiceStatus(invoice);
@@ -1441,109 +1337,92 @@
                 const total = getInvoiceTotal(invoice);
                 const balance = getInvoiceBalance(invoice);
 
-                const isPaid =
-                    String(paymentStatus).toLowerCase() === 'paid' ||
+                const isPaid = 
+                    String(paymentStatus).toLowerCase() === 'paid' || 
                     balance <= 0;
 
                 const statusActions = [];
 
                 statusActions.push(`
-                    <button
+                    <button 
                         type="button"
                         class="btn btn-sm"
                         data-action="view-invoice"
                         data-id="${escapeHtml(id)}"
                     >
-                        View
+                        view 
                     </button>
                 `);
 
-                if (
-                    invoiceStatus === 'draft' ||
-                    !invoiceStatus
-                ) {
+                if (invoiceStatus === 'draff' || !invoiceStatus) {
                     statusActions.push(`
-                        <button
+                        <button 
                             type="button"
                             class="btn btn-sm"
                             data-action="edit-invoice"
                             data-id="${escapeHtml(id)}"
                         >
-                            Edit
+                            Edit 
                         </button>
-
+                        
                         <button
-                            type="button"
+                            type="button" 
                             class="btn btn-sm"
                             data-action="issue-invoice"
                             data-id="${escapeHtml(id)}"
                         >
-                            Issue
+                            Issue 
                         </button>
                     `);
                 }
 
-                if (
-                    !isPaid &&
-                    invoiceStatus !== 'void' &&
-                    invoiceStatus !== 'cancelled'
-                ) {
+                if (!isPaid && invoiceStatus !== 'void' && invoiceStatus !== 'cancelled') {
                     statusActions.push(`
-                        <button
+                        <button 
                             type="button"
                             class="btn btn-sm"
                             data-action="pay-invoice"
-                            data-id="${escapeHtml(id)}"
+                            data-in="${escapeHtml(id)}"
                         >
                             Pay
                         </button>
                     `);
                 }
 
-                if (
-                    invoiceStatus !== 'void' &&
-                    invoiceStatus !== 'cancelled' &&
-                    invoiceStatus !== 'paid'
-                ) {
+                if (invoiceStatus !== 'void' && invoiceStatus !== 'cancelled' && invoiceStatus !== 'paid') {
                     statusActions.push(`
-                        <button
+                        <button 
                             type="button"
                             class="btn btn-sm"
-                            data-action="void-invoice"
+                            data-actions="void-invoice"
                             data-id="${escapeHtml(id)}"
                         >
-                            Void
+                            Void 
                         </button>
                     `);
                 }
 
-                if (
-                    Number(
-                        invoice.amount_paid ??
-                        invoice.paid_amount ??
-                        0
-                    ) > 0
-                ) {
+                if (Number(invoice.amount_paid ?? invoice.paid_amount ?? 0) > 0) {
                     statusActions.push(`
-                        <button
+                        <button 
                             type="button"
                             class="btn btn-sm"
                             data-action="refund-invoice"
                             data-id="${escapeHtml(id)}"
                         >
-                            Refund
+                            Refund 
                         </button>
                     `);
                 }
 
                 statusActions.push(`
-                    <button
+                    <button 
                         type="button"
                         class="btn btn-sm btn-danger"
                         data-action="delete-invoice"
-                        data-id="${escapeHtml(id)}"
+                        data-id=${escapeHtml(id)}"
                     >
-                        Delete
+                        Delete 
                     </button>
                 `);
 
@@ -1552,55 +1431,55 @@
                         <td>
                             ${escapeHtml(getInvoiceNumber(invoice))}
                         </td>
-
+                        
                         <td>
                             ${escapeHtml(getPatientName(invoice))}
                         </td>
-
+                        
                         <td>
                             ${escapeHtml(
-                                invoice.invoice_type
-                                    ? capitalize(invoice.invoice_type)
-                                    : '—'
+                                invoice.invoice_type 
+                                    ?  capitalize(invoice.invoice_type)
+                                    : '-'
                             )}
                         </td>
-
+                        
                         <td>
                             ${formatDate(
                                 invoice.invoice_date ??
-                                invoice.date
+                                invoice.date 
                             )}
                         </td>
-
+                        
                         <td>
                             ${formatDate(invoice.due_date)}
                         </td>
-
+                        
                         <td>
                             ${formatCurrency(
                                 total,
                                 invoice.currency || 'USD'
                             )}
                         </td>
-
+                        
                         <td>
                             ${formatCurrency(
                                 Number(
-                                    invoice.amount_paid ??
+                                    invoice.amount_paid ?? 
                                     invoice.paid_amount ??
                                     0
                                 ),
                                 invoice.currency || 'USD'
                             )}
                         </td>
-
+                        
                         <td>
                             ${formatCurrency(
                                 balance,
                                 invoice.currency || 'USD'
                             )}
                         </td>
-
+                        
                         <td>
                             <span class="status-badge ${getStatusClass(invoiceStatus)}">
                                 ${escapeHtml(
@@ -1608,7 +1487,7 @@
                                 )}
                             </span>
                         </td>
-
+                        
                         <td>
                             <span class="status-badge ${getPaymentStatusClass(paymentStatus)}">
                                 ${escapeHtml(
@@ -1616,22 +1495,21 @@
                                 )}
                             </span>
                         </td>
-
+                        
                         <td>
                             ${escapeHtml(
                                 capitalize(
-                                    invoice.payment_method || '—'
+                                    invoice.payment_method || '-'
                                 )
                             )}
                         </td>
-
+                        
                         <td class="table-actions">
                             ${statusActions.join('')}
                         </td>
                     </tr>
                 `;
-            })
-            .join('');
+            }).join('');
     }
 
     function renderPagination(
@@ -1640,7 +1518,7 @@
         limit = state.perPage,
         selector = '#billingPagination'
     ) {
-        const container = getElement(selector);
+        const container = getElement(selector); 
 
         if (!container) {
             return;
@@ -1656,16 +1534,16 @@
             return;
         }
 
-        const buttons = [];
+        const button = [];
 
-        buttons.push(`
-            <button
+        button.push(`
+            <button 
                 type="button"
                 class="pagination-btn"
-                data-page="${page - 1}"
+                data-pass="${page - 1}"
                 ${page <= 1 ? 'disabled' : ''}
             >
-                Previous
+                Previous 
             </button>
         `);
 
@@ -1681,19 +1559,16 @@
             startPage + maxVisiblePages - 1
         );
 
-        if (
-            endPage - startPage + 1 <
-            maxVisiblePages
-        ) {
+        if (endPage - startPage + 1 < maxVisiblePages) {
             startPage = Math.max(
                 1,
-                endPage - maxVisiblePages + 1
-            );
+                endPage - maxVisiblePages + 1 
+            ); 
         }
 
         if (startPage > 1) {
-            buttons.push(`
-                <button
+            button.push(`
+                <button 
                     type="button"
                     class="pagination-btn"
                     data-page="1"
@@ -1703,16 +1578,16 @@
             `);
 
             if (startPage > 2) {
-                buttons.push(`
+                button.push(`
                     <span class="pagination-ellipsis">
-                        …
+                        ...
                     </span>
                 `);
             }
         }
 
         for (let i = startPage; i <= endPage; i += 1) {
-            buttons.push(`
+            button.push(`
                 <button
                     type="button"
                     class="pagination-btn ${i === page ? 'active' : ''}"
@@ -1725,16 +1600,16 @@
         }
 
         if (endPage < totalPages) {
-            if (endPage < totalPages - 1) {
-                buttons.push(`
+            if (endPage < totalPages -1) {
+                button.push(`
                     <span class="pagination-ellipsis">
-                        …
+                        ...
                     </span>
                 `);
             }
 
-            buttons.push(`
-                <button
+            button.push(`
+                <button 
                     type="button"
                     class="pagination-btn"
                     data-page="${totalPages}"
@@ -1744,24 +1619,21 @@
             `);
         }
 
-        buttons.push(`
+        button.push(`
             <button
                 type="button"
                 class="pagination-btn"
                 data-page="${page + 1}"
                 ${page >= totalPages ? 'disabled' : ''}
             >
-                Next
+                Next 
             </button>
         `);
 
         container.innerHTML = buttons.join('');
     }
 
-    /* -----------------------------------------------------------
-     * Details
-     * --------------------------------------------------------- */
-
+    /* Details */
     async function showDetails(
         id,
         containerSelector = '#billingDetails'
@@ -1781,12 +1653,12 @@
                 invoice.paid_amount ??
                 0
             );
+
             const balance = getInvoiceBalance(invoice);
 
             container.innerHTML = `
                 <div class="billing-details">
-
-                    <div class="detail-row">
+                    <div class="detail-row"
                         <strong>Invoice Number:</strong>
                         <span>
                             ${escapeHtml(
@@ -1794,7 +1666,7 @@
                             )}
                         </span>
                     </div>
-
+                    
                     <div class="detail-row">
                         <strong>Patient:</strong>
                         <span>
@@ -1802,8 +1674,8 @@
                                 getPatientName(invoice)
                             )}
                         </span>
-                    </div>
-
+                    </span>
+                    
                     <div class="detail-row">
                         <strong>Invoice Type:</strong>
                         <span>
@@ -1814,24 +1686,25 @@
                             )}
                         </span>
                     </div>
-
+                    
                     <div class="detail-row">
                         <strong>Invoice Date:</strong>
                         <span>
-                            ${formatDate(
-                                invoice.invoice_date ??
-                                invoice.date
+                            ${escapeHtml(
+                                capitalize(
+                                    invoice.invoice_type || 'Standard'
+                                )
                             )}
                         </span>
                     </div>
-
+                    
                     <div class="detail-row">
-                        <strong>Due Date:</strong>
+                        <strong>Invoice Date:</strong>
                         <span>
                             ${formatDate(invoice.due_date)}
                         </span>
                     </div>
-
+                    
                     <div class="detail-row">
                         <strong>Subtotal:</strong>
                         <span>
@@ -1841,9 +1714,9 @@
                             )}
                         </span>
                     </div>
-
+                    
                     <div class="detail-row">
-                        <strong>Discount:</strong>
+                        <strong>Discount</strong>
                         <span>
                             ${formatCurrency(
                                 Number(
@@ -1855,21 +1728,22 @@
                             )}
                         </span>
                     </div>
-
+                    
                     <div class="detail-row">
                         <strong>Tax:</strong>
                         <span>
                             ${formatCurrency(
                                 Number(
-                                    invoice.tax_amount ??
+                                    invoice.tax-amount ??
                                     invoice.tax ??
                                     0
                                 ),
-                                invoice.currency || 'USD'
+                                invoice.currency || 'SD'
                             )}
                         </span>
                     </div>
-
+                
+                    
                     <div class="detail-row">
                         <strong>Total:</strong>
                         <span>
@@ -1879,7 +1753,7 @@
                             )}
                         </span>
                     </div>
-
+                    
                     <div class="detail-row">
                         <strong>Paid:</strong>
                         <span>
@@ -1888,8 +1762,8 @@
                                 invoice.currency || 'USD'
                             )}
                         </span>
-                    </div>
-
+                    /div>
+                    
                     <div class="detail-row">
                         <strong>Balance:</strong>
                         <span>
@@ -1899,7 +1773,7 @@
                             )}
                         </span>
                     </div>
-
+                    
                     <div class="detail-row">
                         <strong>Status:</strong>
                         <span class="status-badge ${getStatusClass(
@@ -1907,13 +1781,13 @@
                         )}">
                             ${escapeHtml(
                                 capitalize(
-                                    getInvoiceStatus(invoice) ||
+                                    getInvoiceStatus(invoice) || 
                                     'Unknown'
                                 )
                             )}
                         </span>
                     </div>
-
+                    
                     <div class="detail-row">
                         <strong>Payment Status:</strong>
                         <span class="status-badge ${getPaymentStatusClass(
@@ -1927,88 +1801,88 @@
                             )}
                         </span>
                     </div>
-
+                    
                     <div class="detail-row">
                         <strong>Payment Method:</strong>
                         <span>
                             ${escapeHtml(
                                 capitalize(
-                                    invoice.payment_method || '—'
+                                    invoice.payment_method || '-'
                                 )
                             )}
                         </span>
                     </div>
-
+                    
                     <div class="detail-row">
                         <strong>Insurance Provider:</strong>
                         <span>
                             ${escapeHtml(
-                                invoice.insurance_provider || '—'
+                                invoice.insurance_provider || '-'
                             )}
                         </span>
                     </div>
-
+                    
                     <div class="detail-row">
                         <strong>Insurance Member ID:</strong>
                         <span>
                             ${escapeHtml(
-                                invoice.insurance_member_id || '—'
+                                invoice.insurance_member_id || '_'
                             )}
                         </span>
-                    </div>
-
+                    <div>
+                    
                     <div class="detail-row">
                         <strong>Insurance Claim Number:</strong>
                         <span>
                             ${escapeHtml(
-                                invoice.insurance_claim_number || '—'
+                                invoice.insurance_claim_number || '-'
                             )}
                         </span>
                     </div>
-
+                    
                     <div class="detail-row">
                         <strong>Description:</strong>
                         <span>
                             ${escapeHtml(
-                                invoice.description || '—'
+                                invoice.description || '-'
                             )}
                         </span>
                     </div>
-
+                    
                     <div class="detail-row">
                         <strong>Notes:</strong>
                         <span>
                             ${escapeHtml(
-                                invoice.notes || '—'
+                                invoice.note || '-'
                             )}
                         </span>
                     </div>
-
+                    
                     <div class="detail-row">
                         <strong>Created:</strong>
                         <span>
                             ${formatDateTime(
-                                invoice.created_at
+                                invoice.created-at 
                             )}
                         </span>
                     </div>
-
+                    
                     <div class="detail-row">
                         <strong>Updated:</strong>
                         <span>
-                            ${formatDateTime(
-                                invoice.updated_at
+                            ${formatCurrency(
+                                invoice.updated_at 
                             )}
                         </span>
-                    </div>
-
+                    </div>    
+                    
                     ${
-                        Array.isArray(invoice.items) &&
+                        Array.isArray(invoice.items) && 
                         invoice.items.length
                             ? `
                                 <div class="billing-items">
                                     <h4>Invoice Items</h4>
-
+                                    
                                     <table class="table">
                                         <thead>
                                             <tr>
@@ -2018,72 +1892,62 @@
                                                 <th>Total</th>
                                             </tr>
                                         </thead>
-
+                                        
                                         <tbody>
                                             ${invoice.items
                                                 .map(item => {
-                                                    const quantity =
+                                                    const quantity = 
                                                         Number(
                                                             item.quantity || 1
                                                         );
 
-                                                    const unitPrice =
+                                                    const unitPrice = 
                                                         Number(
-                                                            item.unit_price ??
+                                                            item.unit_price ?? 
                                                             item.price ??
                                                             0
                                                         );
 
-                                                    const itemTotal =
+                                                    const itemTotal = 
                                                         Number(
-                                                            item.total ??
-                                                            item.amount ??
+                                                            item.total ?? 
+                                                            item.amount ?? 
                                                             quantity *
-                                                                unitPrice
+                                                                unitPrice 
                                                         );
-
                                                     return `
                                                         <tr>
                                                             <td>
                                                                 ${escapeHtml(
                                                                     item.description ??
                                                                     item.name ??
-                                                                    '—'
+                                                                    '-'
                                                                 )}
                                                             </td>
-
+                                                            
                                                             <td>
                                                                 ${escapeHtml(
                                                                     quantity
                                                                 )}
                                                             </td>
-
+                                                            
                                                             <td>
                                                                 ${formatCurrency(
                                                                     unitPrice,
                                                                     invoice.currency ||
                                                                         'USD'
                                                                 )}
-                                                            </td>
-
-                                                            <td>
-                                                                ${formatCurrency(
-                                                                    itemTotal,
-                                                                    invoice.currency ||
-                                                                        'USD'
-                                                                )}
-                                                            </td>
+                                                            </td> 
                                                         </tr>
                                                     `;
                                                 })
-                                                .join('')}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            `
-                            : ''
+                                        .join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        `
+                        : ''
                     }
-
                 </div>
             `;
 
@@ -2092,13 +1956,13 @@
             return invoice;
         } catch (error) {
             console.error(
-                'Billing details error:',
-                error
+                'Billing detail error:',
+                error 
             );
 
             showMessage(
-                error.message ||
-                    'Unable to load invoice details.',
+                error.message || 
+                    'Unable to load invoice detail.',
                 'error'
             );
 
@@ -2148,7 +2012,7 @@
 
         fields.forEach(field => {
             const input = form.querySelector(
-                `[name="${field}"]`
+                `[name="${field}]`
             );
 
             if (!input) {
@@ -2157,24 +2021,15 @@
 
             let value = invoice[field];
 
-            if (
-                value === undefined &&
-                field === 'id'
-            ) {
+            if (value === undefined && field === 'id') {
                 value = getInvoiceId(invoice);
             }
 
-            if (
-                value === undefined &&
-                field === 'invoice_id'
-            ) {
+            if (value === undefined && field === 'invoice_id') {
                 value = getInvoiceId(invoice);
             }
 
-            if (
-                value === undefined ||
-                value === null
-            ) {
+            if (value === undefined || value === null) {
                 value = '';
             }
 
@@ -2186,21 +2041,17 @@
         );
 
         if (itemsInput) {
-            itemsInput.value =
+            itemsInput.value = 
                 Array.isArray(invoice.items)
                     ? JSON.stringify(invoice.items)
                     : '';
         }
-
+        
         form.dataset.id = getInvoiceId(invoice) || '';
-
         return invoice;
     }
 
-    /* -----------------------------------------------------------
-     * Event handling
-     * --------------------------------------------------------- */
-
+    /* Event handling */  
     function handleTableAction(action, id) {
         if (!id) {
             return;
@@ -2208,7 +2059,7 @@
 
         switch (action) {
             case 'view-invoice':
-                showDetails(id);
+                showDetails(id)
                 break;
 
             case 'edit-invoice':
@@ -2232,7 +2083,7 @@
                 voidWithConfirmation(id)
                     .catch(console.error);
                 break;
-
+            
             case 'refund-invoice':
                 refundWithConfirmation(id)
                     .catch(console.error);
@@ -2248,69 +2099,57 @@
         }
     }
 
-    function bindEvents() {
-        const tableBody =
-            getElement('#billingTableBody');
+    function bindEvent() {
+        const tableBody = getElement('#billingTableBody');
 
         if (tableBody) {
             tableBody.addEventListener(
                 'click',
                 event => {
-                    const button =
+                    const button = 
                         event.target.closest(
-                            '[data-action]'
+                            '[data-action'
                         );
-
+                    
                     if (!button) {
                         return;
                     }
 
-                    const action =
-                        button.dataset.action;
-
-                    const id =
-                        button.dataset.id;
+                    const action = button.dataset.action;
+                    const id = button.dataset.id;
 
                     handleTableAction(
                         action,
-                        id
-                    );
+                        id 
+                    ); 
                 }
             );
         }
 
-        const pagination =
-            getElement('#billingPagination');
+        const pagination = getElement('#billingPagination');
 
         if (pagination) {
             pagination.addEventListener(
                 'click',
                 event => {
-                    const button =
-                        event.target.closest(
-                            '[data-page]'
-                        );
+                    const button = event.target.closest('[data-page]');
 
                     if (!button || button.disabled) {
                         return;
                     }
 
-                    const page =
-                        Number(button.dataset.page);
+                    const page = Number(button.dataset.page);
 
                     if (page) {
-                        goToPage(page)
-                            .catch(console.error);
+                        goToPage(page).catch(console.error);
                     }
                 }
             );
         }
 
-        const searchInput =
-            getElement('#billingSearch');
+        const searchInput = getElement('#billingSearch');
 
-        const searchButton =
-            getElement('#searchBilling');
+        const searchButton = getElement('#searchBilling');
 
         if (searchButton) {
             searchButton.addEventListener(
@@ -2338,8 +2177,7 @@
             );
         }
 
-        const filterButton =
-            getElement('#applyBillingFilters');
+        const filterButton = getElement('#applyBillingFilters');
 
         if (filterButton) {
             filterButton.addEventListener(
@@ -2347,90 +2185,67 @@
                 () => {
                     filter({
                         patient_id: getValue(
-                            getElement(
-                                '#billingPatientFilter'
-                            )
+                            getElement('#billingPatientFilter')
                         ),
 
                         appointment_id: getValue(
-                            getElement(
-                                '#billingAppointmentFilter'
-                            )
+                            getElement('#billingAppointmentFilter')
                         ),
 
                         invoice_type: getValue(
-                            getElement(
-                                '#billingInvoiceTypeFilter'
-                            )
+                            getElement('#billingInvoiceTypeFilter')
                         ),
 
                         status: getValue(
-                            getElement(
-                                '#billingStatusFilter'
-                            )
+                            getElement('#billingStatusFilter')
                         ),
 
                         payment_status: getValue(
-                            getElement(
-                                '#billingPaymentStatusFilter'
-                            )
+                            getElement('#billingPaymentStatusFilter')
                         ),
 
                         payment_method: getValue(
-                            getElement(
-                                '#billingPaymentMethodFilter'
-                            )
+                            getElement('#billingPaymentMethodFilter')
                         ),
 
                         date_from: getValue(
-                            getElement(
-                                '#billingDateFrom'
-                            )
+                            getElement('#billingDateFrom')
                         ),
 
                         date_to: getValue(
-                            getElement(
-                                '#billingDateTo'
-                            )
+                            getElement('#billingDateTo')
                         )
                     }).catch(console.error);
                 }
             );
         }
 
-        const clearButton =
-            getElement('#clearBillingFilters');
+        const clearButton = getElement('#clearBillingFilters');
 
         if (clearButton) {
             clearButton.addEventListener(
                 'click',
                 () => {
-                    clearFilters()
-                        .catch(console.error);
+                    clearFilters().catch(console.error);
                 }
             );
         }
 
-        const perPage =
-            getElement('#billingPerPage');
+        const perPage = getElement('#billingPerPage');
 
         if (perPage) {
             perPage.addEventListener(
-                'change',
+                'click',
                 () => {
-                    const value =
-                        Number(perPage.value);
+                    const value = Number(perPage.value);
 
-                    if (
-                        Number.isInteger(value) &&
-                        value > 0
-                    ) {
+                    if (Number.isInteger(value) && value > 0)  {
                         state.perPage = value;
                         state.currentPage = 1;
 
                         list({
                             page: 1,
-                            limit: value
+                            limit: value 
                         }).catch(console.error);
                     }
                 }
@@ -2440,7 +2255,7 @@
         const createForms = [
             '#billingForm',
             '#createBillingForm',
-            '#createInvoiceForm'
+            '#createInvoiceForm',
         ];
 
         createForms.forEach(selector => {
@@ -2455,13 +2270,13 @@
                 event => {
                     event.preventDefault();
 
-                    submitCreateForm(form)
-                        .then(() => {
-                            form.reset();
+                    submitCreateForm(form).
+                        then(() => {
+                            form.reset()
                         })
                         .catch(error => {
                             console.error(error);
-                        });
+                        })
                 }
             );
         });
@@ -2492,27 +2307,18 @@
         });
     }
 
-    /* -----------------------------------------------------------
-     * Initialization
-     * --------------------------------------------------------- */
-
+    /* Initialization */
     async function init(options = {}) {
-        bindEvents();
+        bindEvent();
 
-        if (
-            options.autoLoad === false ||
-            document.body?.dataset.billingAutoLoad === 'false'
-        ) {
+        if (options.autoLoad === false || document.body?.dataset.billingAutoLoad === 'false') {
             return;
         }
 
         return list();
     }
 
-    /* -----------------------------------------------------------
-     * Public API
-     * --------------------------------------------------------- */
-
+    /* Public API */
     const Billing = {
         state,
         endpoints,
@@ -2558,20 +2364,19 @@
         loadInvoiceIntoForm,
 
         init
+
     };
 
     window.Billing = Billing;
 
-    if (
-        document.readyState === 'loading'
-    ) {
+    if (document.readyState === 'loading') {
         document.addEventListener(
             'DOMContentLoaded',
             () => {
                 init().catch(error => {
                     console.error(
                         'Billing initialization error:',
-                        error
+                        error 
                     );
                 });
             }
@@ -2580,23 +2385,9 @@
         init().catch(error => {
             console.error(
                 'Billing initialization error:',
-                error
+                error 
             );
         });
     }
-})();
-| Operation | Frontend method | PHP endpoint |
-|---|---|---|
-| List invoices | `Billing.list()` | `/billing/list.php` |
-| Get invoice | `Billing.get(id)` | `/billing/get.php` |
-| Create | `Billing.create(data)` | `/billing/create.php` |
-| Update | `Billing.update(id, data)` | `/billing/update.php` |
-| Delete | `Billing.remove(id)` | `/billing/delete.php` |
-| Issue invoice | `Billing.issue(id)` | `/billing/issue.php` |
-| Record payment | `Billing.pay(data)` | `/billing/pay.php` |
-| Void invoice | `Billing.voidInvoice(data)` | `/billing/void.php` |
-| Refund | `Billing.refund(data)` | `/billing/refund.php` |
-| Search | `Billing.search(term)` | `/billing/list.php` |
-| Filter | `Billing.filter(filters)` | `/billing/list.php` |
 
-
+})
